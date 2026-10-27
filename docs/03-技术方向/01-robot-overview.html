@@ -330,6 +330,16 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
       </ul>
       <p class="prose">完整的通信链路、比赛流程和断线排查，见<a href="04-wireless-field.html">《无线通信与场地系统》</a>。</p>
 
+      <h3>数据总线 CAN</h3>
+      <p class="prose">如果说电台是机器人对外的通道，<strong>CAN 总线</strong>就是机器人内部的"神经网络"。主控制器通过它向所有电机控制器、气动模块发指令，也通过它读回电机转速、编码器角度、陀螺仪朝向和配电板电流。</p>
+      <ul class="prose">
+        <li><strong>两根线串起所有设备</strong>：黄色的 CAN-H 和绿色的 CAN-L 绞在一起，从主控制器出发，依次经过每个设备，链的两端各接一个 120 Ω 终端电阻</li>
+        <li><strong>双向通信</strong>：和老式的 PWM 信号线不同，CAN 既能发指令，也能读回数据、远程修改设备配置</li>
+        <li><strong>每个设备有唯一 ID</strong>：程序靠 ID 找到对应的电机或传感器，同类设备的 ID 不能重复</li>
+        <li><strong>一处断，下游全断</strong>：链中间一个接头松了，后面的设备全部失联，所以接线必须牢靠。SystemCore 有 5 路 CAN-FD 总线，可以把底盘和机构分开，降低一处故障的影响</li>
+      </ul>
+      <p class="prose">原理、接线规范、总线负载和故障排查，见<a href="07-can-bus.html">《CAN 数据总线》</a>。</p>
+
     </section>
 
     <section id="sensors">
@@ -359,7 +369,7 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
         <li><strong>道具管理</strong>：光电或距离传感器判断道具进来没有、有几个，程序据此自动停止取件或准备发射</li>
         <li><strong>故障诊断</strong>：电流突然升高往往意味着机构卡住，程序可以自动停机保护电机</li>
       </ul>
-      <p class="prose">传感器接到 SystemCore 的哪个接口（CAN、SmartIO、I2C、USB、以太网），详见<a href="02-systemcore.html#ports">《SystemCore 主控制器》的接口一览</a>。</p>
+      <p class="prose">传感器接到 SystemCore 的哪个接口（CAN、SmartIO、I2C、USB、以太网），详见<a href="02-systemcore.html#ports">《SystemCore 主控制器》的接口一览</a>；各类传感器和视觉定位的详细介绍，见<a href="08-sensors-vision.html">《传感器与视觉》</a>。</p>
     </section>
 
     <section id="drive">
@@ -414,7 +424,7 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
         <li><strong>型材和板材</strong>：铝方管（常见 2×1 英寸、1×1 英寸，1/8 或 1/16 英寸壁厚）、铝板、聚碳酸酯板</li>
         <li><strong>传动件</strong>：1/2 英寸和 3/8 英寸六角轴、轴承、齿轮、同步带（HTD）、链条（#25、#35）、减速箱</li>
         <li><strong>常见供应商</strong>：WCP（West Coast Products）、REV Robotics、AndyMark、The Thrifty Bot、SDS、VEX Robotics、CTRE</li>
-        <li><strong>定制件</strong>：在 CAD 里设计，再用 CNC 雕刻机、3D 打印、激光切割或手工加工。设计工具首选 Onshape，对 FRC 队伍免费</li>
+        <li><strong>定制件</strong>：在 CAD 里设计，再用 CNC 雕刻机、3D 打印、激光切割或手工加工。设计工具首选 Onshape，对 FRC 队伍免费。CAD 软件选择和设计流程见<a href="09-mechanical-design.html">《机械设计与 CAD》</a></li>
       </ul>
       <div class="note">
         <span class="label">规则红线</span>
@@ -485,12 +495,14 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
         <li><span class="n">04</span><span><b><a href="04-wireless-field.html">无线通信与场地系统</a></b><span class="d">机器人电台 VH-109、场地管理系统 FMS、比赛中的通信和急停、赛前配置电台</span></span><span class="tag done">已完成</span></li>
         <li><span class="n">05</span><span><b><a href="05-closed-loop-pid.html">闭环控制与 PID</a></b><span class="d">负反馈闭环、PID 三项、前馈、运动曲线、PID 跑在哪里、调参流程</span></span><span class="tag done">已完成</span></li>
         <li><span class="n">06</span><span><b><a href="06-motors.html">电机与电机控制器</a></b><span class="d">常见电机和控制器对比、特性曲线与减速比、CAN 配置、电流限制</span></span><span class="tag done">已完成</span></li>
-        <li><span class="n">07</span><span><b>传感器与视觉</b><span class="d">编码器、IMU、限位开关，AprilTag 定位，Limelight 与 PhotonVision</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">08</span><span><b>底盘与 Swerve</b><span class="d">底盘选型、swerve 原理、里程计与场上定位</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">09</span><span><b>机械机构设计</b><span class="d">取件、升降、手臂、发射、攀爬的典型设计和计算</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">10</span><span><b>电气接线与布线</b><span class="d">电源和 CAN 布线、做线工具、检录要求、故障排查</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">11</span><span><b>程序架构</b><span class="d">Command-based 框架、子系统划分、代码组织和 Git</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">12</span><span><b>自动程序与路径规划</b><span class="d">自动阶段设计、PathPlanner、轨迹跟随</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">07</span><span><b><a href="07-can-bus.html">CAN 数据总线</a></b><span class="d">CAN 原理、CAN 2.0 与 CAN FD、设备 ID、接线与终端电阻、总线负载、故障排查</span></span><span class="tag done">已完成</span></li>
+        <li><span class="n">08</span><span><b><a href="08-sensors-vision.html">传感器与视觉</a></b><span class="d">编码器、IMU、开关与距离传感器，AprilTag 视觉，里程计与视觉融合定位</span></span><span class="tag done">已完成</span></li>
+        <li><span class="n">09</span><span><b><a href="09-mechanical-design.html">机械设计与 CAD</a></b><span class="d">CAD 软件选择（赞助商免费软件与开源软件）、设计流程、标准件、加工文件、设计评审</span></span><span class="tag done">已完成</span></li>
+        <li><span class="n">10</span><span><b>底盘与 Swerve</b><span class="d">底盘选型、swerve 原理、运动学、以场地为参照的驾驶</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">11</span><span><b>机构设计实例</b><span class="d">取件、升降、手臂、发射、攀爬的典型设计和计算</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">12</span><span><b>电气接线与布线</b><span class="d">电源布线、做线工具、检录要求、整车故障排查</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">13</span><span><b>程序架构</b><span class="d">Command-based 框架、子系统划分、代码组织和 Git</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">14</span><span><b>自动程序与路径规划</b><span class="d">自动阶段设计、PathPlanner、轨迹跟随</span></span><span class="tag misc">计划中</span></li>
       </ul>
     </section>
 

@@ -1,0 +1,388 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CAN 数据总线</title>
+<meta name="nav-title" content="CAN 数据总线">
+<meta name="description" content="FRC 机器人的神经网络：CAN 总线是什么、为什么用它，CAN 2.0 与 CAN FD，设备 ID、接线与终端电阻、总线负载，以及断线排查。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts; one diagram contrasts a healthy bus with the same bus after a single break.
+   Diagram colors: blue = controller, teal = healthy device, red = device cut off, amber = terminating resistor. CAN wire colors follow FRC convention (yellow high, green low). */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --red: #c42a2a;
+  --red-soft: #fbe7e6;
+  --can-h: #c9a400;
+  --can-l: #2e8b3e;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --red: #ff8a80; --red-soft: #3a1e20;
+    --can-h: #f2d04a; --can-l: #6fd08a;
+    --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --red: #ff8a80; --red-soft: #3a1e20;
+  --can-h: #f2d04a; --can-l: #6fd08a;
+  --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -1px; margin-right: 4px; }
+.swatch.h { background: var(--can-h); }
+.swatch.l { background: var(--can-l); }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.tip { background: var(--blue-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.tip .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+.tip p:last-child, .tip ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+svg .b-ctrl { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.6; }
+svg .b-ok { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.4; }
+svg .b-lost { fill: var(--red-soft); stroke: var(--red); stroke-width: 1.4; stroke-dasharray: 5 3; }
+svg .b-term { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.4; }
+svg .canh { fill: none; stroke: var(--can-h); stroke-width: 3; }
+svg .canl { fill: none; stroke: var(--can-l); stroke-width: 3; }
+svg .cut { stroke: var(--red); stroke-width: 3; }
+svg .divider { stroke: var(--line); stroke-width: 1.2; }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12px; }
+svg .t-b { font-weight: 700; font-size: 13px; }
+svg .t-s { fill: var(--muted); font-size: 11px; }
+svg .t-m { fill: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+svg .t-title { font-weight: 700; font-size: 14px; }
+svg .t-red { fill: var(--red); font-size: 12px; font-weight: 500; }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step); font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--blue); width: 28px; height: 28px; border: 1.5px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.steps > li > div { min-width: 0; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps p { margin: 0; }
+
+.faq { max-width: 760px; margin: 0; }
+.faq dt { font-weight: 700; margin-top: 14px; }
+.faq dd { margin: 4px 0 0; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#what">CAN 是什么</a></li>
+      <li><a href="#why">为什么用 CAN</a></li>
+      <li><a href="#topology">总线拓扑</a></li>
+      <li><a href="#fd">CAN 2.0 与 CAN FD</a></li>
+      <li><a href="#ids">设备 ID</a></li>
+      <li><a href="#wiring">接线要点</a></li>
+      <li><a href="#load">总线负载</a></li>
+      <li><a href="#multi">多总线规划</a></li>
+      <li><a href="#troubleshoot">故障排查</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 技术方向</p>
+      <h1>CAN 数据总线</h1>
+      <p class="lede">CAN 总线是 FRC 机器人的"神经网络"：主控制器通过它指挥所有电机控制器，也通过它读回电机、编码器、陀螺仪和配电板的数据。它可靠、省线，但一个松动的接头也可能让半台机器人失灵。这一篇讲 CAN 的原理、接线规范和排查方法。</p>
+      <div class="meta"><span>资料整理于 2026 年 10 月</span><span>适用于 2027 赛季 SystemCore</span></div>
+    </header>
+
+    <section id="what">
+      <h2><span class="n">01</span>CAN 是什么</h2>
+      <p class="prose"><strong>CAN（Controller Area Network，控制器局域网）</strong>最早是为汽车设计的通信总线，现在的汽车里有几十个控制单元都靠它通信。它的特点：</p>
+      <ul class="prose">
+        <li><strong>两根线串起所有设备</strong>：<span class="swatch h"></span>CAN-H（FRC 惯例用黄色线）和 <span class="swatch l"></span>CAN-L（绿色线），绞在一起，从一个设备连到下一个设备</li>
+        <li><strong>广播式通信</strong>：任何设备发出的消息，总线上所有设备都能收到，每个设备只处理和自己有关的消息</li>
+        <li><strong>按优先级自动排队</strong>：几个设备同时发送时，消息 ID 越小优先级越高，高优先级的消息先发，不会互相冲突</li>
+        <li><strong>抗干扰强</strong>：两根线传的是一对相反的信号（差分信号），电机产生的电磁干扰会同时影响两根线，接收端相减就能抵消</li>
+      </ul>
+    </section>
+
+    <section id="why">
+      <h2><span class="n">02</span>为什么 FRC 用 CAN</h2>
+      <p class="prose">早年 FRC 的电机控制器多用 PWM 信号：每个控制器单独一根信号线接到主控制器，只能单向发送"转多快"。CAN 带来了几个关键变化：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th></th><th>PWM</th><th>CAN</th></tr></thead>
+          <tbody>
+            <tr><td class="k">接线</td><td>每个设备一根线，独占一个接口</td><td>一条总线串起几十个设备</td></tr>
+            <tr><td class="k">数据方向</td><td>单向：只能发指令</td><td>双向：发指令，也读回转速、位置、电流、温度、故障</td></tr>
+            <tr><td class="k">配置</td><td>基本不能配置</td><td>可以远程设置电流限制、PID 参数、反转等</td></tr>
+            <tr><td class="k">闭环</td><td>只能在主控制器上算</td><td>可以让电机控制器在内部跑闭环</td></tr>
+            <tr><td class="k">现状</td><td>2027 年起老式 PWM 控制器不再合规</td><td>FRC 的绝对主流</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">现在挂在 CAN 上的设备包括：电机控制器（Talon FX、SPARK 等）、配电板（PDH）、气动模块、CANcoder 编码器、Pigeon 2 陀螺仪、CANrange 等距离传感器。</p>
+    </section>
+
+    <section id="topology">
+      <h2><span class="n">03</span>总线拓扑：一条链，两端各一个终端电阻</h2>
+      <p class="prose">FRC 的 CAN 总线是<strong>菊花链</strong>：从主控制器出发，线依次穿过每个设备（进一组线、出一组线），最后到达链尾。链的两端各有一个 <strong>120 Ω 终端电阻</strong>，用来吸收信号反射，缺一个都可能导致通信失败。</p>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 900 330" role="img" aria-label="CAN 总线拓扑对比。上图：主控制器一端有终端电阻，总线依次经过四个电机控制器和一个 CANcoder，链尾的配电板带第二个终端电阻，所有设备正常。下图：同一条总线在第二个电机控制器之后断开，断点之后的设备全部失联，链尾的终端电阻也随之脱离，断点之前的总线因为只剩一个终端电阻，通信也可能出错。">
+            <text class="t-title" x="16" y="26">正常：链两端各一个终端电阻</text>
+
+            <line class="canh" x1="120" y1="78" x2="830" y2="78"/>
+            <line class="canl" x1="120" y1="88" x2="830" y2="88"/>
+
+            <rect class="b-ctrl" x="16" y="52" width="110" height="60" rx="6"/>
+            <text class="t-b" x="71" y="78" text-anchor="middle">SystemCore</text>
+            <text class="t-s" x="71" y="96" text-anchor="middle">CAN 口</text>
+            <rect class="b-term" x="40" y="118" width="62" height="22" rx="4"/>
+            <text class="t-m" x="71" y="133" text-anchor="middle">120 Ω</text>
+
+            <rect class="b-ok" x="166" y="56" width="100" height="52" rx="6"/>
+            <text class="t-b" x="216" y="78" text-anchor="middle">电机控制器</text>
+            <text class="t-m" x="216" y="96" text-anchor="middle">ID 1</text>
+            <rect class="b-ok" x="296" y="56" width="100" height="52" rx="6"/>
+            <text class="t-b" x="346" y="78" text-anchor="middle">电机控制器</text>
+            <text class="t-m" x="346" y="96" text-anchor="middle">ID 2</text>
+            <rect class="b-ok" x="426" y="56" width="100" height="52" rx="6"/>
+            <text class="t-b" x="476" y="78" text-anchor="middle">电机控制器</text>
+            <text class="t-m" x="476" y="96" text-anchor="middle">ID 3</text>
+            <rect class="b-ok" x="556" y="56" width="100" height="52" rx="6"/>
+            <text class="t-b" x="606" y="78" text-anchor="middle">CANcoder</text>
+            <text class="t-m" x="606" y="96" text-anchor="middle">ID 1</text>
+            <rect class="b-ok" x="700" y="52" width="130" height="60" rx="6"/>
+            <text class="t-b" x="765" y="78" text-anchor="middle">配电板 PDH</text>
+            <text class="t-s" x="765" y="96" text-anchor="middle">链尾</text>
+            <rect class="b-term" x="734" y="118" width="62" height="22" rx="4"/>
+            <text class="t-m" x="765" y="133" text-anchor="middle">120 Ω</text>
+
+            <line class="divider" x1="16" y1="164" x2="884" y2="164"/>
+
+            <text class="t-title" x="16" y="192">一个接头松脱之后</text>
+
+            <line class="canh" x1="120" y1="244" x2="400" y2="244"/>
+            <line class="canl" x1="120" y1="254" x2="400" y2="254"/>
+            <line class="canh" x1="452" y1="244" x2="830" y2="244"/>
+            <line class="canl" x1="452" y1="254" x2="830" y2="254"/>
+            <line class="cut" x1="412" y1="232" x2="440" y2="266"/>
+            <line class="cut" x1="440" y1="232" x2="412" y2="266"/>
+            <text class="t-red" x="426" y="226" text-anchor="middle">断点</text>
+
+            <rect class="b-ctrl" x="16" y="218" width="110" height="60" rx="6"/>
+            <text class="t-b" x="71" y="244" text-anchor="middle">SystemCore</text>
+            <text class="t-s" x="71" y="262" text-anchor="middle">CAN 口</text>
+            <rect class="b-term" x="40" y="284" width="62" height="22" rx="4"/>
+            <text class="t-m" x="71" y="299" text-anchor="middle">120 Ω</text>
+
+            <rect class="b-ok" x="166" y="222" width="100" height="52" rx="6"/>
+            <text class="t-b" x="216" y="244" text-anchor="middle">电机控制器</text>
+            <text class="t-m" x="216" y="262" text-anchor="middle">ID 1</text>
+            <rect class="b-ok" x="296" y="222" width="100" height="52" rx="6"/>
+            <text class="t-b" x="346" y="244" text-anchor="middle">电机控制器</text>
+            <text class="t-m" x="346" y="262" text-anchor="middle">ID 2</text>
+            <rect class="b-lost" x="466" y="222" width="100" height="52" rx="6"/>
+            <text class="t-b" x="516" y="244" text-anchor="middle">电机控制器</text>
+            <text class="t-m" x="516" y="262" text-anchor="middle">ID 3 · 失联</text>
+            <rect class="b-lost" x="584" y="222" width="100" height="52" rx="6"/>
+            <text class="t-b" x="634" y="244" text-anchor="middle">CANcoder</text>
+            <text class="t-m" x="634" y="262" text-anchor="middle">ID 1 · 失联</text>
+            <rect class="b-lost" x="700" y="218" width="130" height="60" rx="6"/>
+            <text class="t-b" x="765" y="244" text-anchor="middle">配电板 PDH</text>
+            <text class="t-s" x="765" y="262" text-anchor="middle">失联</text>
+            <rect class="b-term" x="734" y="284" width="62" height="22" rx="4"/>
+            <text class="t-m" x="765" y="299" text-anchor="middle">120 Ω</text>
+            <text class="t-red" x="16" y="324">断点之后的设备全部失联；前半段只剩一个终端电阻，通信也可能出错</text>
+          </svg>
+        </div>
+        <figcaption>菊花链的好处是接线简单，代价是"一处断，处处受影响"。这就是为什么 CAN 接头必须牢靠，也是为什么 SystemCore 提供 5 路总线：把设备分到几条链上，一处故障只影响一部分机构。</figcaption>
+      </figure>
+      <ul class="prose">
+        <li><strong>不要做星形或长分支</strong>：从总线上拉出很长的支线接设备，会造成信号反射。设备应当"串"在链上</li>
+        <li><strong>终端电阻在哪里</strong>：很多设备内置可开关的终端电阻，比如 REV PDH 的终端电阻开关、CTRE CANivore 可在软件里开关。主控制器一端是否内置终端，请以 SystemCore 的官方说明为准</li>
+      </ul>
+    </section>
+
+    <section id="fd">
+      <h2><span class="n">04</span>CAN 2.0 与 CAN FD</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th></th><th>CAN 2.0（经典 CAN）</th><th>CAN FD</th></tr></thead>
+          <tbody>
+            <tr><td class="k">速率</td><td>FRC 中为 1 Mbps</td><td>数据部分可以切换到更高速率（标准最高约 10 Mbps）</td></tr>
+            <tr><td class="k">每帧数据量</td><td>最多 8 字节</td><td>最多 64 字节</td></tr>
+            <tr><td class="k">FRC 中的位置</td><td>roboRIO 自带 1 路</td><td>SystemCore 自带 5 路；roboRIO 时代要外接 CTRE CANivore 才有</td></tr>
+            <tr><td class="k">效果</td><td>设备一多，总线容易拥挤</td><td>同样的数据占用更少的总线时间。CTRE 的测试中，一条在经典 CAN 上占用 80% 的总线，换到 CAN FD 后约为 35%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">CAN FD 兼容经典 CAN 设备，但一条总线上只要有经典 CAN 设备，整条总线就只能以经典模式运行。所以规划时，最好把支持 CAN FD 的设备（比如 CTRE 的 Talon FX、CANcoder、Pigeon 2）放在同一条总线上。</p>
+    </section>
+
+    <section id="ids">
+      <h2><span class="n">05</span>设备 ID</h2>
+      <p class="prose">总线上每个设备都由"<strong>厂商 + 设备类型 + 设备编号</strong>"唯一确定。设备编号（CAN ID）由队伍自己设置，通常范围是 0–62：</p>
+      <ul class="prose">
+        <li><strong>同一类型的设备 ID 不能重复</strong>：两个 Talon FX 都是 ID 1 会冲突；但一个 Talon FX 和一个 CANcoder 都是 ID 1 没问题</li>
+        <li><strong>新设备出厂 ID 通常相同</strong>：每次只接一个新设备上总线，改好 ID 再接下一个</li>
+        <li><strong>用厂商工具设置</strong>：CTRE 设备用 Phoenix Tuner X，REV 设备用 REV Hardware Client</li>
+      </ul>
+      <p class="prose">建议给 ID 定一套编号规则，并做成表格贴在机器人上。下面是一个 swerve 机器人的示例：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>ID 段</th><th>设备</th><th>所在总线</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1–4</td><td>四个轮组的驱动电机（左前、右前、左后、右后）</td><td>底盘总线</td></tr>
+            <tr><td class="num">11–14</td><td>四个轮组的转向电机</td><td>底盘总线</td></tr>
+            <tr><td class="num">21–24</td><td>四个轮组的 CANcoder</td><td>底盘总线</td></tr>
+            <tr><td class="num">30</td><td>Pigeon 2 陀螺仪（如果不用 SystemCore 内置 IMU）</td><td>底盘总线</td></tr>
+            <tr><td class="num">40–49</td><td>机构电机：取件、传送、发射、电梯、手臂</td><td>机构总线</td></tr>
+            <tr><td class="num">1</td><td>配电板 PDH</td><td>机构总线</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="wiring">
+      <h2><span class="n">06</span>接线要点</h2>
+      <ul class="prose">
+        <li><strong>颜色不能接反</strong>：黄接黄（CAN-H），绿接绿（CAN-L）。接反了整条总线都可能无法通信</li>
+        <li><strong>使用双绞线</strong>：两根线绞在一起，抗干扰能力强。按设备说明书选择线规</li>
+        <li><strong>接头要牢</strong>：压接要用合适的工具和端子，焊接要做好热缩保护。撞击和振动是接头松脱的主要原因</li>
+        <li><strong>远离运动部件</strong>：CAN 线被链条、齿轮夹断，是比赛中常见的故障</li>
+        <li><strong>做好应力释放</strong>：用扎带把线固定在车架上，不要让接头本身承受拉力</li>
+        <li><strong>线要能检修</strong>：走线位置要方便查看和更换，不要埋在拆不开的结构里面</li>
+      </ul>
+      <div class="tip">
+        <span class="label">检查终端电阻的小技巧</span>
+        <p>断电后，用万用表测 CAN-H 和 CAN-L 之间的电阻：两个 120 Ω 终端电阻并联，读数应约为 <strong>60 Ω</strong>。读数约 120 Ω，说明只有一个终端电阻，或者总线中间断开了；读数接近 0，说明两根线短路了。</p>
+      </div>
+    </section>
+
+    <section id="load">
+      <h2><span class="n">07</span>总线负载</h2>
+      <p class="prose">总线负载（bus utilization）指总线有多少比例的时间在传数据。设备越多、每个设备汇报得越频繁，负载就越高。负载太高时，消息会排队、延迟，控制变得迟钝，甚至丢失数据。</p>
+      <ul class="prose">
+        <li><strong>在哪里看</strong>：Driver Station 和厂商调试工具都能显示 CAN 负载和错误计数</li>
+        <li><strong>降低汇报频率</strong>：每个设备会周期性地汇报状态。用不到的数据，可以在厂商库里调低汇报频率或直接关闭</li>
+        <li><strong>用 CAN FD</strong>：同样的数据占用更少的总线时间</li>
+        <li><strong>分成多条总线</strong>：见下一节</li>
+      </ul>
+    </section>
+
+    <section id="multi">
+      <h2><span class="n">08</span>多总线规划</h2>
+      <p class="prose">SystemCore 有 5 路 CAN-FD 总线，常见的分法是：</p>
+      <ul class="prose">
+        <li><strong>底盘一条</strong>：swerve 的 8 个电机、4 个 CANcoder、陀螺仪。底盘对时序要求最高，单独一条总线最稳定</li>
+        <li><strong>机构一条或两条</strong>：取件、发射、电梯、手臂等，再加上配电板和气动模块</li>
+        <li><strong>留一条备用</strong>：比赛现场某条总线出问题时，可以临时把设备改接到备用总线</li>
+      </ul>
+      <p class="prose">程序里创建设备对象时，需要指定它在哪条总线上。具体写法以 WPILib 2027 和厂商库的文档为准。</p>
+    </section>
+
+    <section id="troubleshoot">
+      <h2><span class="n">09</span>故障排查</h2>
+      <ol class="steps">
+        <li><div><h3>看指示灯</h3><p>每个 CAN 设备都有状态灯，对照厂商说明书判断：是没电、没收到 CAN 信号，还是正常。一串设备里从某一个开始全部异常，问题多半就在它前面那段线上。</p></div></li>
+        <li><div><h3>用调试工具扫描</h3><p>Phoenix Tuner X 或 REV Hardware Client 会列出总线上能看到的设备。缺了哪个，就重点检查它和它附近的接线。</p></div></li>
+        <li><div><h3>量终端电阻</h3><p>断电测 CAN-H 和 CAN-L 之间的电阻，正常约 60 Ω。</p></div></li>
+        <li><div><h3>逐段检查接头</h3><p>从主控制器开始，沿着链逐个检查接头，轻轻拉一拉线，看是否松动、断线或接反。</p></div></li>
+        <li><div><h3>查 ID 冲突和固件</h3><p>两个同类设备 ID 相同、固件版本和软件库不配套，都会导致设备"在总线上但控制不了"。</p></div></li>
+      </ol>
+      <dl class="faq">
+        <dt>比赛中某几个机构突然一起失灵</dt>
+        <dd>它们很可能在同一条总线的同一段上。先检查这一段的接头，尤其是靠近运动部件和容易被撞的位置。</dd>
+        <dt>机器人时好时坏，Driver Station 报 CAN 错误</dt>
+        <dd>典型的接触不良。用手轻轻晃动线束，观察错误是否随之出现；同时检查终端电阻和总线负载。</dd>
+        <dt>新加了一个电机后，原来正常的电机也不听使唤了</dt>
+        <dd>新设备的 ID 和已有设备冲突。断开新设备，改好 ID 再接回。</dd>
+      </dl>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">10</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://v6.docs.ctr-electronics.com/en/stable/docs/canivore/canivore-intro.html" target="_blank" rel="noopener">CTRE：CANivore Intro（CAN FD 与总线负载）</a><span class="url">v6.docs.ctr-electronics.com</span></li>
+        <li><a href="https://store.ctr-electronics.com/can-fd/" target="_blank" rel="noopener">CTRE：CAN FD 介绍</a><span class="url">store.ctr-electronics.com</span></li>
+        <li><a href="https://docs.wpilib.org/en/latest/docs/controls-overviews/control-system-hardware.html" target="_blank" rel="noopener">WPILib：Hardware Component Overview</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/latest/docs/yearly-overview/yearly-changelog.html" target="_blank" rel="noopener">WPILib：New for 2027（SystemCore 多路 CAN）</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.revrobotics.com/" target="_blank" rel="noopener">REV Robotics 文档（PDH、REV Hardware Client）</a><span class="url">docs.revrobotics.com</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 技术方向《CAN 数据总线》。接线规范以 FIRST 当年规则和设备厂商说明为准。</footer>
+  </main>
+</div>

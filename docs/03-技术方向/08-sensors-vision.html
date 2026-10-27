@@ -1,0 +1,367 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>传感器与视觉</title>
+<meta name="nav-title" content="传感器与视觉">
+<meta name="description" content="FRC 机器人的感官：编码器、IMU、开关与距离传感器，AprilTag 视觉定位，Limelight 与 PhotonVision，以及把里程计和视觉融合成场上位置。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts; one diagram shows how odometry and vision are fused into a field pose.
+   Diagram colors: teal = relative sensing (odometry), amber = absolute sensing (vision), blue = estimator and its consumers. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.tip { background: var(--blue-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.tip .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+.tip p:last-child, .tip ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+svg .b-rel { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-abs { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-est { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.8; }
+svg .b-use { fill: var(--paper); stroke: var(--muted); stroke-width: 1.2; }
+svg .w-rel { fill: none; stroke: var(--teal); stroke-width: 2; }
+svg .w-abs { fill: none; stroke: var(--amber); stroke-width: 2; stroke-dasharray: 6 4; }
+svg .w-est { fill: none; stroke: var(--blue); stroke-width: 2; }
+svg .ah-rel { fill: var(--teal); }
+svg .ah-abs { fill: var(--amber); }
+svg .ah-est { fill: var(--blue); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-rel { fill: var(--teal); font-size: 11.5px; font-weight: 500; }
+svg .t-abs { fill: var(--amber); font-size: 11.5px; font-weight: 500; }
+
+.faq { max-width: 760px; margin: 0; }
+.faq dt { font-weight: 700; margin-top: 14px; }
+.faq dd { margin: 4px 0 0; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#role">传感器的作用</a></li>
+      <li><a href="#encoders">编码器</a></li>
+      <li><a href="#imu">IMU 与陀螺仪</a></li>
+      <li><a href="#switches">开关与距离传感器</a></li>
+      <li><a href="#apriltag">AprilTag 视觉</a></li>
+      <li><a href="#vision-systems">视觉方案</a></li>
+      <li><a href="#fusion">场上定位</a></li>
+      <li><a href="#wiring">接到哪里</a></li>
+      <li><a href="#install">安装与选型</a></li>
+      <li><a href="#faq">常见问题</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 技术方向</p>
+      <h1>传感器与视觉</h1>
+      <p class="lede">传感器是机器人的感官：编码器知道轮子和机构转了多少，IMU 知道车头朝向哪里，开关和距离传感器知道道具进来没有，相机则看着场地上的 AprilTag 标记告诉机器人"你在哪"。这一篇逐类介绍，并讲清楚这些信息怎样融合成机器人在场上的位置。</p>
+      <div class="meta"><span>资料整理于 2026 年 10 月</span><span>型号以当年合规清单和厂商资料为准</span></div>
+    </header>
+
+    <section id="role">
+      <h2><span class="n">01</span>传感器的作用</h2>
+      <p class="prose">在<a href="01-robot-overview.html#sensors">《机器人综述》</a>里，传感器是信息流的"输入端"。它们主要服务三件事：</p>
+      <ul class="prose">
+        <li><strong>闭环控制</strong>：让机构精确到达目标位置或速度，见<a href="05-closed-loop-pid.html">《闭环控制与 PID》</a></li>
+        <li><strong>场上定位</strong>：知道机器人在场地上的坐标和朝向，自动阶段和自动对准都靠它</li>
+        <li><strong>状态判断</strong>：道具有没有、机构到没到位、有没有卡住</li>
+      </ul>
+    </section>
+
+    <section id="encoders">
+      <h2><span class="n">02</span>编码器</h2>
+      <p class="prose">编码器测量转轴转了多少、转多快，是 FRC 里用得最多的传感器。</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>类型</th><th>原理</th><th>常见产品</th><th>适合</th></tr></thead>
+          <tbody>
+            <tr><td class="k">电机内置编码器</td><td>无刷电机控制器本来就要知道转子位置，顺便提供转速和累计圈数</td><td>Kraken、NEO 等无刷电机自带</td><td>底盘速度、飞轮转速、电梯高度</td></tr>
+            <tr><td class="k">增量式编码器</td><td>只知道"从上电开始转了多少"，断电后清零</td><td>正交编码器（输出 A、B 两路脉冲）</td><td>需要额外安装在机构轴上时</td></tr>
+            <tr><td class="k">绝对值编码器</td><td>每个角度对应唯一读数，上电就知道当前角度</td><td>CTRE CANcoder（CAN）、REV Through Bore Encoder（占空比输出，也有增量输出）</td><td>swerve 轮组朝向、手臂关节角度</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="prose">
+        <li><strong>为什么手臂要用绝对值编码器</strong>：电机内置编码器只知道相对变化。手臂开机时如果不在初始位置，读数就是错的。绝对值编码器一上电就知道手臂真实的角度</li>
+        <li><strong>零点校准</strong>：绝对值编码器装好后，要记录"机构在零位时编码器读多少"，作为偏移量写进程序。swerve 的四个轮子都要做这一步</li>
+        <li><strong>传动比换算</strong>：编码器装在哪根轴上，和机构之间隔着多少减速，都要在程序里换算清楚</li>
+      </ul>
+    </section>
+
+    <section id="imu">
+      <h2><span class="n">03</span>IMU 与陀螺仪</h2>
+      <p class="prose">IMU（惯性测量单元）测量机器人的转动角速度和加速度，积分得到朝向。FRC 里最关心的是<strong>航向角（yaw）</strong>，也就是车头朝向哪里。</p>
+      <ul class="prose">
+        <li><strong>来源</strong>：SystemCore 内置 IMU；也有队伍另装 CTRE Pigeon 2 等独立陀螺仪</li>
+        <li><strong>以场地为参照的驾驶</strong>：swerve 底盘的标准开法。驾驶员推摇杆"向前"，机器人就朝场地的远端走，不管车头朝向哪里。这需要程序实时知道航向角</li>
+        <li><strong>会慢慢漂移</strong>：陀螺仪积分出的角度会随时间累积误差，好的 IMU 一场比赛的漂移很小。视觉定位可以帮忙修正</li>
+        <li><strong>安装方向</strong>：程序里要设置 IMU 的安装方向，WPILib 2027 支持用欧拉角描述板载 IMU 的安装方向</li>
+        <li><strong>开场归零</strong>：比赛开始时要把航向角设成机器人在场上的实际朝向</li>
+      </ul>
+    </section>
+
+    <section id="switches">
+      <h2><span class="n">04</span>开关与距离传感器</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>传感器</th><th>测什么</th><th>常见用途</th></tr></thead>
+          <tbody>
+            <tr><td class="k">限位开关</td><td>机构是否碰到行程尽头</td><td>电梯归零、防止超程。可以接到 SmartIO，也可以直接接到电机控制器上，让控制器自己停车</td></tr>
+            <tr><td class="k">霍尔传感器</td><td>附近有没有磁铁</td><td>不接触的限位检测，耐磨损</td></tr>
+            <tr><td class="k">光电开关 / 对射传感器</td><td>光路有没有被挡住</td><td>判断道具是否进入、在通道中数道具</td></tr>
+            <tr><td class="k">ToF 距离传感器</td><td>用激光测距离</td><td>道具检测、离墙距离。比如 CTRE CANrange、Grapple LaserCAN，都直接挂在 CAN 上</td></tr>
+            <tr><td class="k">颜色传感器</td><td>物体的颜色和距离</td><td>区分不同颜色的道具。REV Color Sensor V3 走 I2C</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip">
+        <span class="label">接线小技巧：故障时也要安全</span>
+        <p>限位开关可以接成"常闭"：平时导通，碰到限位时断开。这样一旦线被扯断，程序读到的也是"已到限位"，机构会停下来，而不是继续往前撞。</p>
+      </div>
+    </section>
+
+    <section id="apriltag">
+      <h2><span class="n">05</span>AprilTag 视觉</h2>
+      <p class="prose"><strong>AprilTag</strong> 是一种黑白方块组成的标记，有点像二维码，但专门为机器人视觉设计：远距离、斜着看、光线不好时也能识别。FRC 从 2024 年起使用 <strong>36h11</strong> 系列，每个标记由 6×6 的黑白格组成。</p>
+      <ul class="prose">
+        <li><strong>位置是已知的</strong>：每块标记在场地上的精确坐标和朝向都由 FIRST 公布，WPILib 每年提供对应的场地布局数据</li>
+        <li><strong>原理</strong>：相机看到一块标记，根据它在画面中的大小、形状和角度，算出相机相对标记的位置；再结合标记在场地上的已知位置，反推出机器人在场上的坐标</li>
+        <li><strong>看到越多越准</strong>：同时看到多块标记时，计算结果更可靠</li>
+        <li><strong>2027 年的变化</strong>：WPILib 2027 把 AprilTag 和 CameraServer 相关功能改成了单独的库，需要另外添加</li>
+      </ul>
+      <p class="prose">除了 AprilTag，有些队伍还会用神经网络识别场上的游戏道具，实现"自动寻找并捡起道具"。这需要更强的算力，比如带 AI 加速器的视觉设备。SystemCore 的 M.2 槽也可以装 AI 加速卡。</p>
+    </section>
+
+    <section id="vision-systems">
+      <h2><span class="n">06</span>视觉方案</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th></th><th>Limelight</th><th>PhotonVision</th></tr></thead>
+          <tbody>
+            <tr><td class="k">是什么</td><td>集成了相机、处理器和软件的智能相机</td><td>开源视觉软件，运行在协处理器上（比如 Orange Pi），配 USB 相机</td></tr>
+            <tr><td class="k">连接</td><td>以太网，接到机器人电台或网络交换机</td><td>协处理器走以太网，相机接在协处理器的 USB 口上</td></tr>
+            <tr><td class="k">上手难度</td><td>低：网页界面配置，开箱即用</td><td>中：要自己搭建协处理器、标定相机</td></tr>
+            <tr><td class="k">灵活性</td><td>功能由厂商提供，比如 MegaTag 定位</td><td>可以接多个相机，自由选择相机和硬件</td></tr>
+            <tr><td class="k">成本</td><td>单台价格较高</td><td>硬件可以自己组合，通常更便宜</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">两种方案都会把识别结果（看到了哪些标记、算出的机器人位置）通过 NetworkTables 发给机器人程序，并提供对应的软件库方便调用。新队伍通常从 Limelight 起步；熟悉之后，不少队伍会改用 PhotonVision 配多个相机，从不同方向同时看标记。</p>
+    </section>
+
+    <section id="fusion">
+      <h2><span class="n">07</span>场上定位：把传感器融合起来</h2>
+      <p class="prose">机器人有两类定位信息，各有长短：</p>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 900 300" role="img" aria-label="场上定位的传感器融合：轮子编码器和 IMU 组成里程计，更新快但误差会累积；相机识别 AprilTag 得到视觉位置，绝对准确但时有时无、有噪声；两者送入位姿估计器融合，得到机器人在场上的位置，供自动路线跟踪、自动对准和驾驶员仪表盘使用。">
+            <defs>
+              <marker id="sv-rel" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah-rel" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="sv-abs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah-abs" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="sv-est" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah-est" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+
+            <rect class="b-rel" x="16" y="30" width="140" height="50" rx="6"/>
+            <text class="t-b" x="86" y="51" text-anchor="middle">轮子编码器</text>
+            <text class="t-s" x="86" y="69" text-anchor="middle">每个轮子走了多远</text>
+            <rect class="b-rel" x="16" y="96" width="140" height="50" rx="6"/>
+            <text class="t-b" x="86" y="117" text-anchor="middle">IMU</text>
+            <text class="t-s" x="86" y="135" text-anchor="middle">车头朝向</text>
+            <rect class="b-rel" x="220" y="58" width="160" height="60" rx="6"/>
+            <text class="t-b" x="300" y="82" text-anchor="middle">里程计</text>
+            <text class="t-s" x="300" y="101" text-anchor="middle">推算走了多远、往哪走</text>
+            <polyline class="w-rel" points="156,55 188,55 188,80 220,80" marker-end="url(#sv-rel)"/>
+            <polyline class="w-rel" points="156,121 188,121 188,96 220,96" marker-end="url(#sv-rel)"/>
+            <text class="t-rel" x="300" y="138" text-anchor="middle">每 20 ms 更新 · 误差会慢慢累积</text>
+
+            <rect class="b-abs" x="16" y="186" width="140" height="50" rx="6"/>
+            <text class="t-b" x="86" y="207" text-anchor="middle">相机</text>
+            <text class="t-s" x="86" y="225" text-anchor="middle">Limelight / PhotonVision</text>
+            <rect class="b-abs" x="220" y="181" width="160" height="60" rx="6"/>
+            <text class="t-b" x="300" y="205" text-anchor="middle">视觉定位</text>
+            <text class="t-s" x="300" y="224" text-anchor="middle">看到 AprilTag 时算出位置</text>
+            <line class="w-abs" x1="156" y1="211" x2="220" y2="211" marker-end="url(#sv-abs)"/>
+            <text class="t-abs" x="300" y="261" text-anchor="middle">绝对准确 · 时有时无 · 有噪声</text>
+
+            <rect class="b-est" x="460" y="110" width="170" height="80" rx="8"/>
+            <text class="t-b" x="545" y="140" text-anchor="middle">位姿估计器</text>
+            <text class="t-s" x="545" y="160" text-anchor="middle">按可信度加权融合</text>
+            <text class="t-s" x="545" y="177" text-anchor="middle">PoseEstimator</text>
+            <polyline class="w-rel" points="380,88 420,88 420,135 460,135" marker-end="url(#sv-rel)"/>
+            <polyline class="w-abs" points="380,211 420,211 420,165 460,165" marker-end="url(#sv-abs)"/>
+
+            <rect class="b-use" x="720" y="40" width="164" height="50" rx="6"/>
+            <text class="t-b" x="802" y="61" text-anchor="middle">自动路线跟踪</text>
+            <text class="t-s" x="802" y="79" text-anchor="middle">自动阶段按坐标行驶</text>
+            <rect class="b-use" x="720" y="125" width="164" height="50" rx="6"/>
+            <text class="t-b" x="802" y="146" text-anchor="middle">自动对准</text>
+            <text class="t-s" x="802" y="164" text-anchor="middle">算出目标方向和距离</text>
+            <rect class="b-use" x="720" y="210" width="164" height="50" rx="6"/>
+            <text class="t-b" x="802" y="231" text-anchor="middle">仪表盘</text>
+            <text class="t-s" x="802" y="249" text-anchor="middle">场地图上显示位置</text>
+            <line class="w-est" x1="630" y1="150" x2="720" y2="150" marker-end="url(#sv-est)"/>
+            <polyline class="w-est" points="660,150 660,65 720,65" marker-end="url(#sv-est)"/>
+            <polyline class="w-est" points="660,150 660,235 720,235" marker-end="url(#sv-est)"/>
+            <text class="t-s" x="668" y="142">场上坐标</text>
+          </svg>
+        </div>
+        <figcaption>里程计（绿色）像闭着眼睛数步子：反应快，但越走误差越大；视觉（橙色虚线）像睁眼看路标：看到时很准，看不到时就没有。位姿估计器把两者结合：平时靠里程计，一看到 AprilTag 就用视觉把累积误差拉回来。</figcaption>
+      </figure>
+      <ul class="prose">
+        <li><strong>WPILib 提供现成的估计器</strong>：<code>SwerveDrivePoseEstimator</code>、<code>DifferentialDrivePoseEstimator</code> 等。每个周期喂入编码器和 IMU 数据，看到标记时再加入视觉测量</li>
+        <li><strong>可信度要调</strong>：视觉结果可以附带"可信度"。离标记很远、只看到一块标记时，可信度应该调低</li>
+        <li><strong>先在仿真和日志里看</strong>：用 AdvantageScope 把里程计位置、视觉位置、融合后的位置画在同一张场地图上，偏差一目了然</li>
+      </ul>
+    </section>
+
+    <section id="wiring">
+      <h2><span class="n">08</span>传感器接到哪里</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>SystemCore 接口</th><th>常接的传感器</th></tr></thead>
+          <tbody>
+            <tr><td class="k">CAN-FD</td><td>CANcoder、Pigeon 2、CANrange、LaserCAN，以及电机内置编码器（随电机控制器）</td></tr>
+            <tr><td class="k">SmartIO</td><td>限位开关、光电开关、霍尔传感器、REV Through Bore Encoder、电位器</td></tr>
+            <tr><td class="k">I2C</td><td>REV Color Sensor V3 等 I2C 传感器</td></tr>
+            <tr><td class="k">以太网</td><td>Limelight、运行 PhotonVision 的协处理器</td></tr>
+            <tr><td class="k">USB</td><td>USB 相机（给驾驶员看的画面，或直接在主控制器上做简单视觉）</td></tr>
+            <tr><td class="k">内置</td><td>IMU</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">接口细节见<a href="02-systemcore.html#ports">《SystemCore 主控制器》的接口一览</a>，CAN 的接线规范见<a href="07-can-bus.html">《CAN 数据总线》</a>。</p>
+    </section>
+
+    <section id="install">
+      <h2><span class="n">09</span>安装与选型建议</h2>
+      <ul class="prose">
+        <li><strong>装得牢</strong>：传感器松动一点，读数就会偏。编码器和轴之间不能打滑，相机支架不能晃</li>
+        <li><strong>相机要标定</strong>：每台相机都要做镜头标定，并在程序里准确填写它相对机器人中心的位置和角度。几厘米、几度的误差都会让定位明显偏差</li>
+        <li><strong>保护线缆</strong>：传感器的细线最容易被机构夹断。做好走线和固定</li>
+        <li><strong>关键位置考虑冗余</strong>：比如道具检测同时用光电开关和电机电流判断，一个失效时另一个还能用</li>
+        <li><strong>多相机覆盖</strong>：前后左右都有相机，机器人朝哪个方向都能看到标记</li>
+        <li><strong>先确认读数再写逻辑</strong>：新传感器装好后，先在仪表盘上看读数是否合理、方向是否正确，再接进控制逻辑</li>
+      </ul>
+    </section>
+
+    <section id="faq">
+      <h2><span class="n">10</span>常见问题</h2>
+      <dl class="faq">
+        <dt>swerve 的轮子开机后朝向乱七八糟</dt>
+        <dd>绝对值编码器的零点偏移没有设对，或者 CANcoder 的 ID 和程序里对应错了轮组。重新做零点校准，核对 ID 表。</dd>
+        <dt>以场地为参照驾驶时，"向前"变成了斜着走</dt>
+        <dd>IMU 航向没有在开场时正确归零，或者 IMU 的安装方向设置错了。</dd>
+        <dt>视觉定位时准时不准，机器人位置在场地图上乱跳</dt>
+        <dd>检查相机的安装位置参数和标定；远距离、只看到一块标记的结果应降低可信度，或者直接丢弃。</dd>
+        <dt>限位开关有时不起作用</dt>
+        <dd>检查接线是否松动、程序里读的是不是正确的接口，以及常开、常闭的逻辑是否写反。</dd>
+        <dt>电机编码器的读数和机构实际位置对不上</dt>
+        <dd>传动比没换算对，或者机构和电机之间有打滑（比如皮带跳齿）。关键机构可以在机构末端再装一个编码器。</dd>
+      </dl>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">11</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://docs.wpilib.org/en/latest/docs/software/vision-processing/apriltag/apriltag-intro.html" target="_blank" rel="noopener">WPILib：What Are AprilTags?</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/stable/docs/software/advanced-controls/state-space/state-space-pose-estimators.html" target="_blank" rel="noopener">WPILib：Pose Estimators</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/latest/docs/yearly-overview/yearly-changelog.html" target="_blank" rel="noopener">WPILib：New for 2027（AprilTag 库、板载 IMU）</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.limelightvision.io/" target="_blank" rel="noopener">Limelight 文档</a><span class="url">docs.limelightvision.io</span></li>
+        <li><a href="https://docs.photonvision.org/" target="_blank" rel="noopener">PhotonVision 文档</a><span class="url">docs.photonvision.org</span></li>
+        <li><a href="https://v6.docs.ctr-electronics.com/" target="_blank" rel="noopener">CTRE Phoenix 6 文档（CANcoder、Pigeon 2、CANrange）</a><span class="url">v6.docs.ctr-electronics.com</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 技术方向《传感器与视觉》。传感器型号以当年合规清单和厂商资料为准。</footer>
+  </main>
+</div>

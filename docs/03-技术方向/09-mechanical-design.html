@@ -1,0 +1,345 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>机械设计与 CAD</title>
+<meta name="nav-title" content="机械设计与 CAD">
+<meta name="description" content="FRC 机器人的机械设计流程：CAD 软件怎么选（Onshape 等赞助商免费软件，以及 FreeCAD 等开源软件），标准件库，从设计到加工文件，以及设计评审要点。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts; one diagram shows the design loop from strategy to tested hardware.
+   Diagram colors: blue = design in CAD, teal = physical work, amber = decision points. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.tip { background: var(--blue-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.tip .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+.tip p:last-child, .tip ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12px; line-height: 1.6; padding: 0 8px; border-radius: 999px; white-space: nowrap; }
+.tag.top { background: var(--blue-soft); color: var(--blue); }
+.tag.ok { background: var(--teal-soft); color: var(--teal); }
+.tag.misc { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+svg .b-cad { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.5; }
+svg .b-phys { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-dec { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .wire { fill: none; stroke: var(--muted); stroke-width: 1.8; }
+svg .loop { fill: none; stroke: var(--amber); stroke-width: 1.8; stroke-dasharray: 6 4; }
+svg .ah { fill: var(--muted); }
+svg .ah-loop { fill: var(--amber); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-loop { fill: var(--amber); font-size: 11.5px; font-weight: 500; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#cad-frc">FRC 用什么 CAD</a></li>
+      <li><a href="#onshape">为什么多数用 Onshape</a></li>
+      <li><a href="#open-source">免费开源 CAD</a></li>
+      <li><a href="#recommend">怎么选</a></li>
+      <li><a href="#workflow">设计流程</a></li>
+      <li><a href="#cad-basics">CAD 建模要点</a></li>
+      <li><a href="#cots">标准件与材料</a></li>
+      <li><a href="#fabrication">从 CAD 到加工</a></li>
+      <li><a href="#review">设计评审清单</a></li>
+      <li><a href="#learn">学习资源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 技术方向</p>
+      <h1>机械设计与 CAD</h1>
+      <p class="lede">现在的 FRC 机器人几乎都是先在电脑上完整设计出来，再去加工和装配的。这一篇介绍 FRC 队伍常用的 CAD 软件（包括赞助商提供的免费软件和开源软件），以及从需求到加工文件的设计流程和评审要点。</p>
+      <div class="meta"><span>资料整理于 2026 年 10 月</span><span>软件授权政策以各厂商当年说明为准</span></div>
+    </header>
+
+    <section id="cad-frc">
+      <h2><span class="n">01</span>FRC 队伍用什么 CAD 软件</h2>
+      <p class="prose"><strong>FIRST 没有规定必须使用哪款 CAD 软件。</strong>但多家 CAD 厂商是 FIRST 的赞助商，会给 FRC 队伍提供免费或教育版授权。常见的有：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>软件</th><th>厂商</th><th>运行方式</th><th>对 FRC 队伍</th><th>在 FRC 中的普及程度</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Onshape</td><td>PTC</td><td>浏览器 / 平板，云端</td><td>提供免费的教育版账号</td><td><span class="tag top">最主流</span></td></tr>
+            <tr><td class="k">SOLIDWORKS</td><td>Dassault Systèmes</td><td>Windows 桌面软件</td><td>通过赞助项目向队伍提供授权</td><td><span class="tag ok">老牌队伍常用</span></td></tr>
+            <tr><td class="k">Fusion</td><td>Autodesk</td><td>Windows / macOS 桌面，云端存储</td><td>教育版免费</td><td><span class="tag ok">常用，尤其用来做 CNC 加工路径</span></td></tr>
+            <tr><td class="k">Inventor</td><td>Autodesk</td><td>Windows 桌面软件</td><td>教育版免费</td><td><span class="tag misc">少数队伍</span></td></tr>
+            <tr><td class="k">Creo</td><td>PTC</td><td>Windows 桌面软件</td><td>向 FIRST 队伍提供授权</td><td><span class="tag misc">少数队伍</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">这些都是工业界正在使用的专业软件。学生在 FRC 里学会其中一款，上大学、做工程实习时都用得上。各家授权的申请方式每年会调整，以 FIRST 官网和各厂商的说明为准。</p>
+    </section>
+
+    <section id="onshape">
+      <h2><span class="n">02</span>为什么多数 FRC 队伍用 Onshape</h2>
+      <ul class="prose">
+        <li><strong>浏览器里就能用</strong>：不用安装，Windows、Mac、Chromebook、平板都能打开。学生在学校、在家用自己的电脑都能继续设计，这对 FRC 队伍特别重要</li>
+        <li><strong>多人同时编辑</strong>：像在线文档一样，几个学生可以同时修改同一个装配体，实时看到对方的改动</li>
+        <li><strong>自带版本管理</strong>：每次修改都有记录，可以回到任何历史版本，也可以开分支尝试新方案</li>
+        <li><strong>FRC 社区资源丰富</strong>：有大量现成的 FRC 标准件模型库，以及专为 FRC 编写的自定义功能（FeatureScript），比如一键生成型材上的孔位</li>
+        <li><strong>大量公开的机器人设计</strong>：很多强队会公开整台机器人的 Onshape 设计，可以直接打开学习</li>
+      </ul>
+      <p class="prose">需要注意的是，Onshape 依赖网络，比赛现场网络不好时访问可能较慢。另外，免费的非教育账号只能创建公开文档，队伍应使用教育版账号。</p>
+    </section>
+
+    <section id="open-source">
+      <h2><span class="n">03</span>免费开源的 CAD 软件</h2>
+      <p class="prose">如果想用开源软件，或者想在个人电脑上自由学习，业界常见的有：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>软件</th><th>类型</th><th>特点</th><th>适合</th></tr></thead>
+          <tbody>
+            <tr><td class="k">FreeCAD</td><td>参数化三维 CAD</td><td>最完整的开源机械 CAD，有零件、装配、工程图、CAM、有限元等模块。2024 年发布了 1.0 版，稳定性明显提升</td><td>想要开源、可离线使用的通用机械设计</td></tr>
+            <tr><td class="k">SolveSpace</td><td>轻量参数化 CAD</td><td>体积很小、上手快，支持约束草图和简单装配</td><td>简单零件、快速出图</td></tr>
+            <tr><td class="k">OpenSCAD</td><td>代码建模</td><td>用代码描述几何体，修改参数就能生成新模型</td><td>喜欢编程的学生，参数化的 3D 打印件</td></tr>
+            <tr><td class="k">CadQuery / build123d</td><td>Python 代码建模</td><td>用 Python 写模型，能生成工业标准的 STEP 文件</td><td>编程背景的家长和学生</td></tr>
+            <tr><td class="k">LibreCAD</td><td>二维 CAD</td><td>只做二维图纸，类似老式的 AutoCAD</td><td>画板材的二维加工图</td></tr>
+            <tr><td class="k">Blender</td><td>三维建模与渲染</td><td>擅长造型和动画，不是工程 CAD，尺寸约束能力弱</td><td>宣传图、动画，不适合做机器人结构设计</td></tr>
+            <tr><td class="k">KiCad</td><td>电路板设计</td><td>开源 PCB 设计软件</td><td>自己设计电路板（FRC 里用得少）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <span class="label">开源软件在 FRC 里的局限</span>
+        <ul>
+          <li>FRC 的标准件模型库、教程、公开设计几乎都基于 Onshape 或 SOLIDWORKS，用开源软件要自己导入、整理零件</li>
+          <li>多人协作和版本管理要另外搭建，不如 Onshape 方便</li>
+          <li>队里的学长、其他队伍和比赛现场的志愿者，大多不熟悉开源 CAD，求助渠道少</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="recommend">
+      <h2><span class="n">04</span>怎么选</h2>
+      <ul class="prose">
+        <li><strong>队伍设计机器人：用 Onshape。</strong>免费、协作方便、FRC 资源最多。除非队里已经有一套成熟的 SOLIDWORKS 工作流程</li>
+        <li><strong>CNC 加工路径：常配合 Fusion。</strong>不少队伍在 Onshape 里设计，再把零件导入 Fusion 生成 CNC 雕刻机的加工路径</li>
+        <li><strong>家长个人学习：</strong>想和学生同步，就用 Onshape；想学开源工具或离线使用，FreeCAD 是最好的起点</li>
+        <li><strong>文件交换用通用格式：</strong>不同软件之间用 STEP 交换三维模型，用 DXF 交换二维图形，用 STL 交给 3D 打印</li>
+      </ul>
+    </section>
+
+    <section id="workflow">
+      <h2><span class="n">05</span>机械设计流程</h2>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 900 250" role="img" aria-label="机械设计流程：从策略需求出发，做原型验证，画整车布局草图，再做零件和装配体的详细设计，经过设计评审后输出加工文件，加工并装配测试；测试发现问题时回到详细设计迭代，评审不通过时也回到详细设计。">
+            <defs>
+              <marker id="md-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="md-loop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah-loop" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="b-dec" x="16" y="80" width="104" height="56" rx="6"/>
+            <text class="t-b" x="68" y="103" text-anchor="middle">策略需求</text>
+            <text class="t-s" x="68" y="122" text-anchor="middle">要做哪些动作</text>
+            <rect class="b-phys" x="144" y="80" width="104" height="56" rx="6"/>
+            <text class="t-b" x="196" y="103" text-anchor="middle">原型验证</text>
+            <text class="t-s" x="196" y="122" text-anchor="middle">木板、废料快做</text>
+            <rect class="b-cad" x="272" y="80" width="104" height="56" rx="6"/>
+            <text class="t-b" x="324" y="103" text-anchor="middle">布局草图</text>
+            <text class="t-s" x="324" y="122" text-anchor="middle">尺寸、重量预算</text>
+            <rect class="b-cad" x="400" y="80" width="104" height="56" rx="6"/>
+            <text class="t-b" x="452" y="103" text-anchor="middle">详细设计</text>
+            <text class="t-s" x="452" y="122" text-anchor="middle">零件与装配体</text>
+            <rect class="b-dec" x="528" y="80" width="104" height="56" rx="6"/>
+            <text class="t-b" x="580" y="103" text-anchor="middle">设计评审</text>
+            <text class="t-s" x="580" y="122" text-anchor="middle">对照清单检查</text>
+            <rect class="b-cad" x="656" y="80" width="104" height="56" rx="6"/>
+            <text class="t-b" x="708" y="103" text-anchor="middle">加工文件</text>
+            <text class="t-s" x="708" y="122" text-anchor="middle">DXF · STL · 图纸</text>
+            <rect class="b-phys" x="784" y="80" width="104" height="56" rx="6"/>
+            <text class="t-b" x="836" y="103" text-anchor="middle">加工装配测试</text>
+            <text class="t-s" x="836" y="122" text-anchor="middle">上车验证</text>
+
+            <line class="wire" x1="120" y1="108" x2="144" y2="108" marker-end="url(#md-ah)"/>
+            <line class="wire" x1="248" y1="108" x2="272" y2="108" marker-end="url(#md-ah)"/>
+            <line class="wire" x1="376" y1="108" x2="400" y2="108" marker-end="url(#md-ah)"/>
+            <line class="wire" x1="504" y1="108" x2="528" y2="108" marker-end="url(#md-ah)"/>
+            <line class="wire" x1="632" y1="108" x2="656" y2="108" marker-end="url(#md-ah)"/>
+            <line class="wire" x1="760" y1="108" x2="784" y2="108" marker-end="url(#md-ah)"/>
+
+            <polyline class="loop" points="580,136 580,170 470,170 470,136" marker-end="url(#md-loop)"/>
+            <text class="t-loop" x="525" y="186" text-anchor="middle">评审不通过</text>
+            <polyline class="loop" points="836,136 836,215 436,215 436,136" marker-end="url(#md-loop)"/>
+            <text class="t-loop" x="636" y="231" text-anchor="middle">测试发现问题，改设计再做一版</text>
+            <polyline class="loop" points="196,80 196,46 324,46 324,80" marker-end="url(#md-loop)"/>
+            <text class="t-loop" x="260" y="38" text-anchor="middle">原型结果决定布局</text>
+          </svg>
+        </div>
+        <figcaption>橙色是决策点，蓝色是在 CAD 里完成的工作，绿色是动手做的环节。FRC 的设计从来不是一次成型：原型决定方向，评审和测试会把设计反复送回来修改。</figcaption>
+      </figure>
+      <ol class="prose">
+        <li><strong>策略需求</strong>：机器人要做哪些动作、做到多快，由策略讨论决定，见<a href="01-robot-overview.html#process">《机器人综述》的开发步骤</a></li>
+        <li><strong>原型验证</strong>：用最快、最便宜的方式验证关键机构能不能行，比如滚轮间距多少能把道具吸进来</li>
+        <li><strong>布局草图</strong>：在 CAD 里先画整车的布局草图，确定底盘尺寸、各机构的位置和运动范围、电气板的位置，并做重量预算</li>
+        <li><strong>详细设计</strong>：按布局逐个设计零件和装配体，大量使用标准件</li>
+        <li><strong>设计评审</strong>：mentor 和其他组的学生一起对照清单检查（见第 09 节）</li>
+        <li><strong>加工文件</strong>：导出 CNC 用的 DXF 或加工路径、3D 打印用的 STL、手工加工用的图纸</li>
+        <li><strong>加工、装配、测试</strong>：发现问题就回到 CAD 修改，再做一版</li>
+      </ol>
+    </section>
+
+    <section id="cad-basics">
+      <h2><span class="n">06</span>CAD 建模要点</h2>
+      <ul class="prose">
+        <li><strong>参数化建模</strong>：先画带尺寸约束的二维草图，再拉伸、旋转成三维零件。改一个尺寸，相关的形状会跟着更新</li>
+        <li><strong>自顶向下设计</strong>：先画整车的"主草图"（master sketch），各个零件都参照它来画。底盘尺寸一改，整车跟着变，避免零件之间对不上</li>
+        <li><strong>装配与配合</strong>：用配合关系（mates）把零件装在一起，并能拖动检查运动范围，提前发现机构之间会不会撞</li>
+        <li><strong>设定材料和质量</strong>：给零件设好材料，CAD 就能算出整车重量和重心位置</li>
+        <li><strong>命名和整理</strong>：零件、装配体按统一规则命名，按机构分文件夹，方便多人协作和后期查找</li>
+      </ul>
+    </section>
+
+    <section id="cots">
+      <h2><span class="n">07</span>标准件与材料</h2>
+      <p class="prose">FRC 机器人大量使用市售标准件（COTS），机械设计的很大一部分工作是"选型和组合"，而不是从零画每个零件。</p>
+      <ul class="prose">
+        <li><strong>厂商提供 CAD 模型</strong>：WCP、REV、AndyMark、SDS、The Thrifty Bot 等厂商的零件几乎都有现成的 STEP 模型，或直接收录在 Onshape 的 FRC 零件库里</li>
+        <li><strong>结构材料</strong>：铝方管（常见 2×1、1×1 英寸）配角码和铆钉，是最常见的车架做法；铝板和聚碳酸酯板用于机构侧板、底板</li>
+        <li><strong>传动件</strong>：六角轴、轴承、齿轮、同步带、链条、减速箱，都按标准规格选用</li>
+        <li><strong>尽量用一套尺寸体系</strong>：轴径、孔位间距、螺丝规格统一，备件和工具都更好管理。FRC 圈子以英制为主</li>
+      </ul>
+      <p class="prose">电机和减速比怎么选，见<a href="06-motors.html#gearing">《电机与电机控制器》</a>。</p>
+    </section>
+
+    <section id="fabrication">
+      <h2><span class="n">08</span>从 CAD 到加工</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>加工方式</th><th>需要的文件</th><th>适合的零件</th></tr></thead>
+          <tbody>
+            <tr><td class="k">CNC 雕刻机（router）</td><td>DXF 或 CAM 生成的加工路径</td><td>铝板、聚碳酸酯板、方管上的孔和切口。现在很多队伍的主力设备</td></tr>
+            <tr><td class="k">3D 打印</td><td>STL 或 3MF</td><td>形状复杂、受力不大的零件：传感器支架、导向件、垫块。常用 PLA、PETG，强度要求高时用尼龙或碳纤维增强材料</td></tr>
+            <tr><td class="k">激光切割</td><td>DXF</td><td>薄板、亚克力、木板原型</td></tr>
+            <tr><td class="k">车床、铣床</td><td>带尺寸的工程图</td><td>轴、轴套、需要高精度的零件</td></tr>
+            <tr><td class="k">手工加工</td><td>工程图或打印的 1:1 模板</td><td>方管切割、钻孔，简单零件</td></tr>
+            <tr><td class="k">外协加工</td><td>STEP、DXF 和图纸</td><td>赞助商或外部工厂代工的金属件、钣金件</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip">
+        <span class="label">设计时就考虑加工</span>
+        <p>设计的零件要能用队里现有的设备做出来。比如 CNC 雕刻机切不出尖锐的内角，内角要留出刀具半径的圆角；3D 打印件要考虑打印方向对强度的影响。</p>
+      </div>
+    </section>
+
+    <section id="review">
+      <h2><span class="n">09</span>设计评审清单</h2>
+      <p class="prose">设计评审是家长 mentor 最能发挥作用的环节之一：不需要替学生设计，而是用问题帮他们发现隐患。</p>
+      <ul class="prose">
+        <li><strong>规则</strong>：尺寸、伸出距离、重量是否在限制内？保险杠能否按规定安装？</li>
+        <li><strong>重量和重心</strong>：重量预算还剩多少？重心是否足够低，高速转弯和被撞时会不会翻车？</li>
+        <li><strong>强度</strong>：受力最大的地方在哪？被撞时哪里会先坏？</li>
+        <li><strong>运动范围</strong>：机构在整个运动范围内会不会和别的机构、电线、保险杠打架？</li>
+        <li><strong>可维修性</strong>：最容易坏的零件，在比赛间隙的十几分钟内能换下来吗？需要拆多少东西？</li>
+        <li><strong>电气空间</strong>：电机、控制器、电线有地方放吗？线怎么走才不会被机构夹到？</li>
+        <li><strong>传感器</strong>：编码器、限位开关、相机装在哪里？相机视野会不会被机构挡住？</li>
+        <li><strong>可加工性</strong>：所有零件队里都能做吗？外协的零件来得及吗？</li>
+      </ul>
+    </section>
+
+    <section id="learn">
+      <h2><span class="n">10</span>学习资源</h2>
+      <ul class="res">
+        <li><a href="https://learn.onshape.com" target="_blank" rel="noopener">Onshape Learning Center：官方免费课程</a><span class="url">learn.onshape.com</span></li>
+        <li><a href="https://www.onshape.com/en/education" target="_blank" rel="noopener">Onshape 教育版（申请免费账号）</a><span class="url">onshape.com/en/education</span></li>
+        <li><a href="https://www.frcdesign.org" target="_blank" rel="noopener">FRCDesign.org：针对 FRC 的 Onshape 设计课程</a><span class="url">frcdesign.org</span></li>
+        <li><a href="https://www.freecad.org" target="_blank" rel="noopener">FreeCAD 官网（下载与文档）</a><span class="url">freecad.org</span></li>
+        <li><a href="https://www.firstinspires.org/robotics/frc" target="_blank" rel="noopener">FIRST 官网：赞助商软件授权信息</a><span class="url">firstinspires.org</span></li>
+        <li><a href="https://www.chiefdelphi.com" target="_blank" rel="noopener">Chief Delphi：各队公开的机器人设计和讨论</a><span class="url">chiefdelphi.com</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 技术方向《机械设计与 CAD》。软件授权方式以各厂商和 FIRST 当年说明为准。</footer>
+  </main>
+</div>
