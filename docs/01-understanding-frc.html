@@ -1,0 +1,517 @@
+<title>认识 FRC：家长 Mentor 入门</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a handbook — sticky contents rail on the left, one readable column on the right; alliance red/blue used only where the content is about alliances */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --red: #c42a2a;
+  --red-soft: #fbe7e6;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-display: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --red: #ff8a80; --red-soft: #3a1e20;
+    --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --red: #ff8a80; --red-soft: #3a1e20;
+  --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.8;
+  padding-inline: 16px;
+}
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap {
+  max-width: 1120px; margin: 0 auto; padding-block: 48px 96px;
+  display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 56px;
+}
+@media (max-width: 860px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+/* contents rail */
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-family: var(--font-body); font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 860px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 720px; }
+
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-family: var(--font-display); font-weight: 900; font-size: clamp(32px, 5vw, 46px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 27px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+strong { font-weight: 700; }
+.en { font-family: var(--font-mono); font-size: .88em; color: var(--muted); }
+
+/* callouts */
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.parent { background: var(--blue-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; }
+.parent .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+.note p:last-child, .parent p:last-child, .note ul:last-child, .parent ul:last-child { margin-bottom: 0; }
+
+/* tables */
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* season timeline */
+.season { display: grid; gap: 0; margin: 20px 0 24px; border-left: 2px solid var(--line); }
+.season .step { position: relative; padding: 0 0 18px 22px; }
+.season .step::before { content: ""; position: absolute; left: -7px; top: 8px; width: 12px; height: 12px; border-radius: 50%; background: var(--paper); border: 2px solid var(--muted); }
+.season .step.hot::before { background: var(--blue); border-color: var(--blue); }
+.season .when { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.season .what { font-weight: 700; display: block; }
+.season p { font-size: 15px; margin: 2px 0 0; }
+
+/* match bar, drawn to scale: 15 s auto + 135 s teleop */
+.match { margin: 20px 0 8px; }
+.bar { display: flex; height: 44px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); font-size: 13px; }
+.bar > div { display: flex; align-items: center; padding: 0 10px; white-space: nowrap; min-width: 0; overflow: hidden; }
+.bar .auto { flex: 15 0 0; background: var(--ink); color: var(--paper); font-weight: 700; }
+.bar .tele { flex: 105 0 0; background: var(--blue-soft); color: var(--ink); }
+.bar .end { flex: 30 0 0; background: var(--red-soft); color: var(--red); font-weight: 700; justify-content: center; }
+.ticks { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-top: 4px; position: relative; }
+.ticks span:nth-child(2) { position: absolute; left: 10%; transform: translateX(-50%); }
+.caption { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+/* alliances */
+.alliances { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0; }
+.alliance { border-radius: 6px; padding: 12px 16px; font-size: 14.5px; }
+.alliance.red { background: var(--red-soft); color: var(--ink); border-top: 4px solid var(--red); }
+.alliance.blue { background: var(--blue-soft); color: var(--ink); border-top: 4px solid var(--blue); }
+.alliance b { display: block; margin-bottom: 4px; }
+.alliance .teams { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+@media (max-width: 480px) { .alliances { grid-template-columns: 1fr; } }
+
+/* weekend schedule */
+.days { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 18px 0; }
+.day { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; font-size: 14.5px; min-width: 0; }
+.day .d { font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: .06em; }
+.day b { display: block; margin: 2px 0 6px; }
+.day ul { padding-left: 1.1em; margin: 0; }
+.day li { margin-bottom: 2px; }
+
+/* glossary */
+dl.gloss { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0; margin: 18px 0; border-top: 1px solid var(--line); }
+dl.gloss dt, dl.gloss dd { padding: 10px 0; border-bottom: 1px solid var(--line); margin: 0; }
+dl.gloss dt { font-family: var(--font-mono); font-size: 14px; font-weight: 500; padding-right: 20px; }
+dl.gloss dd { font-size: 15px; }
+@media (max-width: 520px) {
+  dl.gloss { grid-template-columns: minmax(0, 1fr); }
+  dl.gloss dt { border-bottom: 0; padding-bottom: 0; }
+  dl.gloss dd { padding-top: 2px; }
+}
+
+/* resources */
+.res { list-style: none; padding: 0; display: grid; gap: 10px; }
+.res li { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; margin: 0; font-size: 15px; }
+.res a { font-weight: 700; }
+.res .url { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); word-break: break-all; }
+
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#about">这份文档</a></li>
+      <li><a href="#first">FIRST 与 FRC</a></li>
+      <li><a href="#values">核心理念</a></li>
+      <li><a href="#season">一个赛季</a></li>
+      <li><a href="#match">一场比赛</a></li>
+      <li><a href="#events">赛事体系</a></li>
+      <li><a href="#awards">奖项</a></li>
+      <li><a href="#team">队伍运转</a></li>
+      <li><a href="#weekend">比赛周末</a></li>
+      <li><a href="#parents">家长须知</a></li>
+      <li><a href="#glossary">术语表</a></li>
+      <li><a href="#resources">学习资源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 第一部分</p>
+      <h1>认识 FRC</h1>
+      <p class="lede">写给想加入孩子高中机器人队、和学生一起做机器人的家长。读完这一部分，你应该能看懂一场比赛，知道一个赛季怎么过，也明白一支队伍靠什么运转。</p>
+      <div class="meta"><span>阅读时间约 30 分钟</span><span>基于 2026 赛季及以前的规则整理</span></div>
+    </header>
+
+    <section id="about">
+      <h2><span class="n">01</span>这份文档讲什么</h2>
+      <p>FRC 有很多自己的说法和习惯。新来的家长常常在第一次去车间或比赛现场时一头雾水：学生在说 "auto"、"pit"、"alliance selection"，场边的人为另一支队伍欢呼，裁判打分的标准也不太直观。</p>
+      <p>这一部分只解决"看懂"的问题，不涉及具体技术。怎么当好一个 mentor、怎么带学生，放在第二部分；编程、机械、电控、筹款等方向的深入学习，放在第三部分。</p>
+      <div class="note">
+        <span class="label">关于规则的时效</span>
+        <p>FRC 每年发布全新的比赛题目，很多数字（比赛时长、机器人重量上限、注册费等）会逐年微调。文中具体数字仅供建立概念，<strong>一切以 FIRST 当年发布的 Game Manual 为准</strong>。</p>
+      </div>
+    </section>
+
+    <section id="first">
+      <h2><span class="n">02</span>FIRST 与 FRC 是什么</h2>
+      <p><strong>FIRST</strong> 是一家美国非营利组织，全称 <span class="en">For Inspiration and Recognition of Science and Technology</span>，1989 年由发明家 Dean Kamen 创办。它的目标不是培养机器人选手，而是通过机器人比赛，让年轻人对科学、工程和技术产生兴趣，并学会团队协作。</p>
+      <p><strong>FRC</strong>（<span class="en">FIRST Robotics Competition</span>）是 FIRST 面向高中生的最高级别项目，1992 年第一次比赛。全球每年有三千多支队伍参加，分布在美国、加拿大、墨西哥、以色列、中国、土耳其、澳大利亚等几十个国家和地区。</p>
+
+      <h3>FIRST 的项目阶梯</h3>
+      <p>很多 FRC 学生是从更低年龄段的项目一路上来的。了解这个阶梯，有助于你判断孩子和其他队员的背景。</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>项目</th><th>年龄段</th><th>机器人规模</th><th>特点</th></tr></thead>
+          <tbody>
+            <tr><td class="k">FLL<br><span class="en">FIRST LEGO League</span></td><td>约 4–16 岁</td><td>乐高积木</td><td>分 Discover / Explore / Challenge 三档，重在启蒙和研究项目</td></tr>
+            <tr><td class="k">FTC<br><span class="en">FIRST Tech Challenge</span></td><td>初中、高中</td><td>约 18 英寸见方</td><td>队伍较小（通常 15 人以内），成本较低，可在家或教室完成</td></tr>
+            <tr><td class="k">FRC<br><span class="en">FIRST Robotics Competition</span></td><td>高中（9–12 年级）</td><td>约 50 多公斤的工业级机器人</td><td>需要车间和工业工具，队伍规模大，运作接近一个小型公司</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>FIRST 自己形容 FRC 是"<strong>Sport for the Mind</strong>"：在严格的规则、有限的预算和很短的时间里，学生要组队募资、做品牌，还要设计、制造、编程一台机器人，再带着它去比赛。</p>
+    </section>
+
+    <section id="values">
+      <h2><span class="n">03</span>核心理念：先理解文化，再理解比赛</h2>
+      <p>这是家长最容易低估的一节。FRC 的很多做法，用普通体育比赛的眼光看会觉得奇怪，但放在它的价值观里就很好理解。</p>
+
+      <h3>Gracious Professionalism（亲和的专业精神）</h3>
+      <p>由 MIT 教授、FRC 长期导师 Woodie Flowers 提出。意思是：竞争要激烈，但要对人尊重和善意。在 FRC 现场，你会看到一支队伍把备用零件借给对手，或者派程序员去帮对手调试。这都是常态，也是被鼓励的。</p>
+
+      <h3>Coopertition（竞合）</h3>
+      <p>Cooperation 加 Competition。赛制本身就设计成需要合作：每场比赛的盟友是随机分配的，下一场他们可能就是你的对手。帮别人变强，最终也会帮到自己。</p>
+
+      <h3>学生主导</h3>
+      <p>FRC 的初衷是让学生学会做工程，而不是让成年人造一台好机器人。各队对"mentor 参与多深"的做法差别很大，从"成人只提问、绝不动手"到"成人和学生并肩干活"都有，FIRST 并没有硬性规定。但有一点是共识：<strong>学生的成长比机器人的成绩更重要。</strong></p>
+
+      <div class="parent">
+        <span class="label">对家长意味着什么</span>
+        <p>你在队里的成功标准，不是机器人赢了多少场，而是学生从你身上学到了多少。一位资深 mentor 常说："如果学生能在你不在场时把这件事做好，你就成功了。"第二部分会专门讨论"教"和"做"的边界。</p>
+      </div>
+    </section>
+
+    <section id="season">
+      <h2><span class="n">04</span>一个赛季是怎么过的</h2>
+      <p>FRC 的节奏非常鲜明：大半年在准备，几个月高强度冲刺。下面是一个典型队伍的全年时间线（具体日期每年不同）。</p>
+
+      <div class="season">
+        <div class="step">
+          <span class="when">5 月 – 12 月</span>
+          <span class="what">休赛期 Off-season</span>
+          <p>招新、培训新队员、练习 CAD 和编程、做技术预研（比如新的底盘或视觉方案）、拉赞助、参加社区活动和休赛期友谊赛。<strong>家长现在加入，正是最好的时机。</strong></p>
+        </div>
+        <div class="step hot">
+          <span class="when">1 月上旬的周六</span>
+          <span class="what">Kickoff 赛题发布</span>
+          <p>FIRST 在全球同步公布当年的比赛题目、场地和规则手册。各队一起看直播，然后马上开始读规则、讨论策略。</p>
+        </div>
+        <div class="step hot">
+          <span class="when">1 月 – 2 月（约 6–8 周）</span>
+          <span class="what">Build Season 造车期</span>
+          <p>策略分析、原型、设计、加工、组装、编程、练车。很多队伍每周训练 15–25 小时以上，周末全天。2020 年起 FIRST 取消了"封箱日"，比赛期间也可以继续改进机器人，但第一场比赛前的这段时间依然最紧张。</p>
+        </div>
+        <div class="step hot">
+          <span class="when">2 月底 – 4 月</span>
+          <span class="what">Competition Season 比赛期</span>
+          <p>参加 1–3 场（甚至更多）正式赛事。两场比赛之间继续修改和优化机器人。</p>
+        </div>
+        <div class="step">
+          <span class="when">4 月下旬</span>
+          <span class="what">FIRST Championship 世界锦标赛</span>
+          <p>近年在德州休斯顿举办。数百支队伍按分区比赛，最后决出世界冠军。</p>
+        </div>
+        <div class="step">
+          <span class="when">夏秋季</span>
+          <span class="what">休赛期赛事 Off-season Events</span>
+          <p>各地组织的非官方比赛，通常沿用当年的赛题。压力小，很适合让新队员上场操作或在维修区帮忙。</p>
+        </div>
+      </div>
+
+      <h3>近几年的赛题</h3>
+      <p>每年的题目完全不同，所以每年都要造一台新机器人。下面这些名字你会经常听学生提起：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>年份</th><th>赛题</th><th>大致任务</th></tr></thead>
+          <tbody>
+            <tr><td class="num">2023</td><td class="k">CHARGED UP</td><td>把锥筒和方块放到不同高度的格栅上，最后在跷跷板式平台上保持平衡</td></tr>
+            <tr><td class="num">2024</td><td class="k">CRESCENDO</td><td>把泡沫圆环射进目标，最后爬上铁链</td></tr>
+            <tr><td class="num">2025</td><td class="k">REEFSCAPE</td><td>把管子和球放到"珊瑚礁"结构上，最后在笼子上悬挂</td></tr>
+            <tr><td class="num">2026</td><td class="k">REBUILT</td><td>以"重建"为主题的新赛题，具体任务请看比赛回放</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>建议在 YouTube 搜索"赛题名 + Championship Finals"，看一两场决赛，比读任何描述都直观。</p>
+    </section>
+
+    <section id="match">
+      <h2><span class="n">05</span>一场比赛怎么打</h2>
+
+      <h3>联盟：三对三</h3>
+      <p>每场比赛有 6 台机器人，分成<strong>红、蓝两个联盟</strong>，每边 3 支队伍。资格赛阶段的盟友和对手由系统随机分配，所以一支强队也可能因为盟友不给力而输掉一场。</p>
+      <div class="alliances" aria-label="联盟示意">
+        <div class="alliance red"><b>红方联盟</b><span class="teams">队伍 A · 队伍 B · 队伍 C</span></div>
+        <div class="alliance blue"><b>蓝方联盟</b><span class="teams">队伍 D · 队伍 E · 队伍 F</span></div>
+      </div>
+
+      <h3>时间结构</h3>
+      <p>一场比赛通常 2 分 30 秒左右，分为两个阶段：</p>
+      <div class="match" role="img" aria-label="比赛时间条：前 15 秒自动阶段，之后 135 秒手动阶段，最后约 30 秒为终局阶段">
+        <div class="bar">
+          <div class="auto">自动</div>
+          <div class="tele">手动操控 Teleop</div>
+          <div class="end">终局</div>
+        </div>
+        <div class="ticks"><span>0:00</span><span>0:15</span><span>2:30</span></div>
+        <p class="caption">按比例绘制。终局时长每年不同，一般是最后 20–30 秒。</p>
+      </div>
+      <ul>
+        <li><strong>自动阶段（Autonomous，约 15 秒）</strong>：没有人操控，机器人完全按预先写好的程序行动。这一段最能体现编程和传感器水平，得分通常也更高。</li>
+        <li><strong>手动阶段（Teleop，约 2 分 15 秒）</strong>：学生操作手用手柄控制机器人。</li>
+        <li><strong>终局（Endgame）</strong>：手动阶段的最后一段，通常有爬升、悬挂、停靠之类的特别任务，分值往往能左右胜负。</li>
+      </ul>
+
+      <h3>驾驶队</h3>
+      <p>每支队伍在场边有一个小小的驾驶队，近年的规则通常是：</p>
+      <ul>
+        <li><strong>操作手（Driver / Operator）</strong>：两名学生，一人开车，一人控制机构</li>
+        <li><strong>人类玩家（Human Player）</strong>：一名学生，负责向场内投放或递送游戏道具</li>
+        <li><strong>驾驶教练（Drive Coach）</strong>：可以是学生，<strong>也可以是成人 mentor</strong>，负责场上策略和沟通</li>
+        <li><strong>技师（Technician）</strong>：一名学生，负责赛前在场地上连接和检查机器人</li>
+      </ul>
+
+      <h3>排名与淘汰</h3>
+      <ol>
+        <li><strong>资格赛（Qualification Matches）</strong>：每队打 10 场左右，按<strong>排名分（Ranking Points，RP）</strong>排名。赢一场能拿到几分 RP，完成当年规定的特定任务（比如自动阶段达标）还有额外 RP。</li>
+        <li><strong>联盟选择（Alliance Selection）</strong>：排名前 8 的队伍当"队长"，按蛇形顺序（1→8，再 8→1）从剩下的队伍中挑选盟友，组成 8 个三队联盟。此时 <strong>scouting（侦察数据）</strong> 至关重要：知道谁真的强、谁能和自己互补，才能挑对人。</li>
+        <li><strong>淘汰赛（Playoffs）</strong>：8 个联盟打双败淘汰，决赛三局两胜。</li>
+      </ol>
+      <div class="parent">
+        <span class="label">一个常见误解</span>
+        <p>排名第一不等于最后夺冠，没排进前 8 也不等于没机会。很多队伍正是靠一套好的 scouting 系统被强队选中，一路打进决赛。所以 scouting 是一个非常值得投入、也非常适合非技术背景家长去帮忙的方向。</p>
+      </div>
+
+      <h3>机器人的基本限制</h3>
+      <p>每年的具体数字不同，但通常包括：</p>
+      <ul>
+        <li><strong>重量</strong>：不含保险杠和电池，大约 115–125 磅（52–57 公斤）</li>
+        <li><strong>尺寸</strong>：限制底盘周长和最大高度，比赛中还限制机构能伸出底盘多远</li>
+        <li><strong>保险杠（Bumpers）</strong>：必须按规定用布包裹，并印上队号和红/蓝联盟颜色</li>
+        <li><strong>电控系统</strong>：必须使用规定的主控制器（roboRIO 或其后续型号）、12V 铅酸电池、指定的电机和电子元件</li>
+        <li><strong>预算</strong>：单个零件和整机成本有上限</li>
+      </ul>
+      <p>每台机器人在比赛前都要通过<strong>检录（Inspection）</strong>，确认合规后才能上场。</p>
+    </section>
+
+    <section id="events">
+      <h2><span class="n">06</span>赛事体系：Regional 与 District</h2>
+      <p>FRC 有两种赛区模式。你的队伍属于哪种，取决于学校所在地区，它会直接影响全年要打几场比赛、出差多远、花多少钱。</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th></th><th>区域赛模式 Regional</th><th>分区模式 District</th></tr></thead>
+          <tbody>
+            <tr><td class="k">比赛规模</td><td>40–60 支队伍，周四到周六，共 3 天</td><td>约 30–40 支队伍，通常 2–3 天</td></tr>
+            <tr><td class="k">常见场次</td><td>1–2 场，经常需要坐飞机去外州</td><td>注册费含 2 场本地分区赛，路途较近</td></tr>
+            <tr><td class="k">晋级方式</td><td>赢下区域赛冠军，或拿到特定奖项，直接获得世锦赛资格</td><td>按积分累计，先进入分区锦标赛（District Championship），再按积分晋级世锦赛</td></tr>
+            <tr><td class="k">典型地区</td><td>加州、纽约、亚利桑那、佛罗里达，以及多数海外地区</td><td>密歇根、德州、新英格兰、太平洋西北、安大略、以色列、北卡等</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>分区的划分偶尔会调整，具体请查看 FIRST 官网或问队里的 mentor。</p>
+    </section>
+
+    <section id="awards">
+      <h2><span class="n">07</span>不只是机器人：奖项</h2>
+      <p>FRC 的颁奖典礼上，大部分奖项与比赛胜负无关。评委会到维修区和队伍面谈，看工程过程、团队文化和社会影响。<strong>从晋级世锦赛的角度看，有些奖项的分量和冠军一样重。</strong></p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>奖项</th><th>表彰什么</th><th>备注</th></tr></thead>
+          <tbody>
+            <tr><td class="k">FIRST Impact Award</td><td>队伍多年来在推广 STEM、服务社区、帮助其他队伍方面的影响力</td><td>FRC 最高荣誉，原名 Chairman's Award。需要提交论文、视频并现场答辩，可直接晋级世锦赛</td></tr>
+            <tr><td class="k">Engineering Inspiration</td><td>在学校和社区中推广工程教育的突出成绩</td><td>可晋级世锦赛</td></tr>
+            <tr><td class="k">Rookie All Star</td><td>表现最好的新队</td><td>第一年的队伍才有资格</td></tr>
+            <tr><td class="k">技术类奖项</td><td>Excellence in Engineering、Industrial Design、Innovation in Control、Quality、Creativity、Autonomous 等</td><td>评委关注设计过程和学生能否讲清楚</td></tr>
+            <tr><td class="k">文化类奖项</td><td>Gracious Professionalism、Team Spirit、Imagery、Judges' Award 等</td><td>表彰团队精神和形象</td></tr>
+            <tr><td class="k">Dean's List</td><td>个人奖，表彰杰出学生</td><td>由 mentor 提名学生</td></tr>
+            <tr><td class="k">Woodie Flowers Finalist</td><td>个人奖，表彰杰出 mentor</td><td>由学生撰文提名 mentor</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="parent">
+        <span class="label">对家长意味着什么</span>
+        <p>Impact Award 的材料准备、社区活动组织、评委面谈练习，这些工作很需要成年人在写作、演讲和组织方面的经验。没有工程背景的家长，同样可以在这里起关键作用。</p>
+      </div>
+    </section>
+
+    <section id="team">
+      <h2><span class="n">08</span>一支队伍是怎么运转的</h2>
+      <p>一支 FRC 队伍从十几人到上百人不等，运作方式很像一家小公司。每支队伍有一个终身不变的<strong>队号</strong>（例如 254、1678），号码越小，建队越早。</p>
+
+      <h3>常见的学生分组</h3>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>分组</th><th>做什么</th></tr></thead>
+          <tbody>
+            <tr><td class="k">机械 Mechanical</td><td>设计（多用 Onshape 做 CAD）、加工、装配。常见的底盘是 swerve（全向轮组）</td></tr>
+            <tr><td class="k">编程 Software</td><td>用 Java、C++ 或 Python 加 WPILib 框架编写控制程序、自动路径和视觉识别</td></tr>
+            <tr><td class="k">电控 Electrical</td><td>布线、电源分配、CAN 总线、传感器、电机控制器</td></tr>
+            <tr><td class="k">策略与侦察 Strategy &amp; Scouting</td><td>分析规则、制定比赛策略，比赛时收集其他队伍的数据</td></tr>
+            <tr><td class="k">商务 Business</td><td>筹款、赞助商关系、预算、财务</td></tr>
+            <tr><td class="k">外联 Outreach</td><td>社区活动、辅导 FLL/FTC 队伍、Impact Award 材料</td></tr>
+            <tr><td class="k">媒体 Media</td><td>品牌、网站、社交媒体、视频、队服和徽章设计</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>钱从哪来，花到哪去</h3>
+      <p>FRC 不便宜。一个赛季的总预算从两三万美元到十万美元以上都有，主要开销包括：</p>
+      <ul>
+        <li><strong>赛事注册费</strong>：第一场赛事约 6,000 美元，追加的赛事每场还要几千美元（以 FIRST 当年公布为准）</li>
+        <li><strong>零件和材料</strong>：电机、控制器、铝材、轮组模块、传感器、备件等</li>
+        <li><strong>工具和设备</strong>：车床、铣床、CNC、3D 打印机，以及日常手工具</li>
+        <li><strong>差旅</strong>：外地比赛的机票、酒店、餐饮，对 Regional 模式的队伍来说往往是最大的一笔</li>
+      </ul>
+      <p>收入一般来自企业赞助、学校或学区拨款、各类基金会资助、队员会费和众筹。FIRST 也会通过 <strong>Kit of Parts（零件包）</strong> 和 <strong>FIRST Choice</strong> 给每支队伍提供一批免费或抵扣的零件。</p>
+
+      <h3>成人角色</h3>
+      <ul>
+        <li><strong>Lead Mentor / Coach</strong>：每队在 FIRST 系统里登记的主要负责人，通常是学校老师，对队伍负法律和组织责任</li>
+        <li><strong>技术 Mentor</strong>：在机械、编程、电控等方向指导学生</li>
+        <li><strong>非技术 Mentor</strong>：商务、外联、媒体、Impact Award 等方向</li>
+        <li><strong>家长志愿者</strong>：后勤、餐饮、交通、比赛出行、筹款活动</li>
+      </ul>
+      <p>这几类角色之间没有硬性界限。很多家长从后勤做起，熟悉之后再慢慢承担指导工作。</p>
+    </section>
+
+    <section id="weekend">
+      <h2><span class="n">09</span>一次比赛周末长什么样</h2>
+      <p>以 Regional 的三天赛事为例。第一次随队参赛的家长，可以照着这张表提前做好心理准备。</p>
+      <div class="days">
+        <div class="day">
+          <span class="d">前一天</span>
+          <b>搬入 Load-in</b>
+          <ul><li>运输机器人、工具和备件</li><li>在维修区（Pit）搭好工作台</li></ul>
+        </div>
+        <div class="day">
+          <span class="d">第 1 天</span>
+          <b>检录与练习</b>
+          <ul><li>机器人检录</li><li>练习赛，调试自动程序</li><li>评委开始走访维修区</li></ul>
+        </div>
+        <div class="day">
+          <span class="d">第 2 天</span>
+          <b>资格赛</b>
+          <ul><li>全天比赛，每队几场</li><li>scouting 小组记录所有队伍</li><li>场间抢修机器人</li></ul>
+        </div>
+        <div class="day">
+          <span class="d">第 3 天</span>
+          <b>选人与淘汰赛</b>
+          <ul><li>上午打完资格赛</li><li>中午联盟选择</li><li>下午淘汰赛和颁奖</li></ul>
+        </div>
+      </div>
+      <p>现场有几条基本规矩：在维修区和赛场内必须<strong>戴护目镜</strong>（家长也一样）；穿封闭的鞋；维修区内不能奔跑；只有指定人员能进入比赛场地区域。比赛日通常从清晨开始，晚上才结束，节奏很快，噪音也很大。</p>
+    </section>
+
+    <section id="parents">
+      <h2><span class="n">10</span>家长先记住的几件事</h2>
+      <ol>
+        <li><strong>先观察，后参与。</strong>每支队伍都有自己的文化和习惯。头几周多看、多问，弄清楚队伍的分工和 mentor 的参与方式。</li>
+        <li><strong>完成注册和审核。</strong>在美国，正式担任 mentor 需要在 FIRST 网站注册账号、关联到队伍，并完成 <strong>Youth Protection Program（YPP，青少年保护）</strong> 的筛查；学校通常也有自己的志愿者审核流程。请提前办理，审核需要时间。</li>
+        <li><strong>机器人属于学生。</strong>当你忍不住想"我来吧，这样快一点"时，请停下来。</li>
+        <li><strong>不要只盯着自己的孩子。</strong>在队里，你是所有学生的 mentor。很多队伍还建议家长 mentor 不要直接指导自己孩子所在的小组。</li>
+        <li><strong>安全永远第一。</strong>车间里有电动工具、高能电池和快速运动的机构，要以身作则遵守安全规范。</li>
+        <li><strong>非技术背景同样有价值。</strong>筹款、组织、写作、演讲辅导、后勤，都是队伍长期缺少的能力。</li>
+      </ol>
+      <p>这些话题会在<strong>第二部分：怎么当 mentor</strong> 里展开。</p>
+    </section>
+
+    <section id="glossary">
+      <h2><span class="n">11</span>术语表</h2>
+      <p>学生之间基本都用英文术语。先熟悉这些词，交流会顺畅很多。</p>
+      <dl class="gloss">
+        <dt>Kickoff</dt><dd>1 月初发布当年赛题的活动</dd>
+        <dt>Game Manual</dt><dd>当年的官方规则手册，几乎所有争议都以它为准</dd>
+        <dt>KOP</dt><dd>Kit of Parts，FIRST 发给各队的零件包</dd>
+        <dt>Alliance</dt><dd>联盟，红方或蓝方，每方三队</dd>
+        <dt>Auto / Teleop</dt><dd>自动阶段 / 手动操控阶段</dd>
+        <dt>Endgame</dt><dd>比赛最后一段，通常有爬升、悬挂等任务</dd>
+        <dt>RP</dt><dd>Ranking Points，资格赛的排名分</dd>
+        <dt>Quals / Playoffs</dt><dd>资格赛 / 淘汰赛</dd>
+        <dt>Alliance Selection</dt><dd>资格赛后前 8 名挑选盟友的环节</dd>
+        <dt>Pick list</dt><dd>队伍根据 scouting 数据排出的选人名单</dd>
+        <dt>Scouting</dt><dd>比赛时记录、分析其他队伍表现的工作</dd>
+        <dt>Pit</dt><dd>维修区，每队一块小场地，用于修车和接待评委</dd>
+        <dt>Drive Team</dt><dd>驾驶队，在场边操作机器人的几个人</dd>
+        <dt>Inspection</dt><dd>赛前检录，确认机器人符合规则</dd>
+        <dt>Bumpers</dt><dd>机器人四周必须安装的布包保险杠，显示队号和联盟颜色</dd>
+        <dt>Swerve</dt><dd>一种每个轮子都能独立转向的底盘，近年强队几乎都在用</dd>
+        <dt>roboRIO</dt><dd>FRC 规定使用的机器人主控制器</dd>
+        <dt>Driver Station</dt><dd>操作手用来连接、控制机器人的电脑软件</dd>
+        <dt>FMS</dt><dd>Field Management System，场地管理系统，负责计时和计分</dd>
+        <dt>WPILib</dt><dd>FRC 官方的机器人编程库</dd>
+        <dt>CAD</dt><dd>计算机辅助设计，FRC 队伍最常用 Onshape</dd>
+        <dt>Brownout</dt><dd>电池电压过低导致机器人暂时失去动力，常见的比赛故障</dd>
+        <dt>OPR / EPA</dt><dd>用比赛数据估算单支队伍贡献的统计指标</dd>
+        <dt>CD</dt><dd>Chief Delphi，FRC 最大的英文社区论坛</dd>
+        <dt>TBA</dt><dd>The Blue Alliance，查询队伍和比赛数据的网站</dd>
+        <dt>GP</dt><dd>Gracious Professionalism，亲和的专业精神</dd>
+      </dl>
+    </section>
+
+    <section id="resources">
+      <h2><span class="n">12</span>学习资源</h2>
+      <p>建议按顺序来：先看一场决赛视频，再浏览官网，然后在 The Blue Alliance 上查一查自己的队伍。</p>
+      <ul class="res">
+        <li><a href="https://www.firstinspires.org/robotics/frc" target="_blank" rel="noopener">FIRST 官网 · FRC 页面</a><br>项目介绍、赛季日程、当年规则手册和官方公告。<br><span class="url">firstinspires.org/robotics/frc</span></li>
+        <li><a href="https://www.youtube.com/@FIRSTRoboticsCompetition" target="_blank" rel="noopener">FIRST Robotics Competition YouTube 频道</a><br>Kickoff 赛题动画、比赛直播和回放。<br><span class="url">youtube.com/@FIRSTRoboticsCompetition</span></li>
+        <li><a href="https://www.thebluealliance.com" target="_blank" rel="noopener">The Blue Alliance</a><br>查任何一支队伍的历史成绩、比赛视频和赛事日程。<br><span class="url">thebluealliance.com</span></li>
+        <li><a href="https://www.statbotics.io" target="_blank" rel="noopener">Statbotics</a><br>基于 EPA 指标的队伍实力统计和预测。<br><span class="url">statbotics.io</span></li>
+        <li><a href="https://www.chiefdelphi.com" target="_blank" rel="noopener">Chief Delphi</a><br>FRC 社区论坛，技术讨论、经验分享，也有很多关于 mentor 角色的讨论。<br><span class="url">chiefdelphi.com</span></li>
+        <li><a href="https://docs.wpilib.org" target="_blank" rel="noopener">WPILib 文档</a><br>FRC 编程和控制系统的官方文档，开头几章适合所有人了解机器人怎么"活"起来。<br><span class="url">docs.wpilib.org</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">
+      家长 Mentor 学习计划 · 第一部分《认识 FRC》。接下来是第二部分《怎么当 mentor》和第三部分《按方向深入》。文中规则和费用以 FIRST 官方当年发布的为准。
+    </footer>
+  </main>
+</div>
