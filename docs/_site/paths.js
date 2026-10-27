@@ -37,6 +37,11 @@
     return rest === undefined ? null : rest;
   }
 
+  // True when a document path points back at the shell itself (the site home).
+  function isShellPath(path) {
+    return path === "" || path === "index.html";
+  }
+
   function flattenDocs(tree) {
     var out = [];
     (function walk(node, trail) {
@@ -57,6 +62,7 @@
     hashFor: hashFor,
     baseDir: baseDir,
     relativeToBase: relativeToBase,
+    isShellPath: isShellPath,
     flattenDocs: flattenDocs,
   };
 

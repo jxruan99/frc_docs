@@ -56,3 +56,10 @@ test("flattenDocs lists documents in tree order with their folder trail", () => 
     { path: "1-sec/deep/b.html", title: "B", description: "", trail: ["sec", "deep"] },
   ]);
 });
+
+test("isShellPath recognises links back to the site home", () => {
+  assert.equal(P.isShellPath(""), true);
+  assert.equal(P.isShellPath("index.html"), true);
+  assert.equal(P.isShellPath("sec/index.html"), false);
+  assert.equal(P.isShellPath("a.html"), false);
+});

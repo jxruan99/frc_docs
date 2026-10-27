@@ -140,6 +140,21 @@
     if (path === null) home.setAttribute("aria-current", "page"); else home.removeAttribute("aria-current");
   }
 
+  // Swap the iframe's document without adding a history entry: the hash change already
+  // added one, and a second entry would make Back appear to do nothing.
+  function loadFrame(path) {
+    const url = new URL(P.docHref(path), location.href).href;
+    if (frame.getAttribute("src")) {
+      try {
+        frame.contentWindow.location.replace(url);
+        return;
+      } catch (e) {
+        // fall through to a plain src change
+      }
+    }
+    frame.src = url;
+  }
+
   function route() {
     const path = P.parseHash(location.hash);
     if (path === null) {
@@ -153,7 +168,7 @@
     } else {
       if (frame.dataset.path !== path) {
         frame.dataset.path = path;
-        frame.src = P.docHref(path);
+        loadFrame(path);
       }
       show("doc");
       highlight(path);
@@ -172,6 +187,13 @@
       return; // cross-origin (e.g. opened from file://)
     }
     const path = P.relativeToBase(pathname, base);
+    if (path !== null && P.isShellPath(path)) {
+      // A document linked back to the site home: show home instead of a nested shell.
+      delete frame.dataset.path;
+      history.replaceState(null, "", "#/");
+      route();
+      return;
+    }
     if (!path || !byPath.has(path)) return;
     frame.dataset.path = path;
     if (P.parseHash(location.hash) !== path) {
