@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>家长 Mentor 学习计划</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_site/shell.css">
+</head>
+<body>
+<header class="topbar">
+  <button id="nav-toggle" class="nav-toggle" type="button" aria-controls="nav" aria-expanded="false" aria-label="打开目录">
+    <span aria-hidden="true"></span>
+  </button>
+  <a class="brand" href="#/">家长 Mentor 学习计划</a>
+</header>
+
+<div class="layout">
+  <nav id="nav" class="nav" aria-label="文档导航">
+    <a class="nav-home" href="#/">首页</a>
+    <div id="nav-tree"></div>
+  </nav>
+  <div id="scrim" class="scrim" hidden></div>
+
+  <main id="main" class="main">
+    <section id="home" class="view" hidden>
+      <div class="page">
+        <p class="eyebrow"><b>FRC</b> · 高中机器人队</p>
+        <h1>家长 Mentor 学习计划</h1>
+        <p class="lede">写给想加入孩子高中机器人队、和学生一起做 FRC 机器人的家长。建议按顺序阅读，从了解比赛开始，再学习怎么当好一名 mentor。</p>
+        <div id="home-list"></div>
+      </div>
+    </section>
+
+    <section id="notfound" class="view" hidden>
+      <div class="page">
+        <h1>找不到这篇文档</h1>
+        <p class="lede">找不到这篇文档，它可能已被移动或删除。</p>
+        <p><a href="#/">返回首页</a></p>
+      </div>
+    </section>
+
+    <section id="missing-manifest" class="view" hidden>
+      <div class="page">
+        <h1>目录尚未生成</h1>
+        <p class="lede">目录清单尚未生成。请在仓库根目录运行 <code>python3 scripts/build_manifest.py</code> 后刷新页面。</p>
+      </div>
+    </section>
+
+    <iframe id="doc" class="doc-frame" title="文档" hidden></iframe>
+  </main>
+</div>
+
+<script src="_site/manifest.js"></script>
+<script src="_site/paths.js"></script>
+<script src="_site/shell.js"></script>
+</body>
+</html>
