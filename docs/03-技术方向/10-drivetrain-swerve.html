@@ -1,0 +1,414 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>底盘与 Swerve</title>
+<meta name="nav-title" content="底盘与 Swerve">
+<meta name="description" content="FRC 底盘选型，swerve 全向底盘的原理和运动学，以场地为参照的驾驶，WPILib 与厂商的软件实现，以及调试步骤和常见问题。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts; one three-panel diagram shows swerve kinematics as vector addition.
+   Diagram colors: muted = translation component, amber = rotation component, blue = resulting module velocity. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --code-bg: #eef1f5;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; --code-bg: #1d2430; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; --code-bg: #1d2430; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--code-bg); border-radius: 4px; padding: 1px 5px; }
+pre { background: var(--code-bg); border-radius: 6px; padding: 12px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; margin: 10px 0 14px; max-width: 760px; }
+pre code { background: none; padding: 0; font-size: inherit; }
+.formula { font-family: var(--font-mono); font-size: 15px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; margin: 12px 0 16px; max-width: 720px; overflow-x: auto; line-height: 1.9; }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.tip { background: var(--blue-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.tip .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+.tip p:last-child, .tip ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+td.mono { font-family: var(--font-mono); font-size: 13.5px; white-space: nowrap; }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 22px; height: 0; border-top: 3px solid; display: inline-block; }
+.legend .tr i { border-color: var(--muted); }
+.legend .ro i { border-color: var(--amber); }
+.legend .sum i { border-color: var(--blue); }
+svg .chassis { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+svg .front { stroke: var(--ink); stroke-width: 3; }
+svg .module { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; }
+svg .center { fill: var(--ink); }
+svg .v-tr { stroke: var(--muted); stroke-width: 2.5; fill: none; }
+svg .v-ro { stroke: var(--amber); stroke-width: 2.5; fill: none; }
+svg .v-sum { stroke: var(--blue); stroke-width: 3; fill: none; }
+svg .ah-tr { fill: var(--muted); }
+svg .ah-ro { fill: var(--amber); }
+svg .ah-sum { fill: var(--blue); }
+svg .op { fill: var(--muted); font-size: 26px; font-weight: 500; }
+svg .spin { fill: none; stroke: var(--amber); stroke-width: 1.5; stroke-dasharray: 4 3; }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 14px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step); font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--blue); width: 28px; height: 28px; border: 1.5px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.steps > li > div { min-width: 0; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps p { margin: 0; }
+
+.faq { max-width: 760px; margin: 0; }
+.faq dt { font-weight: 700; margin-top: 14px; }
+.faq dd { margin: 4px 0 0; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#why">底盘为什么重要</a></li>
+      <li><a href="#types">底盘类型</a></li>
+      <li><a href="#module">Swerve 轮组</a></li>
+      <li><a href="#kinematics">Swerve 运动学</a></li>
+      <li><a href="#field-oriented">以场地为参照驾驶</a></li>
+      <li><a href="#software">软件实现</a></li>
+      <li><a href="#bringup">调试步骤</a></li>
+      <li><a href="#design">选型与设计</a></li>
+      <li><a href="#tank">坦克底盘要点</a></li>
+      <li><a href="#faq">常见问题</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 技术方向</p>
+      <h1>底盘与 Swerve</h1>
+      <p class="lede">底盘是机器人的"腿"，也是整台机器人最先要做好的部分。这一篇比较 FRC 常见的底盘类型，重点讲近年强队几乎都在用的 swerve 全向底盘：它由什么组成、怎么算出每个轮子的方向和速度、软件怎么实现，以及从零调通的步骤。</p>
+      <div class="meta"><span>资料整理于 2026 年 10 月</span><span>代码示例以 Java 为主</span></div>
+    </header>
+
+    <section id="why">
+      <h2><span class="n">01</span>底盘为什么重要</h2>
+      <ul class="prose">
+        <li><strong>比赛大部分时间都在跑</strong>：取件、送件、躲避防守、终局抢位置，都靠底盘</li>
+        <li><strong>决定了自动阶段能做多少</strong>：底盘越快越准，15 秒内能完成的任务越多</li>
+        <li><strong>是其他一切的基础</strong>：机构装在底盘上，电气板、电池放在底盘里。底盘尺寸一定，整车布局就基本确定了</li>
+        <li><strong>越早完成越好</strong>：底盘一能跑，软件组就能调试，驾驶员就能练习。很多强队在 Kickoff 前就已经造好底盘</li>
+      </ul>
+    </section>
+
+    <section id="types">
+      <h2><span class="n">02</span>底盘类型</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>类型</th><th>能怎么动</th><th>电机数量</th><th>优点</th><th>缺点</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Swerve</td><td>任意方向平移，同时自由旋转</td><td>8 个（每个轮组 2 个）</td><td>最灵活，便于躲避防守和对准目标；近年强队的标配</td><td>贵、编程复杂、维护要求高</td></tr>
+            <tr><td class="k">坦克式 / WCD</td><td>前进后退、原地转向，不能横移</td><td>4–6 个</td><td>简单、便宜、推力大、皮实</td><td>不能横移，侧面容易被推</td></tr>
+            <tr><td class="k">KoP 底盘</td><td>同坦克式</td><td>4 个</td><td>零件包附带、说明书齐全，一两天能装好</td><td>性能一般</td></tr>
+            <tr><td class="k">Mecanum</td><td>任意方向平移，同时旋转</td><td>4 个</td><td>结构比 swerve 简单</td><td>推力小、怕撞、易打滑，FRC 已很少见</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip">
+        <span class="label">新队伍怎么选</span>
+        <p>第一年或缺少经验的队伍，用 KoP 或简单的坦克底盘完全可以，把精力放在做好一两个得分机构上。有一定基础后，建议在休赛期先做一台 swerve 练手，不要在造车期第一次尝试。</p>
+      </div>
+    </section>
+
+    <section id="module">
+      <h2><span class="n">03</span>Swerve 轮组</h2>
+      <p class="prose">swerve 底盘一般有四个<strong>轮组（module）</strong>，装在底盘四角。每个轮组包含：</p>
+      <ul class="prose">
+        <li><strong>驱动电机</strong>：让轮子滚动，决定速度</li>
+        <li><strong>转向电机</strong>：让整个轮子绕竖直轴转动，决定方向</li>
+        <li><strong>绝对值编码器</strong>：测量轮子当前朝向。开机时就要知道方向，所以必须用绝对值编码器，比如 CANcoder</li>
+      </ul>
+      <p class="prose">绝大多数队伍直接购买市售轮组，常见的有 SDS 的 MK4 / MK5 系列、REV MAXSwerve、WCP Swerve X2 系列、The Thrifty Bot 的 Thrifty Swerve。它们通常提供几档<strong>驱动减速比</strong>（比如 SDS 的 L1 到 L3）：减速比小则跑得快、起步慢，减速比大则起步猛、最高速度低。常见的 FRC swerve 最高速度大约在 4–5.5 m/s。</p>
+    </section>
+
+    <section id="kinematics">
+      <h2><span class="n">04</span>Swerve 运动学：每个轮子该朝哪、转多快</h2>
+      <p class="prose">驾驶员想让机器人"一边往前走、一边逆时针转"。程序要据此算出四个轮子各自的方向和速度。原理是向量相加：</p>
+      <div class="formula">轮组速度 = 机器人平移速度 + 旋转带来的切向速度（ω × 轮组到中心的距离）</div>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 900 290" role="img" aria-label="swerve 运动学向量图，共三幅，机器人车头朝上。第一幅只平移：四个轮组的速度都朝前、大小相同。第二幅只旋转（逆时针）：每个轮组的速度沿圆周切线方向。第三幅两者相加：右侧两个轮组朝左前方、速度较大，左侧两个轮组朝侧前方、速度较小。">
+            <defs>
+              <marker id="sw-tr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="ah-tr" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="sw-ro" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="ah-ro" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="sw-sum" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="ah-sum" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <!-- scale: module offset 60 px, velocity 40 px per unit; translation (0, 1), rotation omega = 0.7 counter-clockwise -->
+
+            <!-- panel 1: translation only -->
+            <text class="t-b" x="150" y="18" text-anchor="middle">只平移（向前）</text>
+            <rect class="chassis" x="90" y="100" width="120" height="120" rx="6"/>
+            <line class="front" x1="100" y1="100" x2="200" y2="100"/>
+            <text class="t-s" x="150" y="94" text-anchor="middle">车头</text>
+            <circle class="center" cx="150" cy="160" r="3"/>
+            <circle class="module" cx="90" cy="100" r="9"/>
+            <circle class="module" cx="210" cy="100" r="9"/>
+            <circle class="module" cx="90" cy="220" r="9"/>
+            <circle class="module" cx="210" cy="220" r="9"/>
+            <line class="v-tr" x1="90" y1="100" x2="90" y2="60" marker-end="url(#sw-tr)"/>
+            <line class="v-tr" x1="210" y1="100" x2="210" y2="60" marker-end="url(#sw-tr)"/>
+            <line class="v-tr" x1="90" y1="220" x2="90" y2="180" marker-end="url(#sw-tr)"/>
+            <line class="v-tr" x1="210" y1="220" x2="210" y2="180" marker-end="url(#sw-tr)"/>
+            <text class="t-s" x="150" y="262" text-anchor="middle">四个轮子方向、速度完全相同</text>
+
+            <text class="op" x="300" y="170" text-anchor="middle">+</text>
+
+            <!-- panel 2: rotation only -->
+            <text class="t-b" x="450" y="18" text-anchor="middle">只旋转（逆时针）</text>
+            <rect class="chassis" x="390" y="100" width="120" height="120" rx="6"/>
+            <line class="front" x1="400" y1="100" x2="500" y2="100"/>
+            <text class="t-s" x="450" y="94" text-anchor="middle">车头</text>
+            <circle class="spin" cx="450" cy="160" r="85"/>
+            <circle class="center" cx="450" cy="160" r="3"/>
+            <circle class="module" cx="390" cy="100" r="9"/>
+            <circle class="module" cx="510" cy="100" r="9"/>
+            <circle class="module" cx="390" cy="220" r="9"/>
+            <circle class="module" cx="510" cy="220" r="9"/>
+            <line class="v-ro" x1="390" y1="100" x2="362" y2="128" marker-end="url(#sw-ro)"/>
+            <line class="v-ro" x1="510" y1="100" x2="482" y2="72" marker-end="url(#sw-ro)"/>
+            <line class="v-ro" x1="390" y1="220" x2="418" y2="248" marker-end="url(#sw-ro)"/>
+            <line class="v-ro" x1="510" y1="220" x2="538" y2="192" marker-end="url(#sw-ro)"/>
+            <text class="t-s" x="450" y="276" text-anchor="middle">每个轮子沿圆周切线方向</text>
+
+            <text class="op" x="600" y="170" text-anchor="middle">=</text>
+
+            <!-- panel 3: sum -->
+            <text class="t-b" x="750" y="18" text-anchor="middle">边走边转</text>
+            <rect class="chassis" x="690" y="100" width="120" height="120" rx="6"/>
+            <line class="front" x1="700" y1="100" x2="800" y2="100"/>
+            <text class="t-s" x="750" y="94" text-anchor="middle">车头</text>
+            <circle class="center" cx="750" cy="160" r="3"/>
+            <circle class="module" cx="690" cy="100" r="9"/>
+            <circle class="module" cx="810" cy="100" r="9"/>
+            <circle class="module" cx="690" cy="220" r="9"/>
+            <circle class="module" cx="810" cy="220" r="9"/>
+            <line class="v-sum" x1="690" y1="100" x2="662" y2="88" marker-end="url(#sw-sum)"/>
+            <line class="v-sum" x1="810" y1="100" x2="782" y2="32" marker-end="url(#sw-sum)"/>
+            <line class="v-sum" x1="690" y1="220" x2="718" y2="208" marker-end="url(#sw-sum)"/>
+            <line class="v-sum" x1="810" y1="220" x2="838" y2="152" marker-end="url(#sw-sum)"/>
+            <text class="t-s" x="750" y="262" text-anchor="middle">右侧轮子更快，左侧更慢</text>
+          </svg>
+        </div>
+        <div class="legend"><span class="tr"><i></i>平移分量</span><span class="ro"><i></i>旋转分量</span><span class="sum"><i></i>轮组实际速度</span></div>
+        <figcaption>俯视图，车头朝上，按同一比例绘制：平移速度为 1，旋转产生的切向速度约为 1。逆时针转时，右侧轮组的切向速度朝前，和平移叠加后跑得快；左侧轮组的切向速度朝后，叠加后几乎只剩横向分量，跑得慢。程序每 20 ms 做一次这样的计算。</figcaption>
+      </figure>
+      <ul class="prose">
+        <li><strong>WPILib 已经替你算好</strong>：<code>SwerveDriveKinematics</code> 输入机器人期望速度（前后、左右、旋转，即 <code>ChassisSpeeds</code>），输出四个轮组的方向和速度（<code>SwerveModuleState</code>）</li>
+        <li><strong>速度超限时按比例缩小</strong>：某个轮子算出来超过最大速度时，四个轮子要一起按比例缩小，否则机器人的运动方向会走样</li>
+        <li><strong>不转超过 90°</strong>：如果轮子需要转 135°，不如只转 45° 再让驱动电机反转，效果一样还更快。WPILib 提供了这个优化</li>
+        <li><strong>反过来也能算</strong>：知道四个轮子的实际方向和速度，可以反推机器人整体在怎么动，这就是 swerve 里程计的基础</li>
+      </ul>
+    </section>
+
+    <section id="field-oriented">
+      <h2><span class="n">05</span>以场地为参照驾驶</h2>
+      <p class="prose">swerve 有两种驾驶方式：</p>
+      <ul class="prose">
+        <li><strong>以机器人为参照（robot-oriented）</strong>：摇杆"向前"就是朝车头方向走。车头朝向一变，驾驶员就得在脑子里换算方向，很难开</li>
+        <li><strong>以场地为参照（field-oriented）</strong>：摇杆"向前"永远是朝场地对面走，不管车头朝哪。这是 swerve 的标准开法，驾驶员只管"往哪走"和"车头朝哪"两件事</li>
+      </ul>
+      <p class="prose">以场地为参照需要实时知道机器人的航向角，所以依赖 IMU，见<a href="08-sensors-vision.html#imu">《传感器与视觉》</a>。常见的手柄分配是：左摇杆控制平移方向和速度，右摇杆左右控制旋转。另外要注意，红方和蓝方站在场地两端，程序里要根据联盟颜色翻转"前方"的定义。</p>
+    </section>
+
+    <section id="software">
+      <h2><span class="n">06</span>软件实现</h2>
+      <p class="prose">从零写一套 swerve 代码工作量不小。现在多数队伍从下面几种起点开始：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>方案</th><th>说明</th><th>适合</th></tr></thead>
+          <tbody>
+            <tr><td class="k">CTRE Tuner X 生成器</td><td>Phoenix Tuner X 里有 swerve 项目生成器：填好电机 ID、CANcoder ID、减速比等参数，自动生成整套代码</td><td>使用 CTRE 电机（Kraken、Falcon）和 CANcoder 的队伍</td></tr>
+            <tr><td class="k">REV MAXSwerve 模板</td><td>REV 提供的 MAXSwerve 示例项目</td><td>使用 REV MAXSwerve 轮组的队伍</td></tr>
+            <tr><td class="k">YAGSL</td><td>社区维护的通用 swerve 库，用配置文件描述硬件，支持多家厂商的电机和编码器</td><td>混用多家硬件的队伍</td></tr>
+            <tr><td class="k">基于 WPILib 自己写</td><td>用 WPILib 的运动学、里程计类自己搭</td><td>想深入理解原理、有经验的软件组</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">不管用哪种方案，核心都是下面几个 WPILib 类：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>类</th><th>作用</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">ChassisSpeeds</td><td>机器人整体速度：前后、左右、旋转</td></tr>
+            <tr><td class="mono">SwerveModuleState</td><td>单个轮组的目标：轮子角度 + 速度</td></tr>
+            <tr><td class="mono">SwerveDriveKinematics</td><td>两者之间的换算，参数是四个轮组相对机器人中心的位置</td></tr>
+            <tr><td class="mono">SwerveDriveOdometry</td><td>根据轮组状态和陀螺仪推算场上位置</td></tr>
+            <tr><td class="mono">SwerveDrivePoseEstimator</td><td>在里程计基础上融合视觉测量</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">示意代码（Java，每 20 ms 执行一次）：</p>
+<pre><code>// 驾驶员输入 → 以场地为参照的机器人速度
+ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+        vxMetersPerSec, vyMetersPerSec, omegaRadPerSec, gyroHeading());
+
+// 换算成四个轮组的目标，并在超速时按比例缩小
+SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
+SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_SPEED);
+
+// 每个轮组：转向电机跑角度闭环，驱动电机跑速度闭环
+for (int i = 0; i &lt; 4; i++) {
+    modules[i].setDesiredState(states[i]);
+}</code></pre>
+      <p class="prose">每个轮组内部是两个闭环：转向电机的位置闭环和驱动电机的速度闭环，通常都在电机控制器内部运行，见<a href="05-closed-loop-pid.html#where-run">《闭环控制与 PID》</a>。具体类名和方法名以当年的 WPILib 版本为准。</p>
+    </section>
+
+    <section id="bringup">
+      <h2><span class="n">07</span>从零调通的步骤</h2>
+      <ol class="steps">
+        <li><div><h3>核对硬件信息</h3><p>整理每个轮组的驱动电机 ID、转向电机 ID、CANcoder ID 和在底盘上的位置，填进配置。ID 规划见<a href="07-can-bus.html#ids">《CAN 数据总线》</a>。</p></div></li>
+        <li><div><h3>校准轮组零点</h3><p>把四个轮子都摆正，朝向车头前方，并保证驱动齿轮朝同一侧。记录此时每个 CANcoder 的读数，作为偏移量写进配置。</p></div></li>
+        <li><div><h3>把机器人架空测试</h3><p>用支架把底盘垫起来，轮子离地。先只测转向：给一个角度，看四个轮子是否都转到同一方向。</p></div></li>
+        <li><div><h3>检查驱动方向</h3><p>给一个"向前"的指令，确认四个轮子都朝前滚。哪个反了，就修改那个驱动电机的反转设置。</p></div></li>
+        <li><div><h3>调转向闭环</h3><p>转向电机的位置 PID 要快而不振荡，轮子转到位后不能抖动。</p></div></li>
+        <li><div><h3>落地慢速试车</h3><p>先限制最高速度，试前进、横移、原地旋转，再试边走边转。确认以场地为参照的方向正确。</p></div></li>
+        <li><div><h3>测前馈、调速度闭环</h3><p>用 SysId 测驱动电机的前馈参数，再调速度 PID，见<a href="05-closed-loop-pid.html#tuning">《闭环控制与 PID》的调参流程</a>。</p></div></li>
+        <li><div><h3>验证里程计</h3><p>让机器人走一段量好的距离，比较里程计读数和卷尺量出的实际距离。误差大，就检查轮子直径和减速比设置。</p></div></li>
+        <li><div><h3>设置限制</h3><p>设电流限制防止打滑和掉电，根据驾驶员习惯设置最大速度、最大加速度。</p></div></li>
+      </ol>
+      <div class="tip">
+        <span class="label">先在仿真里跑</span>
+        <p>CTRE 生成器和 YAGSL 都支持仿真。在电脑上先确认手柄方向、场地参照、自动路线都正确，上车调试会顺利很多。</p>
+      </div>
+    </section>
+
+    <section id="design">
+      <h2><span class="n">08</span>选型与设计要点</h2>
+      <ul class="prose">
+        <li><strong>速度和加速度的取舍</strong>：场地小、需要频繁启停的赛题，加速度比最高速度更重要。可以用 ReCalc 等工具比较不同减速比</li>
+        <li><strong>底盘尺寸</strong>：大底盘更稳、放东西的空间大；小底盘更灵活、容易穿过狭窄区域。尺寸要先满足规则限制，并留出保险杠的位置</li>
+        <li><strong>重心要低</strong>：电池、底盘结构尽量放低。高重心的机器人急停、转弯、被撞时容易翻车</li>
+        <li><strong>底板和离地间隙</strong>：底板（belly pan）用来安装电气元件；离地间隙要能越过场上的障碍</li>
+        <li><strong>轮胎是消耗品</strong>：轮子表面的胎面会磨损，影响抓地力和里程计精度。比赛期间定期检查和更换</li>
+        <li><strong>预算</strong>：一套 swerve 要 8 个电机、4 个轮组和 4 个编码器，是全车最贵的部分之一，要提前规划</li>
+      </ul>
+    </section>
+
+    <section id="tank">
+      <h2><span class="n">09</span>坦克底盘要点</h2>
+      <p class="prose">如果选择坦克式底盘：</p>
+      <ul class="prose">
+        <li><strong>结构</strong>：左右各一组轮子，每侧一个减速箱，通常每侧 2 个电机。常见的 West Coast Drive 让中间轮子略低，转向时阻力更小</li>
+        <li><strong>驾驶方式</strong>：常用 arcade 方式，一个摇杆控制前后，另一个控制转向；也有 tank 方式，两个摇杆分别控制左右两侧</li>
+        <li><strong>软件</strong>：WPILib 的 <code>DifferentialDrive</code> 处理驾驶，<code>DifferentialDriveKinematics</code> 和 <code>DifferentialDrivePoseEstimator</code> 用于自动路线和定位</li>
+        <li><strong>仿真</strong>：可以先做《开发环境与仿真》里的<a href="03-dev-environment.html#exercises">练习 5</a>，体验差速底盘的驾驶和自动路线</li>
+      </ul>
+    </section>
+
+    <section id="faq">
+      <h2><span class="n">10</span>常见问题</h2>
+      <dl class="faq">
+        <dt>开机后有一个轮子朝向不对</dt>
+        <dd>这个轮组的 CANcoder 偏移量不对，或者 CANcoder 的 ID 和轮组对应错了。重新校准零点，核对 ID 表。</dd>
+        <dt>推摇杆向前，机器人却斜着走或者原地打转</dt>
+        <dd>检查顺序：轮组在程序里的位置是否和实际对应；某个驱动电机或转向电机的方向是否反了；陀螺仪的方向和安装设置是否正确。</dd>
+        <dt>机器人停下时轮子一直在抖</dt>
+        <dd>转向闭环的 kP 太大或 kD 不合适；也可能是没有速度指令时仍在不断调整角度。可以在速度接近零时保持轮子原来的角度不动。</dd>
+        <dt>开得越久，场上位置偏得越远</dt>
+        <dd>里程计误差在累积。检查轮子直径和减速比设置，轮胎是否磨损、是否打滑；再加上视觉定位来修正。</dd>
+        <dt>急加速时机器人"软"一下</dt>
+        <dd>8 个电机同时大电流，触发了掉电保护。设置驱动电机的电流限制，限制加速度，并检查电池状态。</dd>
+      </dl>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">11</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://docs.wpilib.org/en/stable/docs/software/kinematics-and-odometry/swerve-drive-kinematics.html" target="_blank" rel="noopener">WPILib：Swerve Drive Kinematics</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/stable/docs/software/kinematics-and-odometry/swerve-drive-odometry.html" target="_blank" rel="noopener">WPILib：Swerve Drive Odometry</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://v6.docs.ctr-electronics.com/" target="_blank" rel="noopener">CTRE Phoenix 6 文档（Tuner X swerve 项目生成器）</a><span class="url">v6.docs.ctr-electronics.com</span></li>
+        <li><a href="https://docs.revrobotics.com/" target="_blank" rel="noopener">REV Robotics 文档（MAXSwerve）</a><span class="url">docs.revrobotics.com</span></li>
+        <li><a href="https://www.swervedrivespecialties.com" target="_blank" rel="noopener">Swerve Drive Specialties（SDS 轮组）</a><span class="url">swervedrivespecialties.com</span></li>
+        <li><a href="https://docs.yet-another-software-suite.com/yagsl/" target="_blank" rel="noopener">YAGSL 文档</a><span class="url">docs.yet-another-software-suite.com</span></li>
+        <li><a href="https://www.reca.lc" target="_blank" rel="noopener">ReCalc 底盘计算器</a><span class="url">reca.lc</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 技术方向《底盘与 Swerve》。轮组型号、软件库接口以厂商和 WPILib 当年文档为准。</footer>
+  </main>
+</div>
