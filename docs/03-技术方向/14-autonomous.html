@@ -1,0 +1,340 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>自动程序与路径规划</title>
+<meta name="nav-title" content="自动程序与路径规划">
+<meta name="description" content="FRC 自动阶段怎么做：自动程序的组成，PathPlanner、Choreo 等路径规划工具，轨迹跟随的原理，开发流程，以及手动阶段里的自动化辅助。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts; one diagram shows trajectory following as feedforward plus pose-error feedback.
+   Diagram colors: muted = planned trajectory, blue = controller, teal = drivetrain, amber = pose feedback. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --code-bg: #eef1f5;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; --code-bg: #1d2430; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; --code-bg: #1d2430; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--code-bg); border-radius: 4px; padding: 1px 5px; }
+pre { background: var(--code-bg); border-radius: 6px; padding: 12px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; margin: 10px 0 14px; max-width: 760px; }
+pre code { background: none; padding: 0; font-size: inherit; }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.tip { background: var(--blue-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.tip .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+.tip p:last-child, .tip ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+svg .b-traj { fill: var(--paper); stroke: var(--muted); stroke-width: 1.4; }
+svg .b-ctl { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.6; }
+svg .b-plant { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-fb { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .sum { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; }
+svg .wire { fill: none; stroke: var(--ink); stroke-width: 1.7; }
+svg .wire.fb { stroke: var(--amber); }
+svg .ah { fill: var(--ink); }
+svg .ah-fb { fill: var(--amber); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-sign { font-weight: 700; font-size: 13px; }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step); font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--blue); width: 28px; height: 28px; border: 1.5px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.steps > li > div { min-width: 0; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps p { margin: 0; }
+
+.faq { max-width: 760px; margin: 0; }
+.faq dt { font-weight: 700; margin-top: 14px; }
+.faq dd { margin: 4px 0 0; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#why">自动阶段为什么重要</a></li>
+      <li><a href="#parts">自动程序的组成</a></li>
+      <li><a href="#tools">路径规划工具</a></li>
+      <li><a href="#following">轨迹跟随原理</a></li>
+      <li><a href="#localization">定位是前提</a></li>
+      <li><a href="#workflow">开发流程</a></li>
+      <li><a href="#design">设计好的自动程序</a></li>
+      <li><a href="#teleop-assist">手动阶段的自动化</a></li>
+      <li><a href="#faq">常见问题</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 技术方向</p>
+      <h1>自动程序与路径规划</h1>
+      <p class="lede">每场比赛开头约 15 秒的自动阶段，机器人完全按程序行动。这一段往往得分效率最高，也最能拉开强队和普通队伍的差距。这一篇讲自动程序由什么组成、怎样用路径规划工具画出路线、机器人怎样沿路线精确行驶，以及从仿真到上场的开发流程。</p>
+      <div class="meta"><span>资料整理于 2026 年 10 月</span><span>工具接口以当年版本为准</span></div>
+    </header>
+
+    <section id="why">
+      <h2><span class="n">01</span>自动阶段为什么重要</h2>
+      <ul class="prose">
+        <li><strong>得分效率高</strong>：很多赛题里，自动阶段完成同样的动作分值更高</li>
+        <li><strong>常有额外排名分</strong>：不少赛题设置了和自动阶段挂钩的排名分（RP），直接影响资格赛排名</li>
+        <li><strong>影响选人</strong>：联盟选择时，可靠的自动程序是强队挑选盟友的重要依据</li>
+        <li><strong>打好开局</strong>：自动阶段结束时机器人的位置和状态，决定了手动阶段的开局</li>
+      </ul>
+    </section>
+
+    <section id="parts">
+      <h2><span class="n">02</span>自动程序的组成</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>部分</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="k">起始位置</td><td>机器人在场上的出发点和朝向。上场时由队员按标记摆好，程序开头把这个位姿设为定位的起点</td></tr>
+            <tr><td class="k">路径</td><td>机器人要走的路线，包括途经点、速度和朝向变化</td></tr>
+            <tr><td class="k">动作</td><td>沿途要做的事：在某个位置展开取件、到达后发射、边走边升电梯</td></tr>
+            <tr><td class="k">条件</td><td>没取到道具就跳过发射，时间不够就放弃最后一段</td></tr>
+            <tr><td class="k">选择器</td><td>赛前在仪表盘上从多个自动程序中选一个，根据起始位置和盟友的安排决定</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">在 Command-based 框架里，一个自动程序就是一个组合命令：路径跟随命令和机构命令按顺序或并行组合在一起，见<a href="13-program-architecture.html#command-based">《程序架构》</a>。</p>
+    </section>
+
+    <section id="tools">
+      <h2><span class="n">03</span>路径规划工具</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>工具</th><th>特点</th><th>适合</th></tr></thead>
+          <tbody>
+            <tr><td class="k">PathPlanner</td><td>图形界面里在场地图上拖动控制点画路径；可以在路径上设置事件标记，到达某处时触发命令；支持把多条路径拼成完整的自动程序，也支持比赛中实时寻路</td><td>大多数队伍的首选，上手快、文档全</td></tr>
+            <tr><td class="k">Choreo</td><td>根据机器人的物理参数（质量、电机、轮子）计算时间最优的轨迹，充分利用机器人的极限性能</td><td>追求自动阶段速度极限的队伍</td></tr>
+            <tr><td class="k">WPILib 轨迹生成</td><td>WPILib 自带的轨迹生成和跟随类，用代码描述路径</td><td>想理解底层原理，或需求简单的队伍</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">这些工具都能导出路径文件放进机器人项目，程序运行时读取并跟随。场地布局每年不同，工具会随新赛季更新场地图。</p>
+    </section>
+
+    <section id="following">
+      <h2><span class="n">04</span>轨迹跟随原理</h2>
+      <p class="prose">路径规划工具生成的是<strong>轨迹</strong>：一串带时间的目标点，每个点包含"此刻应该在哪、朝向哪、速度多少"。跟随轨迹，本质上又是一个闭环控制问题：</p>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 900 260" role="img" aria-label="轨迹跟随控制回路：轨迹给出此刻的目标位姿和目标速度；目标速度直接作为前馈，目标位姿与位姿估计器给出的实际位姿相减得到位置和朝向误差，误差经三个 PID 控制器算出修正速度；前馈速度加修正速度得到机器人速度指令，送给 swerve 底盘；编码器、陀螺仪和视觉经位姿估计器给出实际位姿，形成反馈。">
+            <defs>
+              <marker id="au-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="au-fb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah-fb" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="b-traj" x="16" y="78" width="130" height="70" rx="6"/>
+            <text class="t-b" x="81" y="102" text-anchor="middle">轨迹</text>
+            <text class="t-s" x="81" y="121" text-anchor="middle">PathPlanner</text>
+            <text class="t-s" x="81" y="137" text-anchor="middle">Choreo</text>
+
+            <circle class="sum" cx="236" cy="150" r="14"/>
+            <text class="t-sign" x="214" y="142" text-anchor="middle">+</text>
+            <text class="t-sign" x="226" y="182" text-anchor="middle">−</text>
+
+            <rect class="b-ctl" x="286" y="122" width="150" height="56" rx="6"/>
+            <text class="t-b" x="361" y="145" text-anchor="middle">PID 修正</text>
+            <text class="t-s" x="361" y="164" text-anchor="middle">x · y · 朝向 各一个</text>
+
+            <circle class="sum" cx="496" cy="150" r="14"/>
+            <text class="t-sign" x="474" y="142" text-anchor="middle">+</text>
+            <text class="t-sign" x="508" y="129" text-anchor="middle">+</text>
+
+            <rect class="b-plant" x="556" y="122" width="140" height="56" rx="6"/>
+            <text class="t-b" x="626" y="145" text-anchor="middle">Swerve 底盘</text>
+            <text class="t-s" x="626" y="164" text-anchor="middle">运动学 → 四个轮组</text>
+
+            <rect class="b-fb" x="556" y="200" width="140" height="50" rx="6"/>
+            <text class="t-b" x="626" y="221" text-anchor="middle">位姿估计器</text>
+            <text class="t-s" x="626" y="239" text-anchor="middle">编码器 · 陀螺仪 · 视觉</text>
+
+            <polyline class="wire" points="146,128 186,128 186,150 222,150" marker-end="url(#au-ah)"/>
+            <text class="t-s" x="190" y="120">目标位姿</text>
+            <line class="wire" x1="250" y1="150" x2="286" y2="150" marker-end="url(#au-ah)"/>
+            <text class="t-s" x="268" y="114" text-anchor="middle">误差</text>
+            <line class="wire" x1="436" y1="150" x2="482" y2="150" marker-end="url(#au-ah)"/>
+            <polyline class="wire" points="146,96 496,96 496,136" marker-end="url(#au-ah)"/>
+            <text class="t-s" x="320" y="88" text-anchor="middle">目标速度（前馈）</text>
+            <line class="wire" x1="510" y1="150" x2="556" y2="150" marker-end="url(#au-ah)"/>
+            <text class="t-s" x="533" y="142" text-anchor="middle">速度指令</text>
+            <polyline class="wire" points="696,150 760,150 760,225 696,225" marker-end="url(#au-ah)"/>
+            <text class="t-s" x="768" y="190">实际运动</text>
+            <polyline class="wire fb" points="556,225 236,225 236,164" marker-end="url(#au-fb)"/>
+            <text class="t-s" x="400" y="217" text-anchor="middle">实际位姿</text>
+          </svg>
+        </div>
+        <figcaption>和<a href="05-closed-loop-pid.html">《闭环控制与 PID》</a>里的结构完全一样：轨迹给出的目标速度作为前馈承担主要工作，位置和朝向的误差经 PID 做修正。路线走得准不准，很大程度取决于位姿估计器给出的"实际位置"准不准。</figcaption>
+      </figure>
+      <ul class="prose">
+        <li><strong>前馈为主</strong>：如果底盘的速度控制调得好，光靠前馈就能大致沿路线走</li>
+        <li><strong>PID 修偏</strong>：打滑、碰撞、电池电压变化造成的偏差，由位置和朝向的 PID 拉回来</li>
+        <li><strong>WPILib 和 PathPlanner 都提供现成的跟随器</strong>，队伍主要工作是调好底盘速度闭环、设置跟随 PID 参数、配好位姿估计</li>
+      </ul>
+      <p class="prose">在 PathPlanner 里，配置好之后加载并运行一个自动程序大致是这样（示意，具体接口以当年文档为准）：</p>
+<pre><code>// 在 RobotContainer 中：按名字加载在 PathPlanner 界面里拼好的自动程序
+Command auto = new PathPlannerAuto("Center Two Piece");
+
+// 路径上的事件标记绑定到机构命令
+NamedCommands.registerCommand("intake", intake.intakeUntilPiece());
+NamedCommands.registerCommand("shoot", shooter.shootOnce());</code></pre>
+    </section>
+
+    <section id="localization">
+      <h2><span class="n">05</span>定位是前提</h2>
+      <ul class="prose">
+        <li><strong>开局设好起点</strong>：自动程序开始时，把起始位姿告诉位姿估计器。摆车时位置偏几厘米，整条路线都会跟着偏</li>
+        <li><strong>视觉修正</strong>：自动阶段中看到 AprilTag 时用视觉修正位置，路线越长越重要，见<a href="08-sensors-vision.html#fusion">《传感器与视觉》</a></li>
+        <li><strong>红蓝方镜像</strong>：路径一般只画一套（比如蓝方），红方时由程序自动镜像或旋转。一定要在两种颜色下都测试</li>
+        <li><strong>里程计要准</strong>：轮子直径、减速比设置错了，机器人会系统性地"走多"或"走少"，见<a href="10-drivetrain-swerve.html#bringup">《底盘与 Swerve》</a></li>
+      </ul>
+    </section>
+
+    <section id="workflow">
+      <h2><span class="n">06</span>开发流程</h2>
+      <ol class="steps">
+        <li><div><h3>和策略组一起定目标</h3><p>每个起始位置要做几件事、按什么顺序、预计多少秒。先做一个简单可靠的版本，再逐步加码。</p></div></li>
+        <li><div><h3>在工具里画路线</h3><p>在 PathPlanner 或 Choreo 里画出路线，设置速度限制和事件标记。注意避开场地结构和盟友机器人的路线。</p></div></li>
+        <li><div><h3>在仿真里跑</h3><p>用仿真运行完整的自动程序，在 AdvantageScope 的场地图上看路线、时间和机构动作是否正确。</p></div></li>
+        <li><div><h3>上车慢速测试</h3><p>先降低速度上限，在空地或场地模型上跑，确认方向、起点和动作触发都正确。</p></div></li>
+        <li><div><h3>逐步提速、调参</h3><p>提高速度，观察实际路线和规划路线的偏差，调整跟随 PID 和底盘速度控制。</p></div></li>
+        <li><div><h3>反复跑、记录成功率</h3><p>每个自动程序跑几十遍，记录成功率和用时。成功率不够高的版本不上正式比赛。</p></div></li>
+        <li><div><h3>比赛中复盘</h3><p>每场赛后看日志和视频：哪一步慢了、哪一步失败了，在练习赛时间里修正。</p></div></li>
+      </ol>
+    </section>
+
+    <section id="design">
+      <h2><span class="n">07</span>设计好的自动程序</h2>
+      <ul class="prose">
+        <li><strong>可靠比分数重要</strong>：一个 95% 成功的两件道具程序，通常比 50% 成功的四件道具程序更有价值</li>
+        <li><strong>每个起点准备多个版本</strong>：和盟友协调时，可以根据对方的自动程序选择不冲突的路线</li>
+        <li><strong>赛前和盟友沟通</strong>：比赛前确认三台机器人各自的起点和路线，避免自动阶段互相撞车</li>
+        <li><strong>失败要能兜底</strong>：没取到道具就跳过下一步、时间快到时停在有利位置，而不是卡在原地</li>
+        <li><strong>保留一个"只开出起始区"的保底程序</strong>：机构坏了时也能拿到基本分</li>
+        <li><strong>名字一目了然</strong>：选择器里的名字要让驾驶队一眼看懂，比如"中间起步 · 两件 · 不过中线"</li>
+      </ul>
+    </section>
+
+    <section id="teleop-assist">
+      <h2><span class="n">08</span>手动阶段的自动化</h2>
+      <p class="prose">自动化的能力在手动阶段同样有用，强队越来越多地让机器人"半自动"：</p>
+      <ul class="prose">
+        <li><strong>自动对准</strong>：按住一个键，机器人自动转向目标、调整发射角度和转速</li>
+        <li><strong>自动寻路</strong>：按一个键，机器人自动开到得分位置，避开场地障碍。PathPlanner 支持比赛中实时生成路线</li>
+        <li><strong>自动取件</strong>：视觉识别地上的道具，机器人自动对准并吸入</li>
+        <li><strong>一键动作序列</strong>：一个键完成"升电梯、转手臂、放置、收回"整套动作</li>
+      </ul>
+      <p class="prose">这些功能可以显著减轻驾驶员的负担，但也要保证驾驶员随时能接管：松开按键就恢复手动控制。</p>
+    </section>
+
+    <section id="faq">
+      <h2><span class="n">09</span>常见问题</h2>
+      <dl class="faq">
+        <dt>仿真里完美，上车后路线偏得厉害</dt>
+        <dd>依次检查：底盘速度闭环和前馈是否调好；轮子直径和减速比；起始位姿是否设置；机器人实际摆放位置是否和程序里的起点一致。</dd>
+        <dt>红方跑得好，蓝方走错了</dt>
+        <dd>镜像或旋转逻辑有问题，或者联盟颜色在自动程序开始前还没确定。确认读取联盟颜色的时机，并在两种颜色下都测试。</dd>
+        <dt>机构动作和路线对不上</dt>
+        <dd>事件标记的位置不对，或者机构命令占用了底盘等子系统，打断了路径跟随命令。检查命令的子系统需求和组合方式。</dd>
+        <dt>自动程序偶尔在开头不动</dt>
+        <dd>常见原因是选择器没选上、自动程序加载出错，或者某个机构在等一个永远不会满足的条件。用日志查看当时运行的命令。</dd>
+      </dl>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">10</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://pathplanner.dev" target="_blank" rel="noopener">PathPlanner 文档</a><span class="url">pathplanner.dev</span></li>
+        <li><a href="https://choreo.autos" target="_blank" rel="noopener">Choreo 文档</a><span class="url">choreo.autos</span></li>
+        <li><a href="https://docs.wpilib.org/en/stable/docs/software/pathplanning/index.html" target="_blank" rel="noopener">WPILib：Path Planning 与轨迹</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/stable/docs/software/advanced-controls/trajectories/holonomic.html" target="_blank" rel="noopener">WPILib：Holonomic Drive Controller</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.advantagescope.org" target="_blank" rel="noopener">AdvantageScope 文档（场地图与轨迹可视化）</a><span class="url">docs.advantagescope.org</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 技术方向《自动程序与路径规划》。工具接口以 PathPlanner、Choreo 和 WPILib 当年文档为准。</footer>
+  </main>
+</div>

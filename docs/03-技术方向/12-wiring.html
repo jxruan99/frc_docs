@@ -1,0 +1,371 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>电气接线与布线</title>
+<meta name="nav-title" content="电气接线与布线">
+<meta name="description" content="FRC 机器人的电源路径与保护、电气布局、做线工具与接线规范、检录要求、电池管理和电气故障排查。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts; one diagram traces the power path and the protection at each level.
+   Diagram colors: amber = high-current power, teal = protected branch circuits, blue = loads, red = protection devices. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --red: #c42a2a;
+  --red-soft: #fbe7e6;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --red: #ff8a80; --red-soft: #3a1e20;
+    --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --red: #ff8a80; --red-soft: #3a1e20;
+  --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.warn { background: var(--red-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.warn .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--red); margin-bottom: 4px; }
+.warn p:last-child, .warn ul:last-child { margin-bottom: 0; }
+.tip { background: var(--blue-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.tip .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+.tip p:last-child, .tip ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+svg .b-src { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-prot { fill: var(--red-soft); stroke: var(--red); stroke-width: 1.5; }
+svg .b-dist { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.6; }
+svg .b-load { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.4; }
+svg .w-main { fill: none; stroke: var(--amber); stroke-width: 4; }
+svg .w-br { fill: none; stroke: var(--teal); stroke-width: 2.2; }
+svg .w-lo { fill: none; stroke: var(--teal); stroke-width: 1.4; }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-m { fill: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+svg .t-lvl { fill: var(--red); font-size: 11.5px; font-weight: 500; }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step); font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--blue); width: 28px; height: 28px; border: 1.5px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.steps > li > div { min-width: 0; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps p { margin: 0; }
+
+.faq { max-width: 760px; margin: 0; }
+.faq dt { font-weight: 700; margin-top: 14px; }
+.faq dd { margin: 4px 0 0; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#why">接线决定成败</a></li>
+      <li><a href="#power">电源路径与保护</a></li>
+      <li><a href="#gauge">线径与断路器</a></li>
+      <li><a href="#layout">电气布局</a></li>
+      <li><a href="#tools">工具与做线</a></li>
+      <li><a href="#rules">接线规范</a></li>
+      <li><a href="#inspection">检录要求</a></li>
+      <li><a href="#battery">电池管理</a></li>
+      <li><a href="#troubleshoot">故障排查</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 技术方向</p>
+      <h1>电气接线与布线</h1>
+      <p class="lede">比赛中"机器人突然不动了"，大多数时候不是程序问题，而是一根没压紧的线、一个松了的电池接头。这一篇讲 FRC 机器人的电源路径和保护、电气布局、做线工具、接线规范、检录要求、电池管理和故障排查。</p>
+      <div class="meta"><span>资料整理于 2026 年 10 月</span><span>具体电气规则以当年 Game Manual 为准</span></div>
+    </header>
+
+    <section id="why">
+      <h2><span class="n">01</span>接线决定成败</h2>
+      <p class="prose">FRC 机器人要在几周的比赛里承受无数次碰撞和振动，几十个电机加起来瞬间电流可达几百安培。电气系统的可靠性直接决定机器人能不能完整打完一场比赛。好的电气工作有三个目标：</p>
+      <ul class="prose">
+        <li><strong>安全</strong>：每一路都有正确的过流保护，没有裸露的导体，紧急时能一下切断全车电源</li>
+        <li><strong>可靠</strong>：每个接头都压紧、固定，撞击后不会松脱</li>
+        <li><strong>可检修</strong>：走线清楚、有标签，比赛现场能在几分钟内找到并修好问题</li>
+      </ul>
+    </section>
+
+    <section id="power">
+      <h2><span class="n">02</span>电源路径与保护</h2>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 900 300" role="img" aria-label="电源路径：12 伏电池经 SB50 插头和 6 AWG 主电源线连到 120 安总断路器，再到配电板。配电板的大电流通道各经 40 安断路器接电机控制器，小电流通道经保险丝接主控制器、无线电台和传感器等低功耗设备。图中用红色标出了三级保护：总断路器、通道断路器和小电流保险丝。">
+            <rect class="b-src" x="16" y="110" width="110" height="60" rx="6"/>
+            <text class="t-b" x="71" y="134" text-anchor="middle">电池</text>
+            <text class="t-s" x="71" y="153" text-anchor="middle">12V 铅酸</text>
+            <rect class="b-prot" x="176" y="110" width="120" height="60" rx="6"/>
+            <text class="t-b" x="236" y="134" text-anchor="middle">总断路器</text>
+            <text class="t-s" x="236" y="153" text-anchor="middle">120A · 总开关</text>
+            <rect class="b-dist" x="346" y="80" width="140" height="120" rx="8"/>
+            <text class="t-b" x="416" y="134" text-anchor="middle">配电板</text>
+            <text class="t-s" x="416" y="153" text-anchor="middle">PDH 等</text>
+
+            <line class="w-main" x1="126" y1="140" x2="176" y2="140"/>
+            <line class="w-main" x1="296" y1="140" x2="346" y2="140"/>
+            <text class="t-m" x="151" y="128" text-anchor="middle">SB50</text>
+            <text class="t-m" x="321" y="128" text-anchor="middle">6 AWG</text>
+
+            <rect class="b-prot" x="536" y="40" width="96" height="36" rx="5"/>
+            <text class="t-s" x="584" y="63" text-anchor="middle">40A 断路器</text>
+            <rect class="b-prot" x="536" y="92" width="96" height="36" rx="5"/>
+            <text class="t-s" x="584" y="115" text-anchor="middle">40A 断路器</text>
+            <rect class="b-prot" x="536" y="170" width="96" height="36" rx="5"/>
+            <text class="t-s" x="584" y="193" text-anchor="middle">小电流保险</text>
+            <rect class="b-prot" x="536" y="222" width="96" height="36" rx="5"/>
+            <text class="t-s" x="584" y="245" text-anchor="middle">小电流保险</text>
+
+            <rect class="b-load" x="680" y="40" width="204" height="36" rx="5"/>
+            <text x="782" y="63" text-anchor="middle">电机控制器（底盘、机构）</text>
+            <rect class="b-load" x="680" y="92" width="204" height="36" rx="5"/>
+            <text x="782" y="115" text-anchor="middle">电机控制器 · 气动模块</text>
+            <rect class="b-load" x="680" y="170" width="204" height="36" rx="5"/>
+            <text x="782" y="193" text-anchor="middle">主控制器 SystemCore</text>
+            <rect class="b-load" x="680" y="222" width="204" height="36" rx="5"/>
+            <text x="782" y="245" text-anchor="middle">无线电台 · 传感器 · 信号灯</text>
+
+            <polyline class="w-br" points="486,110 510,110 510,58 536,58"/>
+            <line class="w-br" x1="486" y1="110" x2="536" y2="110"/>
+            <polyline class="w-lo" points="486,170 510,170 510,188 536,188"/>
+            <polyline class="w-lo" points="510,188 510,240 536,240"/>
+            <line class="w-br" x1="632" y1="58" x2="680" y2="58"/>
+            <line class="w-br" x1="632" y1="110" x2="680" y2="110"/>
+            <line class="w-lo" x1="632" y1="188" x2="680" y2="188"/>
+            <line class="w-lo" x1="632" y1="240" x2="680" y2="240"/>
+            <text class="t-s" x="416" y="100" text-anchor="middle">大电流通道</text>
+            <text class="t-s" x="416" y="190" text-anchor="middle">小电流通道</text>
+
+            <text class="t-lvl" x="236" y="196" text-anchor="middle">第一级保护</text>
+            <text class="t-lvl" x="584" y="152" text-anchor="middle">第二级保护</text>
+            <text class="t-lvl" x="584" y="284" text-anchor="middle">第二级保护</text>
+          </svg>
+        </div>
+        <figcaption>所有电从电池出发，先过总断路器（全车总开关和总保护），再进配电板分成很多路，每一路再有自己的断路器或保险丝。线越粗、颜色越暖，电流越大。某一路短路时，只有那一路的保护动作，其他部分照常工作。</figcaption>
+      </figure>
+      <ul class="prose">
+        <li><strong>总断路器</strong>：120 A，同时是全车的电源开关。要装在机器人外侧容易按到的位置，紧急时任何人都能一下断电</li>
+        <li><strong>配电板</strong>：REV PDH 有 20 个大电流通道（最大 40 A）和 3 个小电流通道（最大 15 A），也有 CTRE PDP 2.0、AndyMark AMPD 等型号</li>
+        <li><strong>主控制器和电台</strong>：它们断电就意味着整台机器人失控或失联，供电要格外可靠，按 WPILib 和厂商推荐的方式接线</li>
+      </ul>
+    </section>
+
+    <section id="gauge">
+      <h2><span class="n">03</span>线径与断路器</h2>
+      <p class="prose">导线越细，能安全通过的电流越小。FRC 规则规定了每种断路器对应的最小线径，下表是常见的对应关系（AWG 数字越小线越粗）：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>线路</th><th>保护</th><th>常见最小线径</th></tr></thead>
+          <tbody>
+            <tr><td class="k">电池到配电板的主线</td><td>120 A 总断路器</td><td class="num">6 AWG</td></tr>
+            <tr><td class="k">大功率电机支路</td><td>40 A 断路器</td><td class="num">12 AWG</td></tr>
+            <tr><td class="k">中等功率支路</td><td>30 A 断路器</td><td class="num">14 AWG</td></tr>
+            <tr><td class="k">小功率支路</td><td>20 A 断路器</td><td class="num">18 AWG</td></tr>
+            <tr><td class="k">控制器、传感器等低电流线路</td><td>小电流保险</td><td>按规则表和设备说明</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <span class="label">以规则为准</span>
+        <p>上表是近年规则中常见的对应关系，用来建立概念。每年的具体要求（包括导线颜色、允许的断路器型号）以当年 Game Manual 的机器人电气规则为准，检录员会逐项检查。</p>
+      </div>
+    </section>
+
+    <section id="layout">
+      <h2><span class="n">04</span>电气布局</h2>
+      <ul class="prose">
+        <li><strong>在 CAD 阶段就规划</strong>：配电板、主控制器、电台、电池、总断路器的位置和走线路径，在设计时就要留出空间，见<a href="09-mechanical-design.html">《机械设计与 CAD》</a></li>
+        <li><strong>集中、平整、可拆</strong>：很多队伍把电气元件装在底盘的底板（belly pan）或一块可拆的电气板上，方便整体检修</li>
+        <li><strong>电池要固定牢</strong>：用绑带或卡扣固定，撞击时不能移动；同时要能快速更换，比赛间隙通常只有几分钟</li>
+        <li><strong>总断路器装在外侧</strong>：容易按到，又不会被别的机器人撞到误触</li>
+        <li><strong>电台和相机</strong>：电台远离金属和电机，指示灯可见；相机的网线和电源线要避开运动部件</li>
+        <li><strong>大电流线和信号线分开走</strong>：减少干扰，也方便排查</li>
+        <li><strong>远离金属碎屑</strong>：加工铝件时产生的碎屑掉进电子元件会造成短路。加工时盖住电气板</li>
+      </ul>
+    </section>
+
+    <section id="tools">
+      <h2><span class="n">05</span>工具与做线</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>工具</th><th>用途</th></tr></thead>
+          <tbody>
+            <tr><td class="k">剥线钳</td><td>按线径剥去绝缘层，不伤铜线</td></tr>
+            <tr><td class="k">专用压接钳</td><td>压接 Anderson Powerpole、SB50、冷压端子、管型端子（ferrule）。不同端子要用对应的压接钳，不能用尖嘴钳代替</td></tr>
+            <tr><td class="k">热缩管和热风枪</td><td>包住焊点和压接处，防止短路</td></tr>
+            <tr><td class="k">电烙铁</td><td>焊接细信号线，比如延长 CAN 线</td></tr>
+            <tr><td class="k">万用表</td><td>测电压、通断、电阻（比如 CAN 终端电阻）</td></tr>
+            <tr><td class="k">标签打印机</td><td>给每根线、每个设备贴标签</td></tr>
+            <tr><td class="k">扎带、线槽、拖链</td><td>固定和整理线束；拖链用于跟随运动机构的线</td></tr>
+            <tr><td class="k">电池测试仪</td><td>测电池内阻和容量，淘汰老化的电池</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip">
+        <span class="label">每个接头都做"拉力测试"</span>
+        <p>压好一个端子，用力拉一拉：拉得掉就是没压好，重做。这个习惯能避免比赛中绝大多数的接触不良。</p>
+      </div>
+    </section>
+
+    <section id="rules">
+      <h2><span class="n">06</span>接线规范</h2>
+      <ul class="prose">
+        <li><strong>颜色统一</strong>：正极用红色等规则允许的颜色，负极用黑色等。全队约定一套颜色，不要临时混用</li>
+        <li><strong>没有裸露的导体</strong>：所有接头、焊点都要包好</li>
+        <li><strong>应力释放</strong>：用扎带把线固定在车架上，接头本身不受拉力；线束在靠近接头的地方留一点余量</li>
+        <li><strong>跟随运动的线要专门处理</strong>：手臂、电梯上的线要用拖链或预留足够的弯曲长度，并保证运动全程不会被夹、被拉断</li>
+        <li><strong>避开锋利边缘</strong>：线经过金属边缘的地方要加护套或垫片</li>
+        <li><strong>标签</strong>：每根线的两端、每个设备都贴上标签，比如"FL Drive · CAN 1 · PDH 4"</li>
+        <li><strong>CAN 线</strong>：黄色 CAN-H、绿色 CAN-L，按菊花链连接，两端终端电阻，详见<a href="07-can-bus.html">《CAN 数据总线》</a></li>
+        <li><strong>留文档</strong>：画一张接线图，记录每个设备接在配电板的哪个通道、CAN ID 是多少</li>
+      </ul>
+      <div class="warn">
+        <span class="label">安全</span>
+        <ul>
+          <li>接线、改线前先断开总断路器，最好拔掉电池</li>
+          <li>电池正负极绝不能短路：瞬间电流极大，会烧坏导线、伤到人</li>
+          <li>不确定的线路先用万用表确认，不要靠猜</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="inspection">
+      <h2><span class="n">07</span>检录要求</h2>
+      <p class="prose">每场赛事开始前，检录员会按检录清单（Inspection Checklist）逐项检查。电气方面常见的检查点：</p>
+      <ul class="prose">
+        <li>总断路器位置是否易于触及</li>
+        <li>电池是否牢固固定，电池接头是否规范</li>
+        <li>每一路的线径是否满足对应断路器的要求</li>
+        <li>是否只使用规则允许的电气元件，有没有改装</li>
+        <li>信号灯 RSL 是否正确安装、从外面可见</li>
+        <li>是否有裸露导体、松动接头</li>
+        <li>使用气动的机器人：储气压力、工作压力、泄压阀、压力表是否符合规定</li>
+      </ul>
+      <p class="prose">建议在出发去比赛前，用当年的检录清单做一次完整的自查。很多队伍会安排一位家长 mentor 专门负责这件事。</p>
+    </section>
+
+    <section id="battery">
+      <h2><span class="n">08</span>电池管理</h2>
+      <ul class="prose">
+        <li><strong>数量</strong>：比赛时每场换一块充满的电池，一天要打很多场，通常准备 6 块以上</li>
+        <li><strong>编号和记录</strong>：每块电池编号，记录购买年份、充电次数、测试结果，轮流使用</li>
+        <li><strong>测试</strong>：用电池测试仪测内阻，内阻偏大的电池在大电流时电压掉得厉害，只用于练习或淘汰</li>
+        <li><strong>充电</strong>：用合规的充电器，充电区通风、远离易燃物；刚用完发热的电池先放凉再充</li>
+        <li><strong>搬运</strong>：电池很重，接头和线不能当提手用；摔过、外壳变形或漏液的电池立即停用</li>
+      </ul>
+    </section>
+
+    <section id="troubleshoot">
+      <h2><span class="n">09</span>故障排查</h2>
+      <ol class="steps">
+        <li><div><h3>先看 Driver Station 日志</h3><p>电压曲线、通信状态、掉电保护（brownout）事件，能告诉你问题发生的时间和类型。</p></div></li>
+        <li><div><h3>晃一晃</h3><p>机器人通电、禁用状态下，轻轻晃动各处线束和接头，观察设备指示灯和 Driver Station 上的状态有没有变化。</p></div></li>
+        <li><div><h3>量电压</h3><p>从电池开始，沿着电源路径逐段测电压。哪一段电压明显下降，问题就在那里。</p></div></li>
+        <li><div><h3>换件对比</h3><p>怀疑某个控制器或某根线有问题，换上备件对比。所以常用件一定要带备件去比赛。</p></div></li>
+      </ol>
+      <dl class="faq">
+        <dt>机器人时不时整个断电重启</dt>
+        <dd>最常见的原因是电池接头或主电源线松动，或者总断路器接触不良。检查 SB50 插头和主线的压接。</dd>
+        <dt>大动作时机器人"软"一下</dt>
+        <dd>掉电保护触发：总电流太大，电压掉得太低。设置电流限制、换内阻小的电池，检查主线是否太细、接头是否发热。</dd>
+        <dt>某个断路器经常跳闸</dt>
+        <dd>那一路长时间超载：机构卡住、减速比不合适，或者两个电机在互相较劲。</dd>
+        <dt>某个设备时有时无</dt>
+        <dd>典型的接触不良。重点检查它的电源接头和信号线，做拉力测试。</dd>
+      </dl>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">10</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-1/how-to-wire-a-simple-robot.html" target="_blank" rel="noopener">WPILib：How to Wire an FRC Robot</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/latest/docs/controls-overviews/control-system-hardware.html" target="_blank" rel="noopener">WPILib：Hardware Component Overview</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.revrobotics.com/" target="_blank" rel="noopener">REV Robotics 文档（Power Distribution Hub）</a><span class="url">docs.revrobotics.com</span></li>
+        <li><a href="https://www.firstinspires.org/robotics/frc" target="_blank" rel="noopener">FIRST 官网：Game Manual 和检录清单</a><span class="url">firstinspires.org</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 技术方向《电气接线与布线》。电气规则、线径要求以当年 Game Manual 为准。</footer>
+  </main>
+</div>

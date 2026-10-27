@@ -338,7 +338,7 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
         <li><strong>每个设备有唯一 ID</strong>：程序靠 ID 找到对应的电机或传感器，同类设备的 ID 不能重复</li>
         <li><strong>一处断，下游全断</strong>：链中间一个接头松了，后面的设备全部失联，所以接线必须牢靠。SystemCore 有 5 路 CAN-FD 总线，可以把底盘和机构分开，降低一处故障的影响</li>
       </ul>
-      <p class="prose">原理、接线规范、总线负载和故障排查，见<a href="07-can-bus.html">《CAN 数据总线》</a>。</p>
+      <p class="prose">原理、接线规范、总线负载和故障排查，见<a href="07-can-bus.html">《CAN 数据总线》</a>。整车的电源布线、做线工具和检录要求，见<a href="12-wiring.html">《电气接线与布线》</a>。</p>
 
     </section>
 
@@ -446,7 +446,7 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
         <li><strong>Subsystem（子系统）</strong>：对应一个机构，比如底盘、手臂、发射器。它封装这个机构的电机和传感器</li>
         <li><strong>Command（命令）</strong>：一个动作，比如"把手臂转到 45 度"或"发射一次"。手柄按键触发命令，自动程序把多个命令串起来</li>
       </ul>
-      <p class="prose">软件组最大的优势是<strong>不用等机器人造好</strong>：用 WPILib 的仿真器，可以在电脑上先把程序和自动路线写好、测好。具体做法见<a href="03-dev-environment.html">《开发环境与仿真》</a>。</p>
+      <p class="prose">软件组最大的优势是<strong>不用等机器人造好</strong>：用 WPILib 的仿真器，可以在电脑上先把程序和自动路线写好、测好。具体做法见<a href="03-dev-environment.html">《开发环境与仿真》</a>。程序的组织方式见<a href="13-program-architecture.html">《程序架构》</a>，自动阶段见<a href="14-autonomous.html">《自动程序与路径规划》</a>。</p>
     </section>
 
     <section id="process">
@@ -490,7 +490,7 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
 
     <section id="roadmap">
       <h2><span class="n">09</span>技术方向路线图</h2>
-      <p class="prose">这一篇是技术方向的入口。后续专题按"从控制到执行、从软件到机械"的顺序展开：</p>
+      <p class="prose">这一篇是技术方向的入口。下面 13 篇专题按"从控制到执行、从硬件到软件"的顺序展开，现已全部完成：</p>
       <ul class="roadmap">
         <li><span class="n">02</span><span><b><a href="02-systemcore.html">SystemCore 主控制器</a></b><span class="d">硬件规格、接口、功能模块，和 roboRIO 的区别</span></span><span class="tag done">已完成</span></li>
         <li><span class="n">03</span><span><b><a href="03-dev-environment.html">开发环境与仿真</a></b><span class="d">安装 WPILib，在仿真器里跑起第一个程序，Driver Station 入门</span></span><span class="tag done">已完成</span></li>
@@ -502,9 +502,9 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
         <li><span class="n">09</span><span><b><a href="09-mechanical-design.html">机械设计与 CAD</a></b><span class="d">CAD 软件选择（赞助商免费软件与开源软件）、设计流程、标准件、加工文件、设计评审</span></span><span class="tag done">已完成</span></li>
         <li><span class="n">10</span><span><b><a href="10-drivetrain-swerve.html">底盘与 Swerve</a></b><span class="d">底盘选型、swerve 轮组与运动学、以场地为参照的驾驶、软件实现与调试</span></span><span class="tag done">已完成</span></li>
         <li><span class="n">11</span><span><b><a href="11-mechanism-examples.html">机构设计实例</a></b><span class="d">取件、传送、发射、升降、手臂、攀爬的典型设计、关键计算和控制方式</span></span><span class="tag done">已完成</span></li>
-        <li><span class="n">12</span><span><b>电气接线与布线</b><span class="d">电源布线、做线工具、检录要求、整车故障排查</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">13</span><span><b>程序架构</b><span class="d">Command-based 框架、子系统划分、代码组织和 Git</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">14</span><span><b>自动程序与路径规划</b><span class="d">自动阶段设计、PathPlanner、轨迹跟随</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">12</span><span><b><a href="12-wiring.html">电气接线与布线</a></b><span class="d">电源路径与保护、线径、电气布局、做线工具、检录要求、电池管理、故障排查</span></span><span class="tag done">已完成</span></li>
+        <li><span class="n">13</span><span><b><a href="13-program-architecture.html">程序架构</a></b><span class="d">程序生命周期、Command-based 框架、项目结构、多机构协调、日志、Git 协作</span></span><span class="tag done">已完成</span></li>
+        <li><span class="n">14</span><span><b><a href="14-autonomous.html">自动程序与路径规划</a></b><span class="d">自动程序组成、PathPlanner 与 Choreo、轨迹跟随原理、开发流程、手动阶段的自动化</span></span><span class="tag done">已完成</span></li>
       </ul>
     </section>
 

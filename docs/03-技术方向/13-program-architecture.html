@@ -1,0 +1,393 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>程序架构</title>
+<meta name="nav-title" content="程序架构">
+<meta name="description" content="FRC 机器人程序怎么组织：机器人生命周期、Command-based 框架（子系统、命令、触发器）、项目结构、多机构协调、日志遥测、Git 协作和代码规范。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts; one diagram shows how command-based dispatches from inputs to hardware.
+   Diagram colors: amber = inputs and triggers, blue = commands and scheduler, teal = subsystems and hardware. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --code-bg: #eef1f5;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; --code-bg: #1d2430; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; --code-bg: #1d2430; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--code-bg); border-radius: 4px; padding: 1px 5px; }
+pre { background: var(--code-bg); border-radius: 6px; padding: 12px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; margin: 10px 0 14px; max-width: 760px; }
+pre code { background: none; padding: 0; font-size: inherit; }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.tip { background: var(--blue-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.tip .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+.tip p:last-child, .tip ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+td.mono { font-family: var(--font-mono); font-size: 13.5px; white-space: nowrap; }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+svg .b-in { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-cmd { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.5; }
+svg .b-sched { fill: var(--surface); stroke: var(--blue); stroke-width: 1.8; stroke-dasharray: 6 4; }
+svg .b-sub { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-hw { fill: var(--paper); stroke: var(--muted); stroke-width: 1.2; }
+svg .wire { fill: none; stroke: var(--ink); stroke-width: 1.7; }
+svg .wire.req { stroke: var(--teal); stroke-dasharray: 4 3; }
+svg .ah { fill: var(--ink); }
+svg .ah-req { fill: var(--teal); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-m { fill: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+svg .t-sched { fill: var(--blue); font-size: 12px; font-weight: 500; }
+
+.tree { font-family: var(--font-mono); font-size: 13.5px; line-height: 1.7; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; max-width: 720px; overflow-x: auto; white-space: pre; }
+.tree .c { color: var(--muted); }
+
+.faq { max-width: 760px; margin: 0; }
+.faq dt { font-weight: 700; margin-top: 14px; }
+.faq dd { margin: 4px 0 0; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#why">为什么需要架构</a></li>
+      <li><a href="#lifecycle">程序的生命周期</a></li>
+      <li><a href="#command-based">Command-based 框架</a></li>
+      <li><a href="#structure">项目结构</a></li>
+      <li><a href="#example">一个完整的例子</a></li>
+      <li><a href="#coordination">多机构协调</a></li>
+      <li><a href="#logging">日志与遥测</a></li>
+      <li><a href="#git">Git 与协作</a></li>
+      <li><a href="#style">代码规范</a></li>
+      <li><a href="#faq">常见问题</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 技术方向</p>
+      <h1>程序架构</h1>
+      <p class="lede">一台 FRC 机器人的程序通常有几十个文件、上万行代码，由好几届学生接力维护。好的架构让代码易读、易改、易调试。这一篇介绍 WPILib 的机器人生命周期和最主流的 Command-based 框架，以及日志、Git 协作和代码规范。</p>
+      <div class="meta"><span>资料整理于 2026 年 10 月</span><span>代码示例以 Java 为主</span></div>
+    </header>
+
+    <section id="why">
+      <h2><span class="n">01</span>为什么需要架构</h2>
+      <ul class="prose">
+        <li><strong>机器人同时在做很多事</strong>：底盘在跑、取件在转、发射器在加速，程序要同时管好它们，又不能互相打架</li>
+        <li><strong>同一个动作有多种触发方式</strong>：驾驶员按键、自动程序、传感器条件都可能触发"取件"，逻辑最好只写一次</li>
+        <li><strong>代码要能交接</strong>：学生每年都有毕业的，清楚的结构让新同学能快速接手</li>
+        <li><strong>比赛现场要能快速改</strong>：结构清楚，才能在十几分钟内定位问题、改一个参数而不引入新错误</li>
+      </ul>
+    </section>
+
+    <section id="lifecycle">
+      <h2><span class="n">02</span>程序的生命周期</h2>
+      <p class="prose">WPILib 的机器人程序以固定周期运行，默认每 20 毫秒执行一轮（50 Hz）。根据机器人当前的模式，框架会调用不同的方法：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>方法</th><th>什么时候调用</th><th>常放什么</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">robotInit()</td><td>程序启动时一次</td><td>创建所有对象、下发配置（现在多放在构造函数里）</td></tr>
+            <tr><td class="mono">robotPeriodic()</td><td>任何模式下每 20 ms</td><td>运行命令调度器、更新日志和仪表盘</td></tr>
+            <tr><td class="mono">disabledInit / Periodic</td><td>机器人禁用时</td><td>停止所有输出、准备自动程序</td></tr>
+            <tr><td class="mono">autonomousInit / Periodic</td><td>自动阶段</td><td>启动选好的自动程序</td></tr>
+            <tr><td class="mono">teleopInit / Periodic</td><td>手动阶段</td><td>取消自动程序，交给驾驶员</td></tr>
+            <tr><td class="mono">testInit / Periodic</td><td>测试模式</td><td>单独测试某个机构、做系统辨识</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">每一轮都必须在 20 ms 内跑完。如果某段代码太慢（比如在循环里等待、做大量计算），整个机器人都会变得迟钝，Driver Station 会提示循环超时（loop overrun）。所以程序里<strong>绝不能用等待或死循环</strong>，所有动作都要拆成"每 20 ms 做一小步"。</p>
+    </section>
+
+    <section id="command-based">
+      <h2><span class="n">03</span>Command-based 框架</h2>
+      <p class="prose">Command-based 是 WPILib 推荐、FRC 最主流的程序结构。它把程序分成三种角色：</p>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 900 270" role="img" aria-label="Command-based 框架：驾驶员手柄按键、传感器条件和自动程序通过触发器启动命令；命令调度器每 20 毫秒运行所有活动的命令，并保证每个子系统同一时间只被一个命令占用；命令调用子系统的方法，子系统控制电机和读取传感器。">
+            <defs>
+              <marker id="pa-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="pa-req" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah-req" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="b-in" x="16" y="30" width="140" height="46" rx="6"/>
+            <text class="t-b" x="86" y="50" text-anchor="middle">手柄按键</text>
+            <text class="t-m" x="86" y="67" text-anchor="middle">driver.a()</text>
+            <rect class="b-in" x="16" y="104" width="140" height="46" rx="6"/>
+            <text class="t-b" x="86" y="124" text-anchor="middle">传感器条件</text>
+            <text class="t-m" x="86" y="141" text-anchor="middle">new Trigger(...)</text>
+            <rect class="b-in" x="16" y="178" width="140" height="46" rx="6"/>
+            <text class="t-b" x="86" y="198" text-anchor="middle">自动程序</text>
+            <text class="t-m" x="86" y="215" text-anchor="middle">autoCommand</text>
+
+            <rect class="b-sched" x="210" y="16" width="380" height="226" rx="10"/>
+            <text class="t-sched" x="226" y="38">命令调度器 CommandScheduler · 每 20 ms 运行一次</text>
+            <rect class="b-cmd" x="236" y="56" width="150" height="46" rx="6"/>
+            <text class="t-b" x="311" y="76" text-anchor="middle">取件命令</text>
+            <text class="t-s" x="311" y="93" text-anchor="middle">转滚轮，直到有道具</text>
+            <rect class="b-cmd" x="236" y="122" width="150" height="46" rx="6"/>
+            <text class="t-b" x="311" y="142" text-anchor="middle">发射命令</text>
+            <text class="t-s" x="311" y="159" text-anchor="middle">加速 → 送入 → 停止</text>
+            <rect class="b-cmd" x="236" y="188" width="150" height="46" rx="6"/>
+            <text class="t-b" x="311" y="208" text-anchor="middle">驾驶命令</text>
+            <text class="t-s" x="311" y="225" text-anchor="middle">底盘的默认命令</text>
+            <text class="t-s" x="490" y="100" text-anchor="middle">一个子系统</text>
+            <text class="t-s" x="490" y="116" text-anchor="middle">同一时间只能被</text>
+            <text class="t-s" x="490" y="132" text-anchor="middle">一个命令占用</text>
+
+            <rect class="b-sub" x="640" y="56" width="120" height="46" rx="6"/>
+            <text class="t-b" x="700" y="84" text-anchor="middle">取件子系统</text>
+            <rect class="b-sub" x="640" y="122" width="120" height="46" rx="6"/>
+            <text class="t-b" x="700" y="150" text-anchor="middle">发射子系统</text>
+            <rect class="b-sub" x="640" y="188" width="120" height="46" rx="6"/>
+            <text class="t-b" x="700" y="216" text-anchor="middle">底盘子系统</text>
+
+            <rect class="b-hw" x="800" y="56" width="84" height="178" rx="6"/>
+            <text class="t-b" x="842" y="138" text-anchor="middle">电机</text>
+            <text class="t-b" x="842" y="158" text-anchor="middle">传感器</text>
+
+            <line class="wire" x1="156" y1="53" x2="236" y2="79" marker-end="url(#pa-ah)"/>
+            <line class="wire" x1="156" y1="127" x2="236" y2="145" marker-end="url(#pa-ah)"/>
+            <polyline class="wire" points="156,201 196,201 196,145 236,145" marker-end="url(#pa-ah)"/>
+            <text class="t-s" x="186" y="96" text-anchor="middle">触发</text>
+
+            <line class="wire req" x1="386" y1="79" x2="640" y2="79" marker-end="url(#pa-req)"/>
+            <line class="wire req" x1="386" y1="145" x2="640" y2="145" marker-end="url(#pa-req)"/>
+            <line class="wire req" x1="386" y1="211" x2="640" y2="211" marker-end="url(#pa-req)"/>
+            <text class="t-s" x="610" y="71" text-anchor="end">调用方法</text>
+
+            <line class="wire" x1="760" y1="79" x2="800" y2="79" marker-end="url(#pa-ah)"/>
+            <line class="wire" x1="760" y1="145" x2="800" y2="145" marker-end="url(#pa-ah)"/>
+            <line class="wire" x1="760" y1="211" x2="800" y2="211" marker-end="url(#pa-ah)"/>
+          </svg>
+        </div>
+        <figcaption>左边是"什么时候做"（触发），中间是"做什么"（命令），右边是"用什么做"（子系统和硬件）。同一个发射命令既可以由传感器条件触发，也可以被自动程序调用，逻辑只写一次。</figcaption>
+      </figure>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>角色</th><th>是什么</th><th>例子</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Subsystem 子系统</td><td>一个机构的代码封装：拥有它的电机和传感器，提供"设置速度""读位置"这类基础方法</td><td>Drivetrain、Intake、Shooter、Arm</td></tr>
+            <tr><td class="k">Command 命令</td><td>一个有开始、过程和结束的动作。声明自己需要哪些子系统</td><td>"取件直到有道具"、"手臂转到 45°"</td></tr>
+            <tr><td class="k">Trigger 触发器</td><td>决定命令什么时候开始、什么时候停止</td><td>按住 A 键时取件；道具进入时自动收回</td></tr>
+            <tr><td class="k">CommandScheduler 调度器</td><td>每 20 ms 运行所有活动的命令，处理冲突</td><td>新命令需要已被占用的子系统时，打断旧命令</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>命令的组合</h3>
+      <p class="prose">简单的命令可以像积木一样组合成复杂动作，这是 Command-based 最强大的地方：</p>
+      <ul class="prose">
+        <li><code>andThen</code> / <code>Commands.sequence</code>：依次执行</li>
+        <li><code>alongWith</code> / <code>Commands.parallel</code>：同时执行，全部结束才算结束</li>
+        <li><code>raceWith</code>：同时执行，任何一个结束就全部结束</li>
+        <li><code>deadlineFor</code>：同时执行，以某一个为准</li>
+        <li><code>until</code>、<code>withTimeout</code>：加上结束条件或超时</li>
+      </ul>
+    </section>
+
+    <section id="structure">
+      <h2><span class="n">04</span>项目结构</h2>
+      <p class="prose">用 WPILib 的 Command Robot 模板创建的项目，结构大致如下：</p>
+<div class="tree">src/main/java/frc/robot/
+├── Main.java              <span class="c">程序入口，一般不用改</span>
+├── Robot.java             <span class="c">生命周期方法，运行调度器</span>
+├── RobotContainer.java    <span class="c">创建子系统，绑定按键，提供自动程序</span>
+├── Constants.java         <span class="c">CAN ID、尺寸、PID 参数等常量</span>
+├── subsystems/
+│   ├── Drivetrain.java
+│   ├── Intake.java
+│   └── Shooter.java
+└── commands/              <span class="c">较复杂的命令（简单的可以写在子系统里）</span>
+    └── ScoreSequence.java</div>
+      <ul class="prose">
+        <li><strong>RobotContainer 是"总装配"</strong>：所有子系统在这里创建，手柄按键在这里绑定到命令。想知道"按哪个键做什么"，看这一个文件就够</li>
+        <li><strong>Constants 集中放参数</strong>：比赛现场改参数只动这一个文件</li>
+        <li><strong>每个机构一个子系统</strong>：和机械上的机构一一对应，分工清楚</li>
+      </ul>
+    </section>
+
+    <section id="example">
+      <h2><span class="n">05</span>一个完整的例子：取件</h2>
+      <p class="prose">子系统封装硬件，并提供返回命令的方法（命令工厂）：</p>
+<pre><code>public class Intake extends SubsystemBase {
+    private final TalonFX roller = new TalonFX(Constants.INTAKE_ROLLER_ID);
+    private final DigitalInput beamBreak = new DigitalInput(Constants.INTAKE_SENSOR_PORT);
+
+    public boolean hasPiece() {
+        return !beamBreak.get();          // 光被挡住 = 有道具
+    }
+
+    // 转滚轮，直到检测到道具，结束时停转
+    public Command intakeUntilPiece() {
+        return run(() -> roller.setVoltage(8.0))
+                .until(this::hasPiece)
+                .finallyDo(() -> roller.stopMotor());
+    }
+}</code></pre>
+      <p class="prose">在 RobotContainer 里把按键绑定到命令：</p>
+<pre><code>CommandXboxController driver = new CommandXboxController(0);
+Intake intake = new Intake();
+
+// 按住 A 键取件，松开或拿到道具时停止
+driver.a().whileTrue(intake.intakeUntilPiece());
+
+// 拿到道具时让手柄震动一下，提醒驾驶员
+new Trigger(intake::hasPiece).onTrue(rumbleDriver());</code></pre>
+      <p class="prose">同一个 <code>intakeUntilPiece()</code> 也可以直接放进自动程序里使用。具体类名和接口以当年的 WPILib 和厂商库为准；比如传感器接到 SystemCore 的 SmartIO 后，读取方式可能和这里不同。</p>
+    </section>
+
+    <section id="coordination">
+      <h2><span class="n">06</span>多机构协调</h2>
+      <p class="prose">当电梯、手臂、取件互相影响时（比如手臂只有在电梯升起后才能翻转，否则会撞到底盘），常见的做法有：</p>
+      <ul class="prose">
+        <li><strong>把相关机构合成一个"上层结构"（superstructure）</strong>：由它统一规划动作顺序，外部只说"去放置高位"，内部决定先升电梯还是先转手臂</li>
+        <li><strong>用状态机描述目标状态</strong>：比如"收起 / 取件 / 准备低位 / 准备高位"，每个状态对应一组机构位置，状态之间的切换路径预先规划好</li>
+        <li><strong>在子系统里加安全检查</strong>：即使上层逻辑出错，子系统自己也拒绝进入危险位置</li>
+      </ul>
+    </section>
+
+    <section id="logging">
+      <h2><span class="n">07</span>日志与遥测</h2>
+      <p class="prose">机器人在场上出问题时，往往没法当场复现。好的日志能在赛后还原当时发生了什么：</p>
+      <ul class="prose">
+        <li><strong>WPILib 数据日志</strong>：自动记录 Driver Station 数据和 NetworkTables 数据，保存到主控制器上，赛后用 AdvantageScope 打开分析</li>
+        <li><strong>AdvantageKit</strong>：社区广泛使用的日志框架，能记录所有输入，赛后"回放"整场比赛，甚至修改代码后重新运行看结果</li>
+        <li><strong>2027 年的变化</strong>：WPILib 2027 用新的 Telemetry 和 Tunables 接口取代了 SmartDashboard，用来发布数据和在线调参</li>
+        <li><strong>该记什么</strong>：每个机构的目标值和实际值、电流、传感器读数、当前命令、机器人位姿。调 PID、查断线都离不开这些曲线</li>
+      </ul>
+    </section>
+
+    <section id="git">
+      <h2><span class="n">08</span>Git 与协作</h2>
+      <ul class="prose">
+        <li><strong>所有代码放在 Git 仓库里</strong>：通常托管在 GitHub 上，队伍建一个组织账号，学生用各自的账号协作</li>
+        <li><strong>小步提交</strong>：每完成一个小功能就提交一次，写清楚改了什么</li>
+        <li><strong>用分支开发新功能</strong>：主分支始终保持"能上车"的状态，新功能在分支上开发，测试通过后再合并</li>
+        <li><strong>代码评审</strong>：用 Pull Request 合并代码，至少有一位同学或 mentor 看过。这是家长 mentor 很好的参与方式</li>
+        <li><strong>给比赛版本打标签</strong>：每场比赛用的版本打一个标签，出问题时能马上退回</li>
+        <li><strong>比赛现场也要提交</strong>：现场临时改的参数，赛后一定要提交，不要只留在笔记本电脑上</li>
+      </ul>
+    </section>
+
+    <section id="style">
+      <h2><span class="n">09</span>代码规范</h2>
+      <ul class="prose">
+        <li><strong>单位要明确</strong>：变量名带上单位（<code>heightMeters</code>、<code>angleRadians</code>），或者使用 WPILib 的单位库，避免米和英寸、度和弧度混用</li>
+        <li><strong>不写"魔法数字"</strong>：所有参数放进 Constants 并起好名字</li>
+        <li><strong>子系统不直接互相调用</strong>：机构之间的协调交给命令或上层结构，子系统保持独立</li>
+        <li><strong>统一格式</strong>：用自动格式化工具（比如 Spotless）保持代码风格一致</li>
+        <li><strong>写给下一届看</strong>：关键逻辑写清楚注释，说明"为什么这样做"</li>
+      </ul>
+    </section>
+
+    <section id="faq">
+      <h2><span class="n">10</span>常见问题</h2>
+      <dl class="faq">
+        <dt>按了按键，命令开始了一下就停了</dt>
+        <dd>可能是另一个需要同一子系统的命令（比如默认命令）把它打断了，或者命令的结束条件一开始就满足。用日志查看当前运行的命令。</dd>
+        <dt>Driver Station 一直提示 loop overrun</dt>
+        <dd>某段代码太慢。常见原因：在周期方法里等待、频繁读写文件、打印大量信息、每轮都创建新对象。</dd>
+        <dt>两个机构同时动时撞在一起</dt>
+        <dd>缺少协调逻辑。把相关机构合并到上层结构里统一规划，并在子系统里加安全限制。</dd>
+        <dt>比赛现场改了参数，下一场又变回去了</dt>
+        <dd>改的是另一台电脑上的代码，或者没有重新部署、没有提交。比赛时固定一台部署用的电脑，改完立刻提交。</dd>
+      </dl>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">11</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://docs.wpilib.org/en/stable/docs/software/commandbased/index.html" target="_blank" rel="noopener">WPILib：Command-Based Programming</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/stable/docs/software/vscode-overview/creating-robot-program.html" target="_blank" rel="noopener">WPILib：Creating a Robot Program（模板）</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/latest/docs/yearly-overview/yearly-changelog.html" target="_blank" rel="noopener">WPILib：New for 2027（Telemetry 与 Tunables）</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.advantagekit.org" target="_blank" rel="noopener">AdvantageKit 文档</a><span class="url">docs.advantagekit.org</span></li>
+        <li><a href="https://docs.github.com/en/get-started" target="_blank" rel="noopener">GitHub 入门文档</a><span class="url">docs.github.com</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 技术方向《程序架构》。类名和接口以当年 WPILib 与厂商库文档为准。</footer>
+  </main>
+</div>
