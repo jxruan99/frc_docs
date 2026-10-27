@@ -1,0 +1,517 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>开发环境与仿真</title>
+<meta name="nav-title" content="开发环境与仿真">
+<meta name="description" content="手把手安装 WPILib，在仿真器里跑起第一个机器人程序，做几个上手练习，并了解 Driver Station 和 2027 赛季的变化。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts; numbered steps for the hands-on parts, a two-panel diagram comparing simulation with the real robot.
+   Diagram colors: blue = the robot program (identical in both panels), amber = operator side, teal = hardware side. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --code-bg: #eef1f5;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; --code-bg: #1d2430; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; --code-bg: #1d2430; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+code, kbd { font-family: var(--font-mono); font-size: .86em; }
+code { background: var(--code-bg); border-radius: 4px; padding: 1px 5px; }
+kbd { background: var(--surface); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 6px; white-space: nowrap; }
+pre { background: var(--code-bg); border-radius: 6px; padding: 12px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; margin: 10px 0 14px; max-width: 720px; }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ui { font-weight: 500; color: var(--blue); }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.tip { background: var(--blue-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.tip .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+.tip p:last-child, .tip ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step); font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--blue); width: 28px; height: 28px; border: 1.5px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.steps > li > div { min-width: 0; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps p { margin: 0 0 6px; }
+.steps ul { margin: 4px 0 6px; }
+
+.exercise { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; margin: 16px 0; max-width: 760px; }
+.exercise h3 { margin: 0 0 4px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.exercise .lv { font-size: 12px; font-weight: 500; padding: 0 8px; border-radius: 999px; background: var(--teal-soft); color: var(--teal); }
+.exercise .goal { color: var(--muted); margin-bottom: 10px; }
+.exercise ol { margin-bottom: 8px; }
+.exercise .learn { font-size: 14.5px; border-top: 1px dashed var(--line); padding-top: 8px; margin: 8px 0 0; }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+svg .panel { fill: none; stroke: var(--line); stroke-width: 1.5; }
+svg .b-prog { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.6; }
+svg .b-op { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-hw { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-tool { fill: var(--paper); stroke: var(--muted); stroke-width: 1.2; }
+svg .wire { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+svg .ah { fill: var(--muted); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-title { font-weight: 700; font-size: 14px; }
+
+.faq dt { font-weight: 700; margin-top: 14px; }
+.faq dd { margin: 4px 0 0; color: var(--ink); max-width: 720px; }
+.faq { max-width: 760px; margin: 0; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#goal">你将完成什么</a></li>
+      <li><a href="#version">先选版本</a></li>
+      <li><a href="#install">安装 WPILib</a></li>
+      <li><a href="#first-project">第一个项目</a></li>
+      <li><a href="#simulate">跑起仿真</a></li>
+      <li><a href="#exercises">上手练习</a></li>
+      <li><a href="#dashboards">看数据的工具</a></li>
+      <li><a href="#driver-station">Driver Station</a></li>
+      <li><a href="#to-2027">切换到 2027</a></li>
+      <li><a href="#faq">常见问题</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 技术方向</p>
+      <h1>开发环境与仿真</h1>
+      <p class="lede">不需要机器人，也不需要 SystemCore。一台电脑、一两个小时，就能装好 FRC 的开发环境，在仿真器里让一台虚拟机器人动起来，并亲手改代码看到效果。</p>
+      <div class="meta"><span>资料整理于 2026 年 10 月</span><span>示例以 Java 为主</span><span>预计用时 1–2 小时</span></div>
+    </header>
+
+    <section id="goal">
+      <h2><span class="n">01</span>你将完成什么</h2>
+      <ul class="prose">
+        <li>在自己的电脑上安装 WPILib 开发环境</li>
+        <li>创建一个机器人项目，并在仿真器里运行</li>
+        <li>用键盘代替游戏手柄，操控虚拟的电梯、手臂和底盘</li>
+        <li>修改代码和参数，亲眼看到机器人行为的变化</li>
+        <li>了解 Driver Station，以及 2027 赛季要做的切换</li>
+      </ul>
+      <p class="prose">仿真为什么重要？在 FRC 里，机器人往往到造车期后半段才造好，而比赛只有短短几周。会用仿真的队伍，软件组从第一天就能开始写代码、测自动程序，机器人一造好就能直接上车调试。</p>
+
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 900 290" role="img" aria-label="仿真和真机的对比：两边运行的是同一份机器人程序。仿真时程序在电脑上运行，由 Sim GUI 代替 Driver Station，由物理模型代替真实电机和传感器；真机时程序部署到 SystemCore，由 Driver Station 操作，控制真实硬件。两边都可以用 AdvantageScope 看数据。">
+            <defs>
+              <marker id="de-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="panel" x="8" y="8" width="434" height="274" rx="10"/>
+            <text class="t-title" x="24" y="34">仿真：全部在你的电脑上</text>
+            <rect class="panel" x="458" y="8" width="434" height="274" rx="10"/>
+            <text class="t-title" x="474" y="34">真机：程序运行在 SystemCore 上</text>
+
+            <!-- simulation panel -->
+            <rect class="b-tool" x="150" y="50" width="150" height="44" rx="6"/>
+            <text class="t-b" x="225" y="71" text-anchor="middle">VS Code</text>
+            <text class="t-s" x="225" y="87" text-anchor="middle">写代码 · 构建</text>
+            <line class="wire" x1="225" y1="94" x2="225" y2="126" marker-end="url(#de-ah)"/>
+            <text class="t-s" x="233" y="114">运行仿真</text>
+            <rect class="b-prog" x="150" y="126" width="150" height="50" rx="6"/>
+            <text class="t-b" x="225" y="148" text-anchor="middle">机器人程序</text>
+            <text class="t-s" x="225" y="166" text-anchor="middle">在电脑上运行</text>
+            <rect class="b-op" x="24" y="214" width="116" height="50" rx="6"/>
+            <text class="t-b" x="82" y="236" text-anchor="middle">Sim GUI</text>
+            <text class="t-s" x="82" y="254" text-anchor="middle">状态 · 键盘当手柄</text>
+            <rect class="b-hw" x="162" y="214" width="126" height="50" rx="6"/>
+            <text class="t-b" x="225" y="236" text-anchor="middle">物理模型</text>
+            <text class="t-s" x="225" y="254" text-anchor="middle">电机 · 电梯 · 手臂</text>
+            <rect class="b-tool" x="310" y="214" width="116" height="50" rx="6"/>
+            <text class="t-b" x="368" y="236" text-anchor="middle">AdvantageScope</text>
+            <text class="t-s" x="368" y="254" text-anchor="middle">曲线 · 3D 动画</text>
+            <polyline class="wire" points="82,214 82,151 150,151" marker-start="url(#de-ah)" marker-end="url(#de-ah)"/>
+            <line class="wire" x1="225" y1="176" x2="225" y2="214" marker-start="url(#de-ah)" marker-end="url(#de-ah)"/>
+            <polyline class="wire" points="368,214 368,151 300,151" marker-end="url(#de-ah)"/>
+
+            <!-- real robot panel -->
+            <rect class="b-tool" x="600" y="50" width="150" height="44" rx="6"/>
+            <text class="t-b" x="675" y="71" text-anchor="middle">VS Code</text>
+            <text class="t-s" x="675" y="87" text-anchor="middle">写代码 · 构建</text>
+            <line class="wire" x1="675" y1="94" x2="675" y2="126" marker-end="url(#de-ah)"/>
+            <text class="t-s" x="683" y="114">部署到机器人</text>
+            <rect class="b-prog" x="600" y="126" width="150" height="50" rx="6"/>
+            <text class="t-b" x="675" y="148" text-anchor="middle">机器人程序</text>
+            <text class="t-s" x="675" y="166" text-anchor="middle">在 SystemCore 上运行</text>
+            <rect class="b-op" x="474" y="214" width="116" height="50" rx="6"/>
+            <text class="t-b" x="532" y="236" text-anchor="middle">Driver Station</text>
+            <text class="t-s" x="532" y="254" text-anchor="middle">启用 · 真手柄</text>
+            <rect class="b-hw" x="612" y="214" width="126" height="50" rx="6"/>
+            <text class="t-b" x="675" y="236" text-anchor="middle">真实硬件</text>
+            <text class="t-s" x="675" y="254" text-anchor="middle">电机控制器 · 传感器</text>
+            <rect class="b-tool" x="760" y="214" width="116" height="50" rx="6"/>
+            <text class="t-b" x="818" y="236" text-anchor="middle">AdvantageScope</text>
+            <text class="t-s" x="818" y="254" text-anchor="middle">曲线 · 3D 动画</text>
+            <polyline class="wire" points="532,214 532,151 600,151" marker-start="url(#de-ah)" marker-end="url(#de-ah)"/>
+            <line class="wire" x1="675" y1="176" x2="675" y2="214" marker-start="url(#de-ah)" marker-end="url(#de-ah)"/>
+            <polyline class="wire" points="818,214 818,151 750,151" marker-end="url(#de-ah)"/>
+          </svg>
+        </div>
+        <figcaption>两边运行的是<strong>同一份程序</strong>（蓝色）。仿真只是把操作端（橙色）换成了 Sim GUI，把硬件（绿色）换成了物理模型。所以在仿真里调好的逻辑，搬到真机上大部分都能直接用。</figcaption>
+      </figure>
+    </section>
+
+    <section id="version">
+      <h2><span class="n">02</span>先选版本：2026 稳定版还是 2027 测试版</h2>
+      <p class="prose">WPILib 每年发布一个新版本。现在（2026 年 10 月）有两个选择：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th></th><th>2026 稳定版</th><th>2027 测试版（alpha）</th></tr></thead>
+          <tbody>
+            <tr><td class="k">对应硬件</td><td>roboRIO</td><td>SystemCore</td></tr>
+            <tr><td class="k">稳定性</td><td>成熟稳定，问题少</td><td>还在频繁改动，每个 alpha 版之间可能不兼容</td></tr>
+            <tr><td class="k">教程和示例</td><td>网上的教程、视频基本都对得上</td><td>大量旧教程已经对不上，比如 SmartDashboard 被新的 Telemetry 和 Tunables 接口取代</td></tr>
+            <tr><td class="k">仿真</td><td>完整可用</td><td>可用，但文档还在更新</td></tr>
+            <tr><td class="k">适合谁</td><td>现在入门、学概念的家长和学生</td><td>已经熟悉 WPILib、想提前适应新赛季的人</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip">
+        <span class="label">建议</span>
+        <p><strong>现在先用 2026 稳定版入门。</strong>仿真、命令框架、PID 这些核心概念两个版本是一样的，用稳定版学习少踩坑。正式的 2027 版通常在 1 月 Kickoff 时发布，到时候按<a href="#to-2027">第 09 节</a>的清单切换即可。</p>
+      </div>
+    </section>
+
+    <section id="install">
+      <h2><span class="n">03</span>安装 WPILib</h2>
+      <p class="prose">WPILib 安装包把开发所需的一切都打包好了：专用的 VS Code、Java JDK、C++ 编译工具、Gradle 构建工具，以及仿真和调试工具。不需要另外安装 Java 或 VS Code。</p>
+
+      <h3>系统要求</h3>
+      <ul class="prose">
+        <li><strong>Windows</strong>：64 位 Windows 11（2027 版开始提供 Arm64 安装包）</li>
+        <li><strong>macOS</strong>：Intel 和 Apple Silicon 都支持。2027 版要求 macOS 15 或更高</li>
+        <li><strong>Linux</strong>：64 位 Ubuntu 等发行版，具体版本见当年说明</li>
+        <li>硬盘留出至少 5 GB 空间。只写 Java 的话，普通笔记本就够用；写 C++ 对内存要求高得多</li>
+      </ul>
+
+      <ol class="steps">
+        <li><div><h3>下载安装包</h3>
+          <p>打开 WPILib 的 GitHub 发布页 <a href="https://github.com/wpilibsuite/allwpilib/releases" target="_blank" rel="noopener">github.com/wpilibsuite/allwpilib/releases</a>，找到 2026 的最新稳定版（标注 Latest、不带 alpha 或 beta 的那个），按系统下载对应文件：Windows 是 <code>.iso</code>，macOS 是 <code>.dmg</code>（注意区分 Arm64 和 Intel），Linux 是 <code>.tar.gz</code>。</p></div></li>
+        <li><div><h3>运行安装程序</h3>
+          <ul>
+            <li><strong>Windows</strong>：双击 <code>.iso</code> 文件挂载，运行里面的 <code>WPILibInstaller.exe</code></li>
+            <li><strong>macOS</strong>：双击 <code>.dmg</code>，运行里面的安装程序。如果系统提示"无法验证开发者"，到 <span class="ui">系统设置 → 隐私与安全性</span> 里点"仍要打开"</li>
+          </ul></div></li>
+        <li><div><h3>选择安装内容</h3>
+          <p>选 <span class="ui">Everything</span>（全部安装）。<span class="ui">Tools Only</span> 只装调试工具，不能写代码。如果问是否下载 VS Code，选 <span class="ui">Download for this computer only</span>。</p></div></li>
+        <li><div><h3>等待安装完成</h3>
+          <p>需要几分钟到十几分钟。完成后桌面上会出现 <strong>"2026 WPILib VS Code"</strong> 快捷方式（macOS 上在应用程序里，可以拖到 Dock）。</p></div></li>
+        <li><div><h3>确认安装成功</h3>
+          <p>打开这个 VS Code，左侧或右上角能看到红色的 WPILib 图标（一个"W"形状的 logo），就说明装好了。</p></div></li>
+      </ol>
+
+      <div class="note">
+        <span class="label">注意</span>
+        <ul>
+          <li>一定要用 WPILib 自带的那个 VS Code，不要用你电脑上原有的 VS Code，否则缺少扩展和正确的 Java 版本。</li>
+          <li>不同年份的 WPILib 可以同时安装，互不影响，各自有独立的 VS Code 快捷方式。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="first-project">
+      <h2><span class="n">04</span>创建第一个项目</h2>
+      <p class="prose">WPILib 的所有功能都通过 VS Code 的<strong>命令面板</strong>调用：按 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>（macOS 是 <kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>），或者点右上角的 WPILib 图标，再输入命令名称。</p>
+      <ol class="steps">
+        <li><div><h3>打开新建项目向导</h3>
+          <p>在命令面板里输入并选择 <span class="ui">WPILib: Create a new project</span>。</p></div></li>
+        <li><div><h3>选择项目类型</h3>
+          <p>第一次建议选 <span class="ui">Example</span>（示例项目），语言选 <span class="ui">Java</span>，然后在列表里选 <strong>Elevator Simulation</strong>（电梯仿真）。示例项目已经写好了物理模型，打开就能玩。</p>
+          <p>以后自己从头写机器人时，选 <span class="ui">Template</span> → <span class="ui">Java</span> → <span class="ui">Command Robot</span>，这是最常用的命令框架模板。</p></div></li>
+        <li><div><h3>填写项目信息</h3>
+          <ul>
+            <li><strong>Base Folder</strong>：选一个放项目的文件夹</li>
+            <li><strong>Project Name</strong>：起个名字，比如 <code>ElevatorSim</code></li>
+            <li><strong>Team Number</strong>：填你们队的队号（仿真时用不到，但部署到真机时需要）</li>
+            <li>勾选 <strong>Enable Desktop Support</strong>：<strong>一定要勾</strong>，否则不能仿真</li>
+          </ul></div></li>
+        <li><div><h3>生成并打开项目</h3>
+          <p>点 <span class="ui">Generate Project</span>，在弹出的窗口里选择在新窗口打开。第一次打开时 VS Code 会下载依赖，右下角可能显示进度，等它完成。</p></div></li>
+      </ol>
+      <p class="prose">项目里最重要的代码在 <code>src/main/java/frc/robot/</code> 下：<code>Robot.java</code> 是程序入口，常量通常放在 <code>Constants.java</code>，各机构的代码放在 <code>subsystems/</code> 这类文件夹里。不同示例的文件结构略有不同。</p>
+    </section>
+
+    <section id="simulate">
+      <h2><span class="n">05</span>跑起仿真</h2>
+      <ol class="steps">
+        <li><div><h3>启动仿真</h3>
+          <p>命令面板里选 <span class="ui">WPILib: Simulate Robot Code</span>。第一次会先编译，稍等片刻。弹出扩展选择时，勾选 <span class="ui">Sim GUI</span> 再确定。</p></div></li>
+        <li><div><h3>认识 Sim GUI</h3>
+          <p>弹出的 Simulation GUI 窗口里有几个小面板，最常用的是：</p>
+          <ul>
+            <li><strong>Robot State</strong>：切换机器人状态：<code>Disconnected</code>、<code>Disabled</code>（禁用）、<code>Autonomous</code>（自动）、<code>Teleoperated</code>（手动）、<code>Test</code></li>
+            <li><strong>System Joysticks</strong>：电脑能识别到的输入设备，包括键盘和插上的游戏手柄</li>
+            <li><strong>Joysticks</strong>：机器人程序"看到"的手柄槽位（Joystick[0]、[1]……）</li>
+            <li><strong>NetworkTables</strong>：程序发布出来的各种数据，可以查看，也可以修改</li>
+          </ul></div></li>
+        <li><div><h3>把键盘接成手柄</h3>
+          <p>把 System Joysticks 里的 <strong>Keyboard 0</strong> 用鼠标拖到 Joysticks 面板的 <strong>Joystick[0]</strong> 槽位上。这样键盘就成了 0 号手柄。默认按键映射如下（Sim GUI 里可以查看和修改键盘设置，不同版本的菜单位置略有不同）：</p>
+          <div class="table-scroll" style="margin:8px 0">
+            <table>
+              <thead><tr><th>按键</th><th>对应手柄输入</th></tr></thead>
+              <tbody>
+                <tr><td class="k"><kbd>A</kbd> / <kbd>D</kbd></td><td>摇杆 X 轴（axis 0）</td></tr>
+                <tr><td class="k"><kbd>W</kbd> / <kbd>S</kbd></td><td>摇杆 Y 轴（axis 1）</td></tr>
+                <tr><td class="k"><kbd>E</kbd> / <kbd>R</kbd></td><td>第三个轴（axis 2）</td></tr>
+                <tr><td class="k"><kbd>Z</kbd> <kbd>X</kbd> <kbd>C</kbd> <kbd>V</kbd></td><td>按钮 1、2、3、4（按钮 1 通常就是"扳机"）</td></tr>
+              </tbody>
+            </table>
+          </div></div></li>
+        <li><div><h3>启用机器人</h3>
+          <p>在 Robot State 里点 <code>Teleoperated</code>。现在程序进入手动阶段，会响应"手柄"输入了。想停下来，点 <code>Disabled</code>。</p></div></li>
+        <li><div><h3>停止仿真</h3>
+          <p>关闭 Sim GUI 窗口，或在 VS Code 底部的终端里按 <kbd>Ctrl</kbd>+<kbd>C</kbd>。改完代码后重新运行 <span class="ui">Simulate Robot Code</span> 即可。</p></div></li>
+      </ol>
+      <div class="note">
+        <span class="label">看不到 Sim GUI？</span>
+        <p>最常见的原因是创建项目时没勾 Enable Desktop Support。补救方法：命令面板里运行 <span class="ui">WPILib: Change Desktop Support Enabled Setting</span>，打开它，再重新仿真。</p>
+      </div>
+    </section>
+
+    <section id="exercises">
+      <h2><span class="n">06</span>上手练习</h2>
+      <p class="prose">下面几个练习从易到难，每个 10–20 分钟。都基于 WPILib 自带的示例项目，不同版本里文件名和常量名可能略有差异，找不到时用 VS Code 的全局搜索（<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd>）找相近的名字。</p>
+
+      <div class="exercise">
+        <h3>练习 1：让电梯动起来 <span class="lv">入门</span></h3>
+        <p class="goal">目标：跑通仿真，理解"启用"和"手柄输入"。</p>
+        <ol>
+          <li>打开上一节创建的 Elevator Simulation 项目，运行仿真</li>
+          <li>把 Keyboard 0 拖到 Joystick[0]，Robot State 切到 <code>Teleoperated</code></li>
+          <li>在 Sim GUI 菜单 <span class="ui">NetworkTables → SmartDashboard</span> 里找到电梯的示意图（Mechanism2d），打开它</li>
+          <li>按住 <kbd>Z</kbd>（按钮 1），电梯升到目标高度；松开，电梯回到底部</li>
+          <li>切到 <code>Disabled</code>，再按 <kbd>Z</kbd>，电梯不再响应</li>
+        </ol>
+        <p class="learn"><strong>学到什么：</strong>机器人只有在启用状态下才会执行动作，这是 FRC 最基本的安全机制。</p>
+      </div>
+
+      <div class="exercise">
+        <h3>练习 2：改目标高度 <span class="lv">入门</span></h3>
+        <p class="goal">目标：第一次改代码，看到效果。</p>
+        <ol>
+          <li>在 <code>Constants.java</code> 里找到电梯目标位置的常量（名字里通常带 <code>Setpoint</code>，单位是米）</li>
+          <li>把数值改小一半，保存</li>
+          <li>重新运行仿真，按 <kbd>Z</kbd>，电梯只升到一半高度</li>
+        </ol>
+        <p class="learn"><strong>学到什么：</strong>把可调的数字集中放在 Constants 里，是 FRC 代码的常见习惯。比赛现场改参数时，只需要动这一个文件。</p>
+      </div>
+
+      <div class="exercise">
+        <h3>练习 3：体会 PID 控制 <span class="lv">进阶</span></h3>
+        <p class="goal">目标：直观理解闭环控制里最重要的参数 kP。</p>
+        <ol>
+          <li>在 <code>Constants.java</code> 里找到电梯的 <code>kP</code>（比例增益）</li>
+          <li>把它调小到原来的十分之一，运行：电梯升得很慢，甚至到不了目标</li>
+          <li>把它调大到原来的十倍，运行：电梯冲过头再弹回来，来回振荡</li>
+          <li>再试几个中间值，找一个"又快又稳"的数</li>
+        </ol>
+        <p class="learn"><strong>学到什么：</strong>kP 太小反应迟钝，太大会振荡。真机调试时，学生要做的正是这件事，在仿真里先体会一遍，上车调参会快很多。</p>
+      </div>
+
+      <div class="exercise">
+        <h3>练习 4：不改代码调手臂 <span class="lv">进阶</span></h3>
+        <p class="goal">目标：学会在程序运行中实时调参数。</p>
+        <ol>
+          <li>新建一个示例项目，选 <strong>Arm Simulation</strong>（手臂仿真），运行仿真并接好键盘</li>
+          <li>在 NetworkTables 面板里展开 <code>Preferences</code>，能看到手臂的目标角度和 P 值</li>
+          <li>切到 <code>Teleoperated</code>，按住 <kbd>Z</kbd>，手臂转到目标角度</li>
+          <li>直接在面板里修改目标角度和 P 值，再按 <kbd>Z</kbd>，观察变化，不需要重新编译</li>
+        </ol>
+        <p class="learn"><strong>学到什么：</strong>Preferences 让参数可以在运行时修改并保存，实际调车时非常省时间。</p>
+      </div>
+
+      <div class="exercise">
+        <h3>练习 5：在场地上开车 <span class="lv">挑战</span></h3>
+        <p class="goal">目标：体验底盘控制和自动阶段。</p>
+        <ol>
+          <li>新建示例项目 <strong>Simple Differential Drive Simulation</strong>（简单差速底盘仿真）</li>
+          <li>运行仿真，接好键盘，在 <span class="ui">NetworkTables → SmartDashboard → Field</span> 里打开场地图</li>
+          <li>切到 <code>Teleoperated</code>，用 <kbd>W</kbd> <kbd>S</kbd> 前后、<kbd>A</kbd> <kbd>D</kbd> 转向，在场地上开车（如果没反应，看代码里用的是哪几个轴，把对应按键找出来）</li>
+          <li>切到 <code>Autonomous</code>，看机器人自动沿预设路线行驶</li>
+          <li>在代码里找到自动路线的终点坐标，改一个数，再看自动路线的变化</li>
+        </ol>
+        <p class="learn"><strong>学到什么：</strong>同一台机器人既能手动开，也能按程序自动跑。自动阶段的 15 秒，就是靠这样的路线和定位完成的。</p>
+      </div>
+
+      <div class="tip">
+        <span class="label">下一步</span>
+        <p>完成这些练习后，可以用 <span class="ui">Template → Command Robot</span> 新建一个空项目，试着自己写一个子系统。WPILib 官方文档的 Zero to Robot 和 Command-Based Programming 两部分是最好的教材。</p>
+      </div>
+    </section>
+
+    <section id="dashboards">
+      <h2><span class="n">07</span>看数据的工具</h2>
+      <p class="prose">机器人程序通过 <strong>NetworkTables</strong> 把数据发布出来，下面这些工具都能读取它们，仿真和真机都适用。它们都随 WPILib 一起安装。</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>工具</th><th>用途</th><th>连接仿真</th></tr></thead>
+          <tbody>
+            <tr><td class="k">AdvantageScope</td><td>画数据曲线、回放日志、显示 2D 场地和 3D 机器人动画。调试和赛后分析的首选</td><td>菜单 <span class="ui">File → Connect to Simulator</span>，或按 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>K</kbd></td></tr>
+            <tr><td class="k">Elastic</td><td>比赛时给驾驶员看的仪表盘，可以自由摆放各种控件</td><td>设置里把服务器地址设为 <code>localhost</code></td></tr>
+            <tr><td class="k">Glass</td><td>轻量的数据查看和调试工具，界面和 Sim GUI 类似</td><td>NetworkTables 设置里，Team/IP 填 <code>localhost</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">建议家长至少熟悉 AdvantageScope：学生调试时经常需要一起看曲线，判断是机械问题、电气问题还是程序问题。</p>
+    </section>
+
+    <section id="driver-station">
+      <h2><span class="n">08</span>Driver Station</h2>
+      <p class="prose">Driver Station（驾驶站）是操作手用来控制机器人的电脑程序，也是比赛中机器人和场地系统之间的桥梁。仿真时 Sim GUI 替代了它的大部分功能，但上真机时必须用它。</p>
+
+      <h3>它能做什么</h3>
+      <ul class="prose">
+        <li><strong>启用和禁用机器人</strong>，选择 Autonomous、Teleoperated、Test 等模式</li>
+        <li><strong>连接手柄</strong>：Xbox、PlayStation 等游戏手柄插在电脑上，经 Driver Station 传给机器人，在 USB 设备页可以调整手柄的槽位顺序</li>
+        <li><strong>显示状态</strong>：通信是否正常、电池电压、程序是否在运行</li>
+        <li><strong>查看日志</strong>：程序打印的信息和错误，以及电压、通信质量等历史曲线</li>
+      </ul>
+
+      <h3>2027 年的变化</h3>
+      <ul class="prose">
+        <li><strong>到 2026 赛季为止</strong>：Driver Station 是 NI 公司 FRC Game Tools 里的 Windows 程序，只能在 Windows 上运行</li>
+        <li><strong>2027 赛季</strong>：换成新的 <strong>FIRST Driver Station</strong>，开始支持多个平台，不再只限 Windows。目前也在 alpha 测试中，版本需要和 WPILib、SystemCore 系统镜像配套使用（比如 WPILib 2027 alpha 7 要求 SystemCore 镜像 14 和 Driver Station Alpha 7）</li>
+      </ul>
+
+      <div class="note">
+        <span class="label">安全须知</span>
+        <ul>
+          <li>启用机器人之前，确认周围的人都知道、都站在安全距离外</li>
+          <li>记住急停方法。现行 Windows 版 Driver Station 中，<kbd>空格键</kbd>是紧急停止，<kbd>Enter</kbd> 是禁用。新版 Driver Station 的快捷键以正式版说明为准</li>
+          <li>急停后机器人要重启才能再次启用，这是有意的设计</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="to-2027">
+      <h2><span class="n">09</span>切换到 2027 的清单</h2>
+      <p class="prose">2027 正式版发布后（通常在 1 月 Kickoff 前后），按下面的清单切换：</p>
+      <ul class="prose">
+        <li><strong>安装 2027 版 WPILib</strong>：和 2026 版并存，用新的 "2027 WPILib VS Code"</li>
+        <li><strong>语言版本升级</strong>：Java 25、C++23（安装包会自带对应的 JDK）</li>
+        <li><strong>新建项目，不要直接升级旧项目</strong>：2027 有大量不兼容的改动，按新模板重建，再把逻辑搬过去更稳妥</li>
+        <li><strong>界面数据接口变了</strong>：SmartDashboard 被新的 Telemetry 和 Tunables 接口取代，相关代码要改写</li>
+        <li><strong>删掉的旧功能</strong>：relay、SPI 传感器、模拟陀螺仪等，详见<a href="02-systemcore.html#vs-roborio">《SystemCore 主控制器》第 05 节</a></li>
+        <li><strong>厂商库</strong>：CTRE Phoenix、REVLib、PathPlanner 等都要换成 2027 版，AprilTag 和 CameraServer 也改成了单独的库</li>
+        <li><strong>SystemCore 和 Driver Station</strong>：系统镜像、Driver Station、WPILib 三者版本要配套，按 WPILib 发布说明的要求升级</li>
+      </ul>
+    </section>
+
+    <section id="faq">
+      <h2><span class="n">10</span>常见问题</h2>
+      <dl class="faq">
+        <dt>运行仿真时报错，说找不到 desktop 或 simulation 相关的任务</dt>
+        <dd>项目没开启桌面支持。运行 <span class="ui">WPILib: Change Desktop Support Enabled Setting</span> 打开它。</dd>
+        <dt>第一次构建很慢，或者卡在下载</dt>
+        <dd>第一次需要下载依赖，网络慢时可能要十几分钟。如果完全卡住，检查网络或代理设置，之后的构建会快很多。</dd>
+        <dt>Windows 防火墙弹窗，问是否允许 Java 访问网络</dt>
+        <dd>选择允许。仿真时 Sim GUI 和 AdvantageScope 要通过本机网络和程序通信。</dd>
+        <dt>按键盘机器人没反应</dt>
+        <dd>依次检查：Keyboard 0 是否拖到了 Joystick[0]；Robot State 是否是 Teleoperated；Sim GUI 窗口是否处于激活状态（键盘输入只在它被选中时有效）。</dd>
+        <dt>VS Code 里代码一片红色波浪线</dt>
+        <dd>多半是依赖还没下载完，或者用的不是 WPILib 自带的 VS Code。等右下角任务完成，或者用 WPILib 的 VS Code 重新打开项目。</dd>
+        <dt>Mac 上能不能写 C++？</dt>
+        <dd>可以，但需要先安装 Xcode 命令行工具。新手建议从 Java 开始，配置最简单。</dd>
+      </dl>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">11</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/wpilib-setup.html" target="_blank" rel="noopener">WPILib：WPILib Installation Guide</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/stable/docs/software/wpilib-tools/robot-simulation/introduction.html" target="_blank" rel="noopener">WPILib：Robot Simulation</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://github.com/wpilibsuite/allwpilib/releases" target="_blank" rel="noopener">WPILib 发布页（下载安装包、2027 alpha 发布说明）</a><span class="url">github.com/wpilibsuite/allwpilib</span></li>
+        <li><a href="https://docs.wpilib.org/en/latest/docs/yearly-overview/yearly-changelog.html" target="_blank" rel="noopener">WPILib：New for 2027</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://github.com/wpilibsuite/SystemcoreTesting" target="_blank" rel="noopener">SystemCore 测试项目（2027 alpha 进展和讨论）</a><span class="url">github.com/wpilibsuite/SystemcoreTesting</span></li>
+        <li><a href="https://docs.advantagescope.org" target="_blank" rel="noopener">AdvantageScope 文档</a><span class="url">docs.advantagescope.org</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 技术方向《开发环境与仿真》。软件版本变化很快，具体步骤以 WPILib 官方文档为准。</footer>
+  </main>
+</div>

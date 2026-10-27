@@ -1,0 +1,469 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FRC 机器人综述</title>
+<meta name="nav-title" content="机器人综述">
+<meta name="description" content="技术方向的入口：一台 FRC 机器人由哪些部分组成，FIRST 规定或提供的标准件有哪些，以及设计和开发机器人的关键步骤与注意事项。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts — sticky contents rail, one readable column; diagrams run wider in their own scroll box.
+   Diagram colors: amber = power, blue = control and signal, teal = actuation. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+.en { font-family: var(--font-mono); font-size: .88em; color: var(--muted); }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12px; line-height: 1.6; padding: 0 8px; border-radius: 999px; white-space: nowrap; }
+.tag.power { background: var(--amber-soft); color: var(--amber); }
+.tag.ctrl { background: var(--blue-soft); color: var(--blue); }
+.tag.act { background: var(--teal-soft); color: var(--teal); }
+.tag.misc { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.tag.done { background: var(--teal-soft); color: var(--teal); }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 22px; height: 0; border-top: 2.5px solid; display: inline-block; }
+.legend .pw i { border-color: var(--amber); }
+.legend .sg i { border-color: var(--blue); }
+.legend .mc i { border-color: var(--ink); }
+.legend .wl i { border-color: var(--blue); border-top-style: dashed; }
+
+svg .robot { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 7 4; }
+svg .b-pw { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-ct { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.5; }
+svg .b-ac { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-me { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
+svg .b-ex { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+svg .w-pw { fill: none; stroke: var(--amber); stroke-width: 2; }
+svg .w-sg { fill: none; stroke: var(--blue); stroke-width: 2; }
+svg .w-mc { fill: none; stroke: var(--ink); stroke-width: 2; }
+svg .w-wl { fill: none; stroke: var(--blue); stroke-width: 2; stroke-dasharray: 6 4; }
+svg .ah-pw { fill: var(--amber); }
+svg .ah-sg { fill: var(--blue); }
+svg .ah-mc { fill: var(--ink); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-l { fill: var(--muted); font-size: 11.5px; font-weight: 500; }
+svg .t-title { font-weight: 700; font-size: 14px; }
+
+.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 18px 0; }
+.part { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.part h3 { margin: 0 0 6px; font-size: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.part p { margin: 0; color: var(--muted); }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step, decimal-leading-zero); font-family: var(--font-mono); font-size: 15px; color: var(--blue); padding-top: 2px; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps .when { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: 8px; font-weight: 400; }
+.steps p { margin: 0 0 6px; }
+.steps ul { margin: 4px 0 0; }
+
+.roadmap { list-style: none; padding: 0; border-top: 1px solid var(--line); max-width: 760px; }
+.roadmap li { border-bottom: 1px solid var(--line); padding: 12px 4px; margin: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.roadmap .n { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.roadmap b { display: block; }
+.roadmap span.d { color: var(--muted); font-size: 14.5px; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#architecture">整体架构</a></li>
+      <li><a href="#electrical">电气与控制</a></li>
+      <li><a href="#drive">驱动系统</a></li>
+      <li><a href="#mechanisms">机械结构</a></li>
+      <li><a href="#software">软件</a></li>
+      <li><a href="#process">设计开发步骤</a></li>
+      <li><a href="#pitfalls">注意事项</a></li>
+      <li><a href="#roadmap">技术方向路线图</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 技术方向</p>
+      <h1>FRC 机器人综述</h1>
+      <p class="lede">一台 FRC 机器人可以拆成四个部分：电气与控制、驱动系统、机械结构，以及把它们串起来的软件。这一篇是技术方向的入口：先建立整体框架，再按需要深入到主控制器、电机、传感器、机械机构等专题。</p>
+      <div class="meta"><span>适用于 2027 赛季</span><span>具体规则以当年 Game Manual 为准</span></div>
+    </header>
+
+    <section id="architecture">
+      <h2><span class="n">01</span>整体架构</h2>
+      <p class="prose">先看全貌。下图里，<strong>电力</strong>从电池出发，经过总断路器和配电板，分给控制器和执行器；<strong>信号</strong>从 Driver Station 发出，经无线电台到达主控制器，再由主控制器指挥电机控制器和气动模块；<strong>机械传动</strong>把电机和气缸的动作变成机构的运动；传感器再把机构的状态反馈给主控制器，形成闭环。</p>
+
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 900 560" role="img" aria-label="FRC 机器人整体架构图：电池经断路器到配电板，配电板为主控制器、电机控制器和气动模块供电；Driver Station 无线连接无线电台，电台经以太网连接 SystemCore；SystemCore 经 CAN-FD 控制电机控制器和气动模块，它们分别驱动电机和气缸，进而带动底盘、取件、发射放置、升降手臂和攀爬等机构；传感器把机构状态反馈给 SystemCore。">
+            <defs>
+              <marker id="ov-pw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-pw" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="ov-sg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-sg" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="ov-mc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-mc" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+
+            <!-- driver station, outside robot -->
+            <rect class="b-ex" x="16" y="48" width="150" height="56" rx="6"/>
+            <text class="t-b" x="91" y="71" text-anchor="middle">Driver Station</text>
+            <text class="t-s" x="91" y="90" text-anchor="middle">电脑 + 游戏手柄</text>
+
+            <!-- robot boundary -->
+            <rect class="robot" x="200" y="20" width="684" height="526" rx="14"/>
+            <text class="t-title" x="216" y="44">机器人</text>
+            <text class="t-s" x="216" y="62">车架 + 保险杠</text>
+
+            <!-- power chain -->
+            <text class="t-l" x="295" y="136" text-anchor="middle">电力</text>
+            <rect class="b-pw" x="230" y="150" width="130" height="46" rx="6"/>
+            <text class="t-b" x="295" y="170" text-anchor="middle">电池</text>
+            <text class="t-s" x="295" y="187" text-anchor="middle">12V 铅酸</text>
+            <rect class="b-pw" x="230" y="230" width="130" height="46" rx="6"/>
+            <text class="t-b" x="295" y="250" text-anchor="middle">总断路器</text>
+            <text class="t-s" x="295" y="267" text-anchor="middle">120A · 总开关</text>
+            <rect class="b-pw" x="230" y="310" width="130" height="46" rx="6"/>
+            <text class="t-b" x="295" y="330" text-anchor="middle">配电板</text>
+            <text class="t-s" x="295" y="347" text-anchor="middle">PDH · 分路保险</text>
+            <line class="w-pw" x1="295" y1="196" x2="295" y2="230" marker-end="url(#ov-pw)"/>
+            <line class="w-pw" x1="295" y1="276" x2="295" y2="310" marker-end="url(#ov-pw)"/>
+
+            <!-- control -->
+            <rect class="b-ct" x="420" y="50" width="180" height="50" rx="6"/>
+            <text class="t-b" x="510" y="71" text-anchor="middle">无线电台</text>
+            <text class="t-s" x="510" y="89" text-anchor="middle">VH-109</text>
+            <rect class="b-ct" x="420" y="150" width="180" height="56" rx="6"/>
+            <text class="t-b" x="510" y="173" text-anchor="middle">主控制器 SystemCore</text>
+            <text class="t-s" x="510" y="193" text-anchor="middle">运行机器人程序</text>
+            <rect class="b-ct" x="680" y="58" width="160" height="54" rx="6"/>
+            <text class="t-b" x="760" y="80" text-anchor="middle">传感器</text>
+            <text class="t-s" x="760" y="99" text-anchor="middle">编码器 · IMU · 相机 · 开关</text>
+
+            <line class="w-wl" x1="166" y1="76" x2="420" y2="76" marker-start="url(#ov-sg)" marker-end="url(#ov-sg)"/>
+            <text class="t-s" x="390" y="68" text-anchor="end">Wi-Fi</text>
+            <line class="w-sg" x1="510" y1="100" x2="510" y2="150" marker-start="url(#ov-sg)" marker-end="url(#ov-sg)"/>
+            <text class="t-s" x="518" y="130">以太网</text>
+            <polyline class="w-sg" points="680,85 640,85 640,170 600,170" marker-end="url(#ov-sg)"/>
+            <text class="t-s" x="648" y="132">反馈</text>
+
+            <!-- actuation -->
+            <rect class="b-ac" x="420" y="300" width="180" height="50" rx="6"/>
+            <text class="t-b" x="510" y="321" text-anchor="middle">电机控制器</text>
+            <text class="t-s" x="510" y="339" text-anchor="middle">SPARK · Talon FX 等</text>
+            <rect class="b-ac" x="680" y="300" width="170" height="50" rx="6"/>
+            <text class="t-b" x="765" y="321" text-anchor="middle">气动模块</text>
+            <text class="t-s" x="765" y="339" text-anchor="middle">Pneumatic Hub · 压缩机</text>
+            <rect class="b-ac" x="420" y="400" width="180" height="46" rx="6"/>
+            <text class="t-b" x="510" y="420" text-anchor="middle">电机</text>
+            <text class="t-s" x="510" y="437" text-anchor="middle">Kraken · NEO 等</text>
+            <rect class="b-ac" x="680" y="400" width="170" height="46" rx="6"/>
+            <text class="t-b" x="765" y="420" text-anchor="middle">电磁阀 · 气缸</text>
+            <text class="t-s" x="765" y="437" text-anchor="middle">直线推拉动作</text>
+
+            <line class="w-sg" x1="510" y1="206" x2="510" y2="300" marker-end="url(#ov-sg)"/>
+            <text class="t-s" x="518" y="262">CAN-FD 指令</text>
+            <polyline class="w-sg" points="600,190 765,190 765,300" marker-end="url(#ov-sg)"/>
+            <text class="t-s" x="773" y="250">CAN</text>
+            <line class="w-sg" x1="510" y1="350" x2="510" y2="400" marker-end="url(#ov-sg)"/>
+            <line class="w-sg" x1="765" y1="350" x2="765" y2="400" marker-end="url(#ov-sg)"/>
+
+            <!-- power distribution -->
+            <polyline class="w-pw" points="360,320 390,320 390,182 420,182" marker-end="url(#ov-pw)"/>
+            <line class="w-pw" x1="360" y1="340" x2="420" y2="340" marker-end="url(#ov-pw)"/>
+            <polyline class="w-pw" points="295,356 295,375 650,375 650,335 680,335" marker-end="url(#ov-pw)"/>
+            <text class="t-s" x="400" y="392">供电</text>
+
+            <!-- mechanisms -->
+            <text class="t-l" x="230" y="472">机构</text>
+            <rect class="b-me" x="230" y="482" width="112" height="46" rx="6"/>
+            <text class="t-b" x="286" y="510" text-anchor="middle">底盘</text>
+            <rect class="b-me" x="352" y="482" width="112" height="46" rx="6"/>
+            <text class="t-b" x="408" y="510" text-anchor="middle">取件机构</text>
+            <rect class="b-me" x="474" y="482" width="112" height="46" rx="6"/>
+            <text class="t-b" x="530" y="510" text-anchor="middle">发射 / 放置</text>
+            <rect class="b-me" x="596" y="482" width="112" height="46" rx="6"/>
+            <text class="t-b" x="652" y="510" text-anchor="middle">升降 / 手臂</text>
+            <rect class="b-me" x="718" y="482" width="112" height="46" rx="6"/>
+            <text class="t-b" x="774" y="510" text-anchor="middle">攀爬</text>
+            <line class="w-mc" x1="510" y1="446" x2="510" y2="482" marker-end="url(#ov-mc)"/>
+            <line class="w-mc" x1="765" y1="446" x2="765" y2="482" marker-end="url(#ov-mc)"/>
+            <text class="t-s" x="518" y="470">传动</text>
+
+            <polyline class="w-sg" points="830,505 858,505 858,85 840,85" marker-end="url(#ov-sg)"/>
+            <text class="t-s" x="871" y="300" transform="rotate(90 871 300)" text-anchor="middle">机构状态</text>
+          </svg>
+        </div>
+        <div class="legend">
+          <span class="pw"><i></i>电力</span>
+          <span class="sg"><i></i>信号与数据</span>
+          <span class="wl"><i></i>无线</span>
+          <span class="mc"><i></i>机械传动</span>
+        </div>
+        <figcaption>一台典型 FRC 机器人的组成。每年的赛题不同，机构层的具体内容会变，但电力和信号这两条主线每年基本一样。</figcaption>
+      </figure>
+
+      <div class="parts">
+        <div class="part"><h3>电气与控制 <span class="tag power">电力</span> <span class="tag ctrl">控制</span></h3><p>电池、断路器、配电板、主控制器、无线电台。大部分是 FIRST 规定的标准件，各队之间几乎一样。</p></div>
+        <div class="part"><h3>驱动系统 <span class="tag act">执行</span></h3><p>底盘、轮组、电机和电机控制器，决定机器人跑得多快、多灵活。多数强队使用市售的 swerve 轮组。</p></div>
+        <div class="part"><h3>机械结构 <span class="tag misc">机构</span></h3><p>车架和完成当年任务的机构：取件、发射、升降、攀爬。这部分每年都要重新设计，最能体现各队的差异。</p></div>
+        <div class="part"><h3>软件 <span class="tag ctrl">程序</span></h3><p>运行在主控制器上的程序，负责读取手柄和传感器、控制每个电机，并完成 15 秒的自动阶段。</p></div>
+      </div>
+    </section>
+
+    <section id="electrical">
+      <h2><span class="n">02</span>电气与控制系统</h2>
+      <p class="prose">这部分的大多数部件由 FIRST 规定型号，或出现在官方零件包（Kit of Parts，KoP）里。各队能自由选择的余地不大，但<strong>接线质量</strong>对比赛成败影响极大：比赛中很多"机器人突然不动了"，原因都是一根松动的线。</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>部件</th><th>常见型号</th><th>作用</th></tr></thead>
+          <tbody>
+            <tr><td class="k">电池</td><td>12V 18Ah 密封铅酸电池</td><td>全车唯一电源。比赛时每场换一块充满的电池，各队通常备 6 块以上</td></tr>
+            <tr><td class="k">总断路器</td><td>120A 断路器</td><td>全车总开关和总保险，要装在容易够到的位置，方便紧急断电</td></tr>
+            <tr><td class="k">配电板</td><td>REV PDH、CTRE PDP 2.0、AndyMark AMPD 等</td><td>把电分成多路，每路装保险或断路器。PDH 有 20 个大电流通道和 3 个小电流通道</td></tr>
+            <tr><td class="k">主控制器</td><td>Limelight SystemCore（2027 起）</td><td>机器人的大脑，运行学生写的程序。详见<a href="02-systemcore.html">《SystemCore 主控制器》</a></td></tr>
+            <tr><td class="k">无线电台</td><td>Vivid-Hosting VH-109</td><td>机器人和 Driver Station、场地系统之间的 Wi-Fi 6E 通信，有 4 个以太网口</td></tr>
+            <tr><td class="k">信号灯 RSL</td><td>Allen-Bradley 855PB 或 AndyMark am-3583</td><td>规则要求必装的橙色灯，机器人启用时闪烁，提醒周围的人注意</td></tr>
+            <tr><td class="k">电机控制器</td><td>REV SPARK MAX / SPARK Flex，CTRE Talon FX（集成在 Kraken、Falcon 电机里）等</td><td>接收主控制器的指令，控制电机转速、方向和力度，大多通过 CAN 总线通信</td></tr>
+            <tr><td class="k">气动模块</td><td>REV Pneumatic Hub、CTRE PCM</td><td>控制压缩机和电磁阀，驱动气缸做直线推拉动作。不是每台机器人都用气动</td></tr>
+            <tr><td class="k">主电源线</td><td>6 AWG 线 + Anderson SB50 插头</td><td>电池到断路器、配电板的大电流线路</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>传感器</h3>
+      <p class="prose">传感器让程序"知道"机器人的状态，是自动阶段和精确控制的基础：</p>
+      <ul class="prose">
+        <li><strong>编码器</strong>：测量轮子或机构转了多少圈、转多快。很多无刷电机内置编码器，绝对值编码器（比如 CTRE CANcoder）常用在 swerve 轮组和手臂关节上</li>
+        <li><strong>IMU / 陀螺仪</strong>：测量机器人朝向。SystemCore 已内置，也有队伍另装 Pigeon 2 等</li>
+        <li><strong>相机与视觉</strong>：识别场地上的 AprilTag 标记来确定位置，或识别游戏道具。常用 Limelight 智能相机，或在协处理器上跑 PhotonVision</li>
+        <li><strong>限位开关、光电传感器、距离传感器</strong>：判断机构是否到位、道具是否进入</li>
+      </ul>
+    </section>
+
+    <section id="drive">
+      <h2><span class="n">03</span>驱动系统</h2>
+      <p class="prose">驱动系统（drivetrain）就是机器人的"腿"。比赛中大部分时间都在跑位，所以底盘的速度、灵活性和可靠性往往比任何花哨的机构都重要。</p>
+
+      <h3>底盘类型</h3>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>类型</th><th>原理</th><th>优点</th><th>缺点</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Swerve（全向轮组）</td><td>四个轮组，每个轮子都能独立转向和驱动</td><td>可以朝任意方向平移，同时自由旋转，近年强队几乎都用</td><td>贵（每个轮组要 2 个电机），编程更复杂，维护要求高</td></tr>
+            <tr><td class="k">坦克式 / West Coast Drive</td><td>左右两侧各一组轮子，靠两侧速度差转向</td><td>简单、便宜、皮实，适合新队</td><td>不能横向移动，对抗中容易被别人卡住</td></tr>
+            <tr><td class="k">KoP 底盘</td><td>FIRST 零件包里的 AndyMark AM14U 系列坦克底盘</td><td>免费、有说明书，新队一两天就能组装好</td><td>同上，性能一般</td></tr>
+            <tr><td class="k">Mecanum（麦克纳姆轮）</td><td>斜置滚子的轮子，也能横移</td><td>结构比 swerve 简单</td><td>推力小、怕撞，FRC 里已很少见</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">常见的市售 swerve 轮组有 SDS 的 MK4 / MK5 系列、REV MAXSwerve、WCP Swerve X2 等。绝大多数队伍直接购买轮组，而不是自己设计。</p>
+
+      <h3>电机</h3>
+      <ul class="prose">
+        <li><strong>无刷电机</strong>是主流：WCP Kraken X60（内置 Talon FX 控制器）、Kraken X44，REV NEO、NEO Vortex（可直接插装 SPARK Flex）、NEO 550（小型）等</li>
+        <li>电机必须在 FIRST 的合规清单上，每年以 Game Manual 为准</li>
+        <li>电机转速很高、扭矩小，需要经过<strong>减速箱</strong>（齿轮、皮带或链条）变成机构需要的转速和力量。减速比怎么选，是机械组的核心计算之一</li>
+      </ul>
+
+      <h3>电机控制器</h3>
+      <p class="prose">电机控制器夹在主控制器和电机之间：主控制器说"以 50% 的力转"或"转到 90 度"，电机控制器负责把电池的电按要求送给电机。现代控制器大多走 CAN 总线，并能在控制器内部直接跑闭环控制（比如按编码器读数自己调速）。2027 年起，老式的 PWM 控制器 Talon、Victor SP 不再合规。</p>
+    </section>
+
+    <section id="mechanisms">
+      <h2><span class="n">04</span>机械结构</h2>
+      <p class="prose">机械结构分为两部分：承载一切的<strong>车架</strong>，和完成当年任务的<strong>机构</strong>（mechanism，也常叫 manipulator）。赛题每年不同，机构几乎每年都要重新设计，但下面这几类机构反复出现：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>机构</th><th>作用</th><th>常见做法</th></tr></thead>
+          <tbody>
+            <tr><td class="k">取件 Intake</td><td>从地面或人类玩家处收取游戏道具</td><td>一排滚轮把道具卷进来，常配合可放下、收起的翻转结构</td></tr>
+            <tr><td class="k">传送 Indexer</td><td>在机器人内部移动、暂存道具</td><td>皮带或滚轮组成的通道，配光电传感器判断道具位置</td></tr>
+            <tr><td class="k">发射 Shooter</td><td>把道具射向目标</td><td>高速飞轮，转速闭环控制，常配可调角度的出射口</td></tr>
+            <tr><td class="k">升降 Elevator</td><td>把道具或机构举到不同高度</td><td>多级伸缩滑轨，用绳索或皮带拉动</td></tr>
+            <tr><td class="k">手臂 Arm / Pivot</td><td>绕关节转动，改变角度</td><td>大减速比电机驱动，绝对值编码器测角度</td></tr>
+            <tr><td class="k">攀爬 Climber</td><td>终局阶段把机器人挂起或升高</td><td>钩子加绞盘或伸缩杆，需要承受整台机器人的重量</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>标准件与定制件</h3>
+      <p class="prose">现在的 FRC 机械设计大量使用<strong>市售标准件（COTS，Commercial Off-The-Shelf）</strong>，只在必要的地方做定制件：</p>
+      <ul class="prose">
+        <li><strong>型材和板材</strong>：铝方管（常见 2×1 英寸、1×1 英寸，1/8 或 1/16 英寸壁厚）、铝板、聚碳酸酯板</li>
+        <li><strong>传动件</strong>：1/2 英寸和 3/8 英寸六角轴、轴承、齿轮、同步带（HTD）、链条（#25、#35）、减速箱</li>
+        <li><strong>常见供应商</strong>：WCP（West Coast Products）、REV Robotics、AndyMark、The Thrifty Bot、SDS、VEX Robotics、CTRE</li>
+        <li><strong>定制件</strong>：在 CAD 里设计，再用 CNC 雕刻机、3D 打印、激光切割或手工加工。设计工具首选 Onshape，对 FRC 队伍免费</li>
+      </ul>
+      <div class="note">
+        <span class="label">规则红线</span>
+        <ul>
+          <li><strong>尺寸</strong>：底盘周长和高度有上限，比赛中机构伸出底盘的距离也有限制</li>
+          <li><strong>重量</strong>：不含保险杠和电池，大约 115–125 磅（具体以当年规则为准）</li>
+          <li><strong>保险杠</strong>：必须按规定制作，显示队号和联盟颜色</li>
+          <li><strong>成本</strong>：单个零件和整机成本有上限</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="software">
+      <h2><span class="n">05</span>软件</h2>
+      <p class="prose">软件把硬件串成一个整体。程序跑在主控制器上，用 Java、C++ 或 Python 加 WPILib 库编写，最常见的是 Java。主流的程序结构是 <strong>Command-based（基于命令）</strong>：</p>
+      <ul class="prose">
+        <li><strong>Subsystem（子系统）</strong>：对应一个机构，比如底盘、手臂、发射器。它封装这个机构的电机和传感器</li>
+        <li><strong>Command（命令）</strong>：一个动作，比如"把手臂转到 45 度"或"发射一次"。手柄按键触发命令，自动程序把多个命令串起来</li>
+      </ul>
+      <p class="prose">软件组最大的优势是<strong>不用等机器人造好</strong>：用 WPILib 的仿真器，可以在电脑上先把程序和自动路线写好、测好。具体做法见<a href="03-dev-environment.html">《开发环境与仿真》</a>。</p>
+    </section>
+
+    <section id="process">
+      <h2><span class="n">06</span>设计和开发机器人的关键步骤</h2>
+      <p class="prose">下面是一支成熟队伍在赛季中的典型流程。时间按 1 月初 Kickoff、3 月初第一场比赛估算，各队会有出入。</p>
+      <ol class="steps">
+        <li><div><h3>读规则、拆赛题<span class="when">Kickoff 当天至第 1 周</span></h3>
+          <p>全队精读 Game Manual，把计分规则、机器人限制、犯规条款整理出来。很多设计失误都源于读漏了一条规则。</p></div></li>
+        <li><div><h3>定策略、排优先级<span class="when">第 1 周</span></h3>
+          <p>算清楚每个得分动作值多少分、要多少时间，决定机器人"要做什么、不做什么"。核心原则：<strong>把少数几件事做得又快又稳，胜过什么都做但都不可靠</strong>。</p></div></li>
+        <li><div><h3>做原型<span class="when">第 1–2 周</span></h3>
+          <p>用木板、废料、手钻快速做出取件、发射等机构的原型，验证想法能不能行。原型阶段要快、要便宜、可以丑。</p></div></li>
+        <li><div><h3>CAD 设计<span class="when">第 2–3 周</span></h3>
+          <p>在 Onshape 里做整车设计：底盘、各机构、电气布局、重量预算。先定底盘和整体布局，再细化机构。</p></div></li>
+        <li><div><h3>加工与装配<span class="when">第 3–5 周</span></h3>
+          <p>按图纸加工零件、组装。底盘最好先完成，交给软件组和驾驶员尽早开始练习。</p></div></li>
+        <li><div><h3>接线<span class="when">与装配同步</span></h3>
+          <p>按事先规划的布局走线，给每根线和每个 CAN 设备贴标签，记录 CAN ID。接线要整齐、牢固、便于检修。</p></div></li>
+        <li><div><h3>编程与调试<span class="when">从第 1 周开始</span></h3>
+          <p>软件组在仿真器里先写好子系统、命令和自动路线；机器人一能动，就上车调 PID 参数、校准传感器。</p></div></li>
+        <li><div><h3>测试与驾驶练习<span class="when">第 5 周起</span></h3>
+          <p>反复跑完整的比赛流程，找出会坏的地方。驾驶员练习时间越多越好，这往往是成绩差距最大的来源。</p></div></li>
+        <li><div><h3>比赛与迭代<span class="when">比赛期</span></h3>
+          <p>每场比赛后复盘：什么坏了、什么慢了、对手怎么打。两场比赛之间持续改进。</p></div></li>
+      </ol>
+    </section>
+
+    <section id="pitfalls">
+      <h2><span class="n">07</span>注意事项</h2>
+      <ul class="prose">
+        <li><strong>重量从第一天就要管。</strong>在 CAD 里给每个部分做重量预算，否则最后很可能超重，被迫临时减重。</li>
+        <li><strong>为维修而设计。</strong>比赛间隙往往只有十几分钟，常坏的部件要能快速拆换，常用工具尽量统一。</li>
+        <li><strong>接线是可靠性的命门。</strong>电源线要压紧、固定，CAN 线要防止被机构夹断，主控制器和电台要远离金属碎屑。</li>
+        <li><strong>先让底盘动起来。</strong>能跑的底盘越早交付，驾驶练习和软件调试就能越早开始。</li>
+        <li><strong>代码要做版本管理。</strong>用 Git 保存每一个能用的版本，比赛现场改坏了可以马上退回。</li>
+        <li><strong>备件和电池。</strong>常坏的零件、电机控制器、电池都要有备份，比赛前列清单检查。</li>
+        <li><strong>安全第一。</strong>车间里有电动工具和高速运动的机构，护目镜必须戴；调试时机器人周围不能站人，随时准备按急停。</li>
+        <li><strong>赛前自查。</strong>按检录清单（Inspection Checklist）提前自查：尺寸、重量、保险杠、电气规范。</li>
+      </ul>
+    </section>
+
+    <section id="roadmap">
+      <h2><span class="n">08</span>技术方向路线图</h2>
+      <p class="prose">这一篇是技术方向的入口。后续专题按"从控制到执行、从软件到机械"的顺序展开：</p>
+      <ul class="roadmap">
+        <li><span class="n">02</span><span><b><a href="02-systemcore.html">SystemCore 主控制器</a></b><span class="d">硬件规格、接口、功能模块，和 roboRIO 的区别</span></span><span class="tag done">已完成</span></li>
+        <li><span class="n">03</span><span><b><a href="03-dev-environment.html">开发环境与仿真</a></b><span class="d">安装 WPILib，在仿真器里跑起第一个程序，Driver Station 入门</span></span><span class="tag done">已完成</span></li>
+        <li><span class="n">04</span><span><b>电机与电机控制器</b><span class="d">常见电机对比、CAN 配置、电流限制、闭环控制和 PID 入门</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">05</span><span><b>传感器与视觉</b><span class="d">编码器、IMU、限位开关，AprilTag 定位，Limelight 与 PhotonVision</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">06</span><span><b>底盘与 Swerve</b><span class="d">底盘选型、swerve 原理、里程计与场上定位</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">07</span><span><b>机械机构设计</b><span class="d">取件、升降、手臂、发射、攀爬的典型设计和计算</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">08</span><span><b>电气接线与布线</b><span class="d">电源和 CAN 布线、做线工具、检录要求、故障排查</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">09</span><span><b>程序架构</b><span class="d">Command-based 框架、子系统划分、代码组织和 Git</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">10</span><span><b>自动程序与路径规划</b><span class="d">自动阶段设计、PathPlanner、轨迹跟随</span></span><span class="tag misc">计划中</span></li>
+      </ul>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">09</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://docs.wpilib.org/en/latest/docs/controls-overviews/control-system-hardware.html" target="_blank" rel="noopener">WPILib：Hardware Component Overview</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/latest/docs/yearly-overview/yearly-changelog.html" target="_blank" rel="noopener">WPILib：New for 2027</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://www.firstinspires.org/robotics/frc" target="_blank" rel="noopener">FIRST 官网 · FRC 页面（Game Manual、零件包信息）</a><span class="url">firstinspires.org</span></li>
+        <li><a href="https://www.chiefdelphi.com" target="_blank" rel="noopener">Chief Delphi 论坛</a><span class="url">chiefdelphi.com</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 技术方向《FRC 机器人综述》。具体规则、合规零件清单以 FIRST 当年发布的 Game Manual 为准。</footer>
+  </main>
+</div>
