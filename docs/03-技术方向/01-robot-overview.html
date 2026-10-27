@@ -182,7 +182,7 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
 
       <figure>
         <div class="diagram">
-          <svg viewBox="0 0 900 560" role="img" aria-label="FRC 机器人整体架构图：电池经断路器到配电板，配电板为主控制器、电机控制器和气动模块供电；Driver Station 无线连接无线电台，电台经以太网连接 SystemCore；SystemCore 经 CAN-FD 控制电机控制器和气动模块，它们分别驱动电机和气缸，进而带动底盘、取件、发射放置、升降手臂和攀爬等机构；传感器把机构状态反馈给 SystemCore。">
+          <svg viewBox="0 0 900 560" role="img" aria-label="FRC 机器人整体架构图：比赛时场地系统 FMS 经有线把比赛指令交给 Driver Station；电池经断路器到配电板，配电板为主控制器、电机控制器和气动模块供电；Driver Station 无线连接无线电台，电台经以太网连接 SystemCore；SystemCore 经 CAN-FD 控制电机控制器和气动模块，它们分别驱动电机和气缸，进而带动底盘、取件、发射放置、升降手臂和攀爬等机构；传感器把机构状态反馈给 SystemCore。">
             <defs>
               <marker id="ov-pw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-pw" d="M0,0 L10,5 L0,10 z"/></marker>
               <marker id="ov-sg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-sg" d="M0,0 L10,5 L0,10 z"/></marker>
@@ -193,6 +193,11 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
             <rect class="b-ex" x="16" y="48" width="150" height="56" rx="6"/>
             <text class="t-b" x="91" y="71" text-anchor="middle">Driver Station</text>
             <text class="t-s" x="91" y="90" text-anchor="middle">电脑 + 游戏手柄</text>
+            <rect class="b-ex" x="16" y="160" width="150" height="56" rx="6"/>
+            <text class="t-b" x="91" y="183" text-anchor="middle">FMS 场地系统</text>
+            <text class="t-s" x="91" y="202" text-anchor="middle">比赛时掌控开始与停止</text>
+            <line class="w-sg" x1="91" y1="160" x2="91" y2="104" marker-end="url(#ov-sg)"/>
+            <text class="t-s" x="99" y="136">有线 · 比赛时</text>
 
             <!-- robot boundary -->
             <rect class="robot" x="200" y="20" width="684" height="526" rx="14"/>
@@ -225,7 +230,7 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
             <text class="t-s" x="760" y="99" text-anchor="middle">编码器 · IMU · 相机 · 开关</text>
 
             <line class="w-wl" x1="166" y1="76" x2="420" y2="76" marker-start="url(#ov-sg)" marker-end="url(#ov-sg)"/>
-            <text class="t-s" x="390" y="68" text-anchor="end">Wi-Fi</text>
+            <text class="t-s" x="400" y="94" text-anchor="end">Wi-Fi · 比赛时经场地接入点</text>
             <line class="w-sg" x1="510" y1="100" x2="510" y2="150" marker-start="url(#ov-sg)" marker-end="url(#ov-sg)"/>
             <text class="t-s" x="518" y="130">以太网</text>
             <polyline class="w-sg" points="680,85 640,85 640,170 600,170" marker-end="url(#ov-sg)"/>
@@ -307,7 +312,7 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
             <tr><td class="k">总断路器</td><td>120A 断路器</td><td>全车总开关和总保险，要装在容易够到的位置，方便紧急断电</td></tr>
             <tr><td class="k">配电板</td><td>REV PDH、CTRE PDP 2.0、AndyMark AMPD 等</td><td>把电分成多路，每路装保险或断路器。PDH 有 20 个大电流通道和 3 个小电流通道</td></tr>
             <tr><td class="k">主控制器</td><td>Limelight SystemCore（2027 起）</td><td>机器人的大脑，运行学生写的程序。详见<a href="02-systemcore.html">《SystemCore 主控制器》</a></td></tr>
-            <tr><td class="k">无线电台</td><td>Vivid-Hosting VH-109</td><td>机器人和 Driver Station、场地系统之间的 Wi-Fi 6E 通信，有 4 个以太网口</td></tr>
+            <tr><td class="k">无线电台</td><td>Vivid-Hosting VH-109</td><td>机器人和 Driver Station、场地系统之间的 Wi-Fi 6E 通信，有 4 个以太网口。见下方简介</td></tr>
             <tr><td class="k">信号灯 RSL</td><td>Allen-Bradley 855PB 或 AndyMark am-3583</td><td>规则要求必装的橙色灯，机器人启用时闪烁，提醒周围的人注意</td></tr>
             <tr><td class="k">电机控制器</td><td>REV SPARK MAX / SPARK Flex，CTRE Talon FX（集成在 Kraken、Falcon 电机里）等</td><td>接收主控制器的指令，控制电机转速、方向和力度，大多通过 CAN 总线通信</td></tr>
             <tr><td class="k">气动模块</td><td>REV Pneumatic Hub、CTRE PCM</td><td>控制压缩机和电磁阀，驱动气缸做直线推拉动作。不是每台机器人都用气动</td></tr>
@@ -315,6 +320,15 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
           </tbody>
         </table>
       </div>
+
+      <h3>无线电台 Robot Radio</h3>
+      <p class="prose">无线电台是机器人和外界唯一的无线通道。FRC 规定所有队伍使用同一款 <strong>Vivid-Hosting VH-109</strong>：它用网线连接主控制器，比赛时通过 6 GHz 的 Wi-Fi 6E 连入场地网络。</p>
+      <ul class="prose">
+        <li><strong>它只是一座网桥</strong>：比赛的开始、阶段切换和结束由场地管理系统 FMS 决定，FMS 把指令交给 Driver Station，Driver Station 连同手柄数据一起发出，电台只负责收发，主控制器负责执行</li>
+        <li><strong>每场赛事都要重新配置</strong>：到场后要去 Pit Admin 附近的电台配置站，写入队号和本场赛事的网络密钥，否则上不了场</li>
+        <li><strong>断线即停车</strong>：机器人收不到 Driver Station 的数据时会自动禁用，所以电台的电源和网线必须牢靠</li>
+      </ul>
+      <p class="prose">完整的通信链路、比赛流程和断线排查，见<a href="04-wireless-field.html">《无线通信与场地系统》</a>。</p>
 
     </section>
 
@@ -374,7 +388,7 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
       </ul>
 
       <h3>电机控制器</h3>
-      <p class="prose">电机控制器夹在主控制器和电机之间：主控制器说"以 50% 的力转"或"转到 90 度"，电机控制器负责把电池的电按要求送给电机。现代控制器大多走 CAN 总线，并能在控制器内部直接跑闭环控制（比如按编码器读数自己调速）。2027 年起，老式的 PWM 控制器 Talon、Victor SP 不再合规。</p>
+      <p class="prose">电机控制器夹在主控制器和电机之间：主控制器说"以 50% 的力转"或"转到 90 度"，电机控制器负责把电池的电按要求送给电机。现代控制器大多走 CAN 总线，并能在控制器内部直接跑闭环控制（比如按编码器读数自己调速）。2027 年起，老式的 PWM 控制器 Talon、Victor SP 不再合规。详见<a href="06-motors.html">《电机与电机控制器》</a>，闭环控制的原理见<a href="05-closed-loop-pid.html">《闭环控制与 PID》</a>。</p>
     </section>
 
     <section id="mechanisms">
@@ -468,13 +482,15 @@ footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--li
       <ul class="roadmap">
         <li><span class="n">02</span><span><b><a href="02-systemcore.html">SystemCore 主控制器</a></b><span class="d">硬件规格、接口、功能模块，和 roboRIO 的区别</span></span><span class="tag done">已完成</span></li>
         <li><span class="n">03</span><span><b><a href="03-dev-environment.html">开发环境与仿真</a></b><span class="d">安装 WPILib，在仿真器里跑起第一个程序，Driver Station 入门</span></span><span class="tag done">已完成</span></li>
-        <li><span class="n">04</span><span><b>电机与电机控制器</b><span class="d">常见电机对比、CAN 配置、电流限制、闭环控制和 PID 入门</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">05</span><span><b>传感器与视觉</b><span class="d">编码器、IMU、限位开关，AprilTag 定位，Limelight 与 PhotonVision</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">06</span><span><b>底盘与 Swerve</b><span class="d">底盘选型、swerve 原理、里程计与场上定位</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">07</span><span><b>机械机构设计</b><span class="d">取件、升降、手臂、发射、攀爬的典型设计和计算</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">08</span><span><b>电气接线与布线</b><span class="d">电源和 CAN 布线、做线工具、检录要求、故障排查</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">09</span><span><b>程序架构</b><span class="d">Command-based 框架、子系统划分、代码组织和 Git</span></span><span class="tag misc">计划中</span></li>
-        <li><span class="n">10</span><span><b>自动程序与路径规划</b><span class="d">自动阶段设计、PathPlanner、轨迹跟随</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">04</span><span><b><a href="04-wireless-field.html">无线通信与场地系统</a></b><span class="d">机器人电台 VH-109、场地管理系统 FMS、比赛中的通信和急停、赛前配置电台</span></span><span class="tag done">已完成</span></li>
+        <li><span class="n">05</span><span><b><a href="05-closed-loop-pid.html">闭环控制与 PID</a></b><span class="d">负反馈闭环、PID 三项、前馈、运动曲线、PID 跑在哪里、调参流程</span></span><span class="tag done">已完成</span></li>
+        <li><span class="n">06</span><span><b><a href="06-motors.html">电机与电机控制器</a></b><span class="d">常见电机和控制器对比、特性曲线与减速比、CAN 配置、电流限制</span></span><span class="tag done">已完成</span></li>
+        <li><span class="n">07</span><span><b>传感器与视觉</b><span class="d">编码器、IMU、限位开关，AprilTag 定位，Limelight 与 PhotonVision</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">08</span><span><b>底盘与 Swerve</b><span class="d">底盘选型、swerve 原理、里程计与场上定位</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">09</span><span><b>机械机构设计</b><span class="d">取件、升降、手臂、发射、攀爬的典型设计和计算</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">10</span><span><b>电气接线与布线</b><span class="d">电源和 CAN 布线、做线工具、检录要求、故障排查</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">11</span><span><b>程序架构</b><span class="d">Command-based 框架、子系统划分、代码组织和 Git</span></span><span class="tag misc">计划中</span></li>
+        <li><span class="n">12</span><span><b>自动程序与路径规划</b><span class="d">自动阶段设计、PathPlanner、轨迹跟随</span></span><span class="tag misc">计划中</span></li>
       </ul>
     </section>
 

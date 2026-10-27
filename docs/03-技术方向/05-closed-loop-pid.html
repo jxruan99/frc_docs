@@ -1,0 +1,473 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>闭环控制与 PID</title>
+<meta name="nav-title" content="闭环控制与 PID">
+<meta name="description" content="FRC 机器人里的负反馈闭环：PID 三项、前馈、运动曲线，PID 跑在主控制器还是电机控制器，以及调参流程和常见问题。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts; a control-loop block diagram and a to-scale velocity profile carry the two core ideas.
+   Diagram colors: blue = the control law (PID + feedforward), teal = the physical plant, amber = sensing. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --red: #c42a2a;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --code-bg: #eef1f5;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --red: #ff8a80;
+    --note: #2b2615; --note-line: #8a7330; --code-bg: #1d2430; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --red: #ff8a80;
+  --note: #2b2615; --note-line: #8a7330; --code-bg: #1d2430; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--code-bg); border-radius: 4px; padding: 1px 5px; }
+pre { background: var(--code-bg); border-radius: 6px; padding: 12px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; margin: 10px 0 14px; max-width: 760px; }
+pre code { background: none; padding: 0; font-size: inherit; }
+.formula { font-family: var(--font-mono); font-size: 15px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; margin: 12px 0 16px; max-width: 720px; overflow-x: auto; white-space: nowrap; }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.tip { background: var(--blue-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.tip .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+.tip p:last-child, .tip ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+td.mono { font-family: var(--font-mono); font-size: 13.5px; white-space: nowrap; }
+
+.terms { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 18px 0; max-width: 760px; }
+.term { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.term h3 { margin: 0 0 2px; font-size: 17px; }
+.term .f { font-family: var(--font-mono); font-size: 13px; color: var(--blue); display: block; margin-bottom: 6px; }
+.term p { margin: 0 0 6px; }
+.term p.m { color: var(--muted); font-size: 14px; margin: 0; }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+.diagram.small svg { min-width: 520px; max-width: 640px; }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+svg .b-law { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.6; }
+svg .b-plant { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-sense { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-ref { fill: var(--paper); stroke: var(--muted); stroke-width: 1.2; }
+svg .sum { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; }
+svg .wire { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+svg .wire.fb { stroke: var(--amber); }
+svg .wire.ff { stroke: var(--blue); stroke-dasharray: 6 4; }
+svg .ah { fill: var(--ink); }
+svg .ah-fb { fill: var(--amber); }
+svg .ah-ff { fill: var(--blue); }
+svg .axis { stroke: var(--muted); stroke-width: 1.2; }
+svg .grid { stroke: var(--line); stroke-width: 1; }
+svg .curve { fill: none; stroke: var(--blue); stroke-width: 2.5; stroke-linejoin: round; }
+svg .area { fill: var(--blue-soft); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-m { fill: var(--muted); font-family: var(--font-mono); font-size: 11.5px; }
+svg .t-sign { font-weight: 700; font-size: 13px; }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step); font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--blue); width: 28px; height: 28px; border: 1.5px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.steps > li > div { min-width: 0; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps p { margin: 0; }
+
+.faq { max-width: 760px; margin: 0; }
+.faq dt { font-weight: 700; margin-top: 14px; }
+.faq dd { margin: 4px 0 0; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#why">为什么要闭环</a></li>
+      <li><a href="#loop">控制回路</a></li>
+      <li><a href="#pid">PID 三项</a></li>
+      <li><a href="#feedforward">前馈</a></li>
+      <li><a href="#profile">运动曲线</a></li>
+      <li><a href="#where-used">用在哪里</a></li>
+      <li><a href="#where-run">PID 跑在哪里</a></li>
+      <li><a href="#code">代码示例</a></li>
+      <li><a href="#tuning">调参流程</a></li>
+      <li><a href="#faq">常见问题</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 技术方向</p>
+      <h1>闭环控制与 PID</h1>
+      <p class="lede">FRC 机器人里，几乎每一个"转到某个角度""升到某个高度""保持某个速度"的动作，背后都是一个负反馈闭环。这一篇讲清楚 FRC 里闭环怎么做：PID 三项、前馈、运动曲线，PID 跑在主控制器还是电机控制器，以及怎么调参。</p>
+      <div class="meta"><span>资料整理于 2026 年 10 月</span><span>代码示例以 Java 为主</span></div>
+    </header>
+
+    <section id="why">
+      <h2><span class="n">01</span>为什么要闭环</h2>
+      <p class="prose">以电梯为例。最简单的做法是给电机 6 伏电压、跑 1 秒，希望电梯升到 1 米。这叫<strong>开环控制</strong>：只管发指令，不看结果。问题是，电池电量、摩擦、道具重量每次都不一样，电梯有时停在 0.9 米，有时冲到 1.1 米。</p>
+      <p class="prose"><strong>闭环控制</strong>用编码器实时测量电梯的实际高度，和目标高度比较，根据误差不断调整电压。误差大就用力推，接近目标就减小力度，冲过头就往回拉。这种"用测量结果抵消误差"的方式叫<strong>负反馈</strong>，FRC 里绝大多数精确动作都靠它完成。</p>
+    </section>
+
+    <section id="loop">
+      <h2><span class="n">02</span>控制回路长什么样</h2>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 900 300" role="img" aria-label="控制回路方框图：运动曲线生成目标值 r，与传感器测得的实际值 y 相减得到误差 e，误差经 PID 算出修正量；目标值同时经前馈算出基础电压；两者相加得到电压 u，送给电机控制器和电机，带动机构运动；传感器测量机构的实际位置 y，反馈回减法点。">
+            <defs>
+              <marker id="cl-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="cl-fb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah-fb" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="cl-ff" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah-ff" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+
+            <rect class="b-ref" x="16" y="122" width="120" height="50" rx="6"/>
+            <text class="t-b" x="76" y="143" text-anchor="middle">运动曲线</text>
+            <text class="t-s" x="76" y="161" text-anchor="middle">生成平滑目标</text>
+
+            <rect class="b-law" x="250" y="40" width="130" height="50" rx="6"/>
+            <text class="t-b" x="315" y="61" text-anchor="middle">前馈</text>
+            <text class="t-m" x="315" y="79" text-anchor="middle">kS · kV · kA · kG</text>
+
+            <circle class="sum" cx="206" cy="147" r="14"/>
+            <text class="t-sign" x="182" y="140" text-anchor="middle">+</text>
+            <text class="t-sign" x="196" y="182" text-anchor="middle">−</text>
+
+            <rect class="b-law" x="250" y="122" width="130" height="50" rx="6"/>
+            <text class="t-b" x="315" y="143" text-anchor="middle">PID</text>
+            <text class="t-m" x="315" y="161" text-anchor="middle">kP · kI · kD</text>
+
+            <circle class="sum" cx="446" cy="147" r="14"/>
+            <text class="t-sign" x="424" y="140" text-anchor="middle">+</text>
+            <text class="t-sign" x="458" y="126" text-anchor="middle">+</text>
+
+            <rect class="b-plant" x="500" y="122" width="140" height="50" rx="6"/>
+            <text class="t-b" x="570" y="143" text-anchor="middle">执行器</text>
+            <text class="t-s" x="570" y="161" text-anchor="middle">电机控制器 + 电机</text>
+
+            <rect class="b-plant" x="690" y="122" width="110" height="50" rx="6"/>
+            <text class="t-b" x="745" y="143" text-anchor="middle">机构</text>
+            <text class="t-s" x="745" y="161" text-anchor="middle">电梯 · 手臂 · 飞轮</text>
+
+            <rect class="b-sense" x="500" y="226" width="140" height="50" rx="6"/>
+            <text class="t-b" x="570" y="247" text-anchor="middle">传感器</text>
+            <text class="t-s" x="570" y="265" text-anchor="middle">编码器 · IMU</text>
+
+            <!-- main path -->
+            <line class="wire" x1="136" y1="147" x2="190" y2="147" marker-end="url(#cl-ah)"/>
+            <text class="t-s" x="160" y="139" text-anchor="middle">目标 r</text>
+            <line class="wire" x1="220" y1="147" x2="250" y2="147" marker-end="url(#cl-ah)"/>
+            <text class="t-s" x="234" y="118" text-anchor="middle">误差 e</text>
+            <line class="wire" x1="380" y1="147" x2="430" y2="147" marker-end="url(#cl-ah)"/>
+            <line class="wire" x1="460" y1="147" x2="500" y2="147" marker-end="url(#cl-ah)"/>
+            <text class="t-s" x="480" y="139" text-anchor="middle">电压 u</text>
+            <line class="wire" x1="640" y1="147" x2="690" y2="147" marker-end="url(#cl-ah)"/>
+            <text class="t-s" x="665" y="139" text-anchor="middle">力矩</text>
+            <line class="wire" x1="800" y1="147" x2="880" y2="147" marker-end="url(#cl-ah)"/>
+            <text class="t-s" x="840" y="139" text-anchor="middle">实际 y</text>
+
+            <!-- feedforward branch -->
+            <polyline class="wire ff" points="160,147 160,65 250,65" marker-end="url(#cl-ff)"/>
+            <polyline class="wire ff" points="380,65 446,65 446,133" marker-end="url(#cl-ff)"/>
+
+            <!-- feedback path -->
+            <polyline class="wire fb" points="840,147 840,251 640,251" marker-end="url(#cl-fb)"/>
+            <polyline class="wire fb" points="500,251 206,251 206,161" marker-end="url(#cl-fb)"/>
+            <text class="t-s" x="350" y="243" text-anchor="middle">测量值 y（负反馈）</text>
+          </svg>
+        </div>
+        <figcaption>一个完整的 FRC 控制回路。蓝色是控制律：<strong>前馈</strong>（虚线）根据目标直接算出"大概需要多少电压"，<strong>PID</strong> 根据误差做修正，两者相加。绿色是被控对象，橙色是反馈通路。测量值在减法点取负号，所以叫负反馈。</figcaption>
+      </figure>
+      <p class="prose">回路每个周期执行一次：读传感器 → 算误差 → 算电压 → 发给电机。主控制器上默认每 20 毫秒一次，智能电机控制器内部大约每 1 毫秒一次。</p>
+    </section>
+
+    <section id="pid">
+      <h2><span class="n">03</span>PID 三项</h2>
+      <div class="formula">u(t) = kP · e(t) + kI · ∫e(t)dt + kD · de(t)/dt</div>
+      <div class="terms">
+        <div class="term">
+          <h3>P 比例</h3><span class="f">kP × 当前误差</span>
+          <p>误差越大，推得越用力。是 PID 的主力。</p>
+          <p class="m">太小：反应慢，可能停在半路。太大：冲过头，来回振荡。</p>
+        </div>
+        <div class="term">
+          <h3>I 积分</h3><span class="f">kI × 误差的累积</span>
+          <p>误差长时间存在，就越积越大，消除"差一点到不了"的稳态误差。</p>
+          <p class="m">容易积分饱和，导致大幅过冲。FRC 里很少用，能用前馈解决的就不用它。</p>
+        </div>
+        <div class="term">
+          <h3>D 微分</h3><span class="f">kD × 误差的变化速度</span>
+          <p>误差缩小得很快时提前"踩刹车"，抑制过冲和振荡。</p>
+          <p class="m">对传感器噪声敏感，太大会让电机抖动、发出噪音。</p>
+        </div>
+      </div>
+      <p class="prose">FRC 里最常见的组合是<strong>前馈 + P</strong>，或者<strong>前馈 + PD</strong>。PID 三项都用的情况反而不多。</p>
+    </section>
+
+    <section id="feedforward">
+      <h2><span class="n">04</span>前馈：FRC 控制的"秘诀"</h2>
+      <p class="prose">PID 只能"出现误差后再修正"。前馈则根据物理模型，事先算出达到目标大概需要多少电压。在 FRC 里，"<strong>前馈打底，PID 修余量</strong>"几乎是共识：前馈承担大部分工作，PID 的增益就可以调得很小，系统又快又稳。</p>
+      <div class="formula">电压 = kS · sgn(v) + kV · v + kA · a + 重力项</div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>参数</th><th>含义</th><th>直观理解</th></tr></thead>
+          <tbody>
+            <tr><td class="k">kS</td><td>静摩擦电压</td><td>让机构"刚好开始动"需要的电压</td></tr>
+            <tr><td class="k">kV</td><td>速度系数</td><td>每单位速度需要多少电压。电机越快，反电动势越大，需要的电压越高</td></tr>
+            <tr><td class="k">kA</td><td>加速度系数</td><td>加速时额外需要的电压</td></tr>
+            <tr><td class="k">kG</td><td>重力项</td><td>电梯：抵消重力的固定电压；手臂：乘以 cos θ，手臂水平时最大，竖直时为零</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">WPILib 提供了三种现成的前馈：<code>SimpleMotorFeedforward</code>（飞轮、底盘）、<code>ElevatorFeedforward</code>（电梯，带 kG）、<code>ArmFeedforward</code>（手臂，带 kG·cos θ）。这些参数不用猜，可以用 WPILib 的 <strong>SysId</strong> 工具实测出来，见<a href="#tuning">第 09 节</a>。</p>
+    </section>
+
+    <section id="profile">
+      <h2><span class="n">05</span>运动曲线</h2>
+      <p class="prose">如果目标从 0 米一下子跳到 1 米，PID 会瞬间给出很大的电压，机构猛冲出去，容易过冲，甚至损坏结构。<strong>运动曲线（Motion Profile）</strong>的做法是：把一次大的跳变拆成一连串平滑变化的小目标，让机构按"加速 → 匀速 → 减速"的节奏走过去。最常用的是梯形曲线：</p>
+      <figure>
+        <div class="diagram small">
+          <svg viewBox="0 0 600 220" role="img" aria-label="梯形速度曲线：0 到 0.5 秒速度从 0 线性升到每秒 1 米，0.5 到 2.5 秒保持每秒 1 米，2.5 到 3 秒线性降到 0；曲线下面积 2.5 米就是移动的距离。">
+            <!-- scale: x = 70 + t*160 (t in s, 0..3); y = 170 - v*110 (v in m/s, 0..1) -->
+            <line class="grid" x1="70" y1="60" x2="550" y2="60"/>
+            <polygon class="area" points="70,170 150,60 470,60 550,170"/>
+            <polyline class="curve" points="70,170 150,60 470,60 550,170"/>
+            <line class="axis" x1="70" y1="170" x2="560" y2="170"/>
+            <line class="axis" x1="70" y1="170" x2="70" y2="40"/>
+            <text class="t-m" x="62" y="174" text-anchor="end">0</text>
+            <text class="t-m" x="62" y="64" text-anchor="end">1.0</text>
+            <text class="t-s" x="62" y="34" text-anchor="end">速度 m/s</text>
+            <text class="t-m" x="70" y="188" text-anchor="middle">0</text>
+            <text class="t-m" x="150" y="188" text-anchor="middle">0.5</text>
+            <text class="t-m" x="230" y="188" text-anchor="middle">1</text>
+            <text class="t-m" x="390" y="188" text-anchor="middle">2</text>
+            <text class="t-m" x="470" y="188" text-anchor="middle">2.5</text>
+            <text class="t-m" x="550" y="188" text-anchor="middle">3</text>
+            <text class="t-s" x="560" y="208" text-anchor="end">时间 s</text>
+            <text class="t-b" x="135" y="150" text-anchor="middle">加速</text>
+            <text class="t-b" x="310" y="50" text-anchor="middle">匀速</text>
+            <text class="t-b" x="485" y="150" text-anchor="middle">减速</text>
+            <text class="t-s" x="310" y="125" text-anchor="middle">阴影面积 = 移动距离 2.5 m</text>
+          </svg>
+        </div>
+        <figcaption>按比例绘制的梯形速度曲线：最大速度 1 m/s，加速和减速各 0.5 秒。运动曲线每个周期给出"此刻应该在哪、速度多少"，前馈按这个速度和加速度给电压，PID 修正剩下的偏差。</figcaption>
+      </figure>
+      <p class="prose">WPILib 里对应的是 <code>TrapezoidProfile</code>，以及把它和 PID 合在一起的 <code>ProfiledPIDController</code>。电机控制器厂商也有自己的版本：CTRE 叫 <strong>Motion Magic</strong>，REV 叫 <strong>MAXMotion</strong>。</p>
+    </section>
+
+    <section id="where-used">
+      <h2><span class="n">06</span>FRC 机器人里哪些地方用闭环</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>环节</th><th>控制量</th><th>测量来源</th><th>典型做法</th></tr></thead>
+          <tbody>
+            <tr><td class="k">发射飞轮</td><td>转速</td><td>电机内置编码器</td><td>速度 PID + 前馈</td></tr>
+            <tr><td class="k">电梯</td><td>高度</td><td>电机编码器</td><td>位置 PID + 重力前馈 + 运动曲线</td></tr>
+            <tr><td class="k">手臂 / 关节</td><td>角度</td><td>绝对值编码器</td><td>位置 PID + kG·cos θ 前馈 + 运动曲线</td></tr>
+            <tr><td class="k">Swerve 转向</td><td>轮子朝向</td><td>CANcoder 等绝对值编码器</td><td>位置 PID，角度按连续量处理（−180° 和 180° 是同一方向）</td></tr>
+            <tr><td class="k">Swerve 驱动</td><td>轮速</td><td>电机编码器</td><td>速度 PID + 前馈</td></tr>
+            <tr><td class="k">保持车头朝向</td><td>航向</td><td>IMU</td><td>位置 PID</td></tr>
+            <tr><td class="k">自动路线跟踪</td><td>x、y、航向的偏差</td><td>里程计 + 视觉</td><td>三个 PID 分别修正，叠加在路线的速度前馈上</td></tr>
+            <tr><td class="k">视觉自动对准</td><td>目标偏角</td><td>相机</td><td>位置 PID</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="where-run">
+      <h2><span class="n">07</span>PID 跑在哪里</h2>
+      <p class="prose"><strong>主控制器上没有专门的硬件 PID 模块。</strong>PID 是软件，可以跑在两个地方：</p>
+      <h3>位置一：主控制器上的 WPILib 库</h3>
+      <p class="prose">roboRIO、roboRIO 2.0 和 SystemCore 都一样，PID 由 WPILib 库提供，在机器人程序的主循环里计算。这些是纯数学库，和具体硬件无关，所以 2027 年换成 SystemCore 后依然可用。常用的类：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>类</th><th>作用</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">PIDController</td><td>标准 PID；可设置误差容差，可用 <code>enableContinuousInput</code> 处理角度的首尾相接</td></tr>
+            <tr><td class="mono">ProfiledPIDController</td><td>PID + 梯形运动曲线，目标值自动平滑过渡</td></tr>
+            <tr><td class="mono">SimpleMotorFeedforward</td><td>kS、kV、kA 前馈，用于飞轮、底盘</td></tr>
+            <tr><td class="mono">ElevatorFeedforward</td><td>加上恒定重力项 kG</td></tr>
+            <tr><td class="mono">ArmFeedforward</td><td>加上随角度变化的重力项 kG·cos θ</td></tr>
+            <tr><td class="mono">TrapezoidProfile</td><td>单独生成梯形运动曲线</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>位置二：智能电机控制器内部</h3>
+      <p class="prose">现在的无刷电机控制器（CTRE Talon FX、REV SPARK MAX / SPARK Flex 等）芯片里自带 PID 和前馈，大约以 1 kHz 的频率直接读电机编码器运算。主控制器只需要通过 CAN 发一个目标值。</p>
+
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th></th><th>主控制器（WPILib）</th><th>电机控制器内部</th></tr></thead>
+          <tbody>
+            <tr><td class="k">计算频率</td><td>约 50 Hz（每 20 ms）</td><td>约 1000 Hz</td></tr>
+            <tr><td class="k">响应和平稳度</td><td>一般</td><td>更好，适合高速机构</td></tr>
+            <tr><td class="k">CAN 总线负担</td><td>每个周期都要发电压指令</td><td>只在目标变化时发一次</td></tr>
+            <tr><td class="k">可用的传感器</td><td>任何传感器：IMU、相机、外接编码器</td><td>主要是电机编码器，或直接接到控制器上的传感器</td></tr>
+            <tr><td class="k">适合</td><td>需要综合多种传感器的高层回路：航向保持、视觉对准、路线跟踪</td><td>单个机构的位置和速度回路：飞轮、电梯、手臂、swerve 轮组</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tip">
+        <span class="label">常见组合</span>
+        <p>单个机构的回路交给电机控制器；需要融合 IMU、相机、里程计的高层回路放在主控制器上。高层回路算出的结果（比如"轮子应该朝 30° 方向、以 2 m/s 转"）再作为目标值发给电机控制器，形成"外环套内环"的串级控制。</p>
+      </div>
+    </section>
+
+    <section id="code">
+      <h2><span class="n">08</span>代码示例</h2>
+      <p class="prose">下面三段示意代码分别对应三种写法。目的是说明结构，变量名和数值都是示例。</p>
+
+      <h3>在主控制器上：WPILib PID + 前馈（手臂）</h3>
+<pre><code>PIDController pid = new PIDController(0.8, 0.0, 0.05);   // kP, kI, kD
+ArmFeedforward ff = new ArmFeedforward(0.1, 0.4, 1.2);   // kS, kG, kV
+
+// 在 periodic() 里，每 20 ms 执行一次
+double volts = pid.calculate(armAngleRad(), targetRad)   // 反馈：修正误差
+             + ff.calculate(targetRad, 0.0);              // 前馈：抵消重力
+armMotor.setVoltage(volts);</code></pre>
+
+      <h3>在电机控制器里：CTRE Phoenix 6（Talon FX）</h3>
+<pre><code>// 配置一次增益（PID + 前馈）
+talon.getConfigurator().apply(new Slot0Configs()
+        .withKP(2.4).withKD(0.1)
+        .withKS(0.1).withKV(0.12));
+
+// 之后只需要发目标：转到第 10 圈
+talon.setControl(new PositionVoltage(10.0));</code></pre>
+
+      <h3>在电机控制器里：REV（SPARK MAX / SPARK Flex）</h3>
+<pre><code>SparkMaxConfig config = new SparkMaxConfig();
+config.closedLoop.pid(0.1, 0.0, 0.0);
+spark.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+// 发目标：转到第 10 圈
+spark.getClosedLoopController().setReference(10.0, ControlType.kPosition);</code></pre>
+
+      <div class="note">
+        <span class="label">版本提醒</span>
+        <p>上面电机控制器的代码按 2025–2026 年的厂商库写成。CTRE 和 REV 每年都可能调整接口，2027 年还会随 SystemCore 一起升级，实际使用时以当年的厂商文档为准。WPILib 的 PID 和前馈类相对稳定。</p>
+      </div>
+    </section>
+
+    <section id="tuning">
+      <h2><span class="n">09</span>调参流程</h2>
+      <ol class="steps">
+        <li><div><h3>先在仿真里练手</h3><p>用 WPILib 的电梯或手臂仿真示例体会参数的影响，见<a href="03-dev-environment.html#exercises">《开发环境与仿真》的练习 3 和练习 4</a>。</p></div></li>
+        <li><div><h3>确认方向和单位</h3><p>给一个小电压，确认电机正转时编码器读数增大。方向反了，负反馈就变成正反馈，机构会越跑越远。同时搞清楚编码器读数的单位：圈、弧度还是米。</p></div></li>
+        <li><div><h3>用 SysId 测前馈</h3><p>WPILib 的 SysId 工具让机构按预设方式运动，自动算出 kS、kV、kA、kG。没有 SysId 时，也可以手动找：慢慢加电压，记下机构刚开始动的电压，就是 kS 的近似值。</p></div></li>
+        <li><div><h3>从小到大加 kP</h3><p>从很小的值开始，逐步加大，直到响应够快、开始出现轻微振荡，再往回收一些。</p></div></li>
+        <li><div><h3>需要时加一点 kD</h3><p>还有过冲或振荡，就加一点 kD 增加阻尼。</p></div></li>
+        <li><div><h3>kI 尽量不用</h3><p>确实存在稳态误差、且前馈已调好时，才加一点 kI，并限制积分的作用范围（比如只在误差很小时才积分）。</p></div></li>
+        <li><div><h3>加安全限制</h3><p>设置电流限制和软限位，防止参数调错时机构撞到极限位置或电机过热。</p></div></li>
+      </ol>
+      <div class="tip">
+        <span class="label">调参时一定要画曲线</span>
+        <p>用 AdvantageScope 同时画出目标值和实际值的曲线，过冲、振荡、迟滞一目了然，比肉眼看机构动作可靠得多。</p>
+      </div>
+    </section>
+
+    <section id="faq">
+      <h2><span class="n">10</span>常见问题</h2>
+      <dl class="faq">
+        <dt>机构一启用就猛冲到底，停不下来</dt>
+        <dd>多半是方向反了，形成了正反馈：电机反转、编码器方向或增益的正负号设错了。立刻禁用机器人，检查方向设置。</dd>
+        <dt>机构来回振荡，停不稳</dt>
+        <dd>kP 太大，或者 kD 不够。先减小 kP，再适当加 kD。也要检查机构是否有很大的间隙或回程差。</dd>
+        <dt>总是差一点到不了目标</dt>
+        <dd>通常是前馈不足，比如电梯没加 kG、手臂没加 kG·cos θ。先补前馈，不要急着加 kI。</dd>
+        <dt>在 WPILib 里调好的参数，搬到电机控制器里完全不对</dt>
+        <dd>两边的单位不同。WPILib 的 kP 取决于你传入的单位（比如弧度对应伏）；电机控制器里的 kP 通常是"每圈误差对应多少伏"或"多少占空比"。换位置时要重新换算或重新调。</dd>
+        <dt>电机发出高频噪音、发烫</dt>
+        <dd>kD 太大，放大了传感器噪声；或者机构停在目标附近时一直在小幅修正。减小 kD，适当设置误差容差。</dd>
+        <dt>换一块电池，表现就变了</dt>
+        <dd>电池电压会影响电机出力。用电压模式控制（如 <code>setVoltage</code>、<code>PositionVoltage</code>）代替百分比输出，可以自动补偿电压波动。</dd>
+      </dl>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">11</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/index.html" target="_blank" rel="noopener">WPILib：Advanced Controls 入门（PID、前馈、运动曲线）</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/index.html" target="_blank" rel="noopener">WPILib：Controllers（PIDController、前馈类、TrapezoidProfile）</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/stable/docs/software/advanced-controls/system-identification/index.html" target="_blank" rel="noopener">WPILib：System Identification（SysId）</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://v6.docs.ctr-electronics.com/" target="_blank" rel="noopener">CTRE Phoenix 6 文档（闭环控制、Motion Magic）</a><span class="url">v6.docs.ctr-electronics.com</span></li>
+        <li><a href="https://docs.revrobotics.com/revlib" target="_blank" rel="noopener">REVLib 文档（SPARK 闭环控制、MAXMotion）</a><span class="url">docs.revrobotics.com</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 技术方向《闭环控制与 PID》。厂商库接口每年可能变化，以当年文档为准。</footer>
+  </main>
+</div>

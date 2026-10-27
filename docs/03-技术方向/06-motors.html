@@ -1,0 +1,396 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>电机与电机控制器</title>
+<meta name="nav-title" content="电机与电机控制器">
+<meta name="description" content="FRC 常见无刷电机和电机控制器对比，CAN 配置、电流限制等关键设置，读懂电机特性曲线和减速比，以及常见故障排查。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts; a to-scale NEO torque/power curve anchors the gearing section.
+   Chart colors: blue = torque, amber = power. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --red: #c42a2a;
+  --red-soft: #fbe7e6;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --code-bg: #eef1f5;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --red: #ff8a80; --red-soft: #3a1e20;
+    --note: #2b2615; --note-line: #8a7330; --code-bg: #1d2430; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --red: #ff8a80; --red-soft: #3a1e20;
+  --note: #2b2615; --note-line: #8a7330; --code-bg: #1d2430; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--code-bg); border-radius: 4px; padding: 1px 5px; }
+.formula { font-family: var(--font-mono); font-size: 15px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; margin: 12px 0 16px; max-width: 720px; overflow-x: auto; line-height: 1.9; }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.warn { background: var(--red-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.warn .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--red); margin-bottom: 4px; }
+.warn p:last-child, .warn ul:last-child { margin-bottom: 0; }
+.tip { background: var(--blue-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.tip .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+.tip p:last-child, .tip ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 560px; max-width: 680px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 22px; height: 0; border-top: 3px solid; display: inline-block; }
+.legend .tq i { border-color: var(--blue); }
+.legend .pw i { border-color: var(--amber); }
+svg .axis { stroke: var(--muted); stroke-width: 1.2; }
+svg .grid { stroke: var(--line); stroke-width: 1; }
+svg .torque { fill: none; stroke: var(--blue); stroke-width: 2.5; }
+svg .power { fill: none; stroke: var(--amber); stroke-width: 2.5; stroke-linejoin: round; }
+svg .dot-pw { fill: var(--amber); }
+svg .dot-tq { fill: var(--blue); }
+svg .guide { stroke: var(--amber); stroke-width: 1; stroke-dasharray: 3 3; }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12px; }
+svg .t-m { fill: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-tq { fill: var(--blue); font-size: 12px; font-weight: 500; }
+svg .t-pw { fill: var(--amber); font-size: 12px; font-weight: 500; }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step); font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--blue); width: 28px; height: 28px; border: 1.5px solid var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.steps > li > div { min-width: 0; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps p { margin: 0; }
+
+.faq { max-width: 760px; margin: 0; }
+.faq dt { font-weight: 700; margin-top: 14px; }
+.faq dd { margin: 4px 0 0; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#role">电机的角色</a></li>
+      <li><a href="#brushless">有刷与无刷</a></li>
+      <li><a href="#motors">常见电机</a></li>
+      <li><a href="#controllers">电机控制器</a></li>
+      <li><a href="#curve">读懂特性曲线</a></li>
+      <li><a href="#gearing">减速比怎么选</a></li>
+      <li><a href="#can">CAN 配置</a></li>
+      <li><a href="#settings">关键设置</a></li>
+      <li><a href="#current">电流与掉电</a></li>
+      <li><a href="#bringup">新电机上车流程</a></li>
+      <li><a href="#faq">常见问题</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 技术方向</p>
+      <h1>电机与电机控制器</h1>
+      <p class="lede">电机是机器人所有动作的来源，电机控制器决定电机怎么转。这一篇介绍 FRC 常用的无刷电机和控制器，怎么读电机特性曲线、选减速比，以及 CAN 配置、电流限制这些让机器人可靠运行的关键设置。</p>
+      <div class="meta"><span>资料整理于 2026 年 10 月</span><span>电机规格以厂商公布为准</span></div>
+    </header>
+
+    <section id="role">
+      <h2><span class="n">01</span>电机在机器人里的角色</h2>
+      <p class="prose">一台典型的 FRC 机器人有十几个电机：swerve 底盘就要 8 个（每个轮组一个驱动、一个转向），再加上取件、传送、发射、升降、手臂、攀爬等机构。每个电机都配一个电机控制器，大多挂在 CAN 总线上，由主控制器统一指挥。</p>
+      <p class="prose">信号链路是：<strong>主控制器</strong>（发目标）→ <strong>电机控制器</strong>（把电池的电按要求送给电机，常常还在内部跑闭环）→ <strong>电机</strong>（产生扭矩）→ <strong>减速箱</strong>（换成机构需要的速度和力量）→ <strong>机构</strong>。闭环控制的部分见<a href="05-closed-loop-pid.html">《闭环控制与 PID》</a>。</p>
+    </section>
+
+    <section id="brushless">
+      <h2><span class="n">02</span>有刷电机与无刷电机</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th></th><th>有刷电机</th><th>无刷电机</th></tr></thead>
+          <tbody>
+            <tr><td class="k">换向方式</td><td>靠电刷和换向器机械换向</td><td>由电机控制器按转子位置电子换向</td></tr>
+            <tr><td class="k">编码器</td><td>通常没有，要另外加装</td><td>内置，可以直接测转速和位置</td></tr>
+            <tr><td class="k">功率与效率</td><td>同体积下功率较低，发热大</td><td>功率密度高，效率高</td></tr>
+            <tr><td class="k">代表型号</td><td>CIM、Mini CIM、775pro、BAG（老式电机）</td><td>Kraken、Falcon、NEO 系列</td></tr>
+            <tr><td class="k">现状</td><td>少量用在简单的小机构上</td><td>现在 FRC 的绝对主流</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">无刷电机必须配专门的控制器，因为换向要靠控制器完成。也正因为控制器知道转子在哪，它天然就能拿到精确的编码器数据，这是无刷电机在 FRC 普及的重要原因。</p>
+    </section>
+
+    <section id="motors">
+      <h2><span class="n">03</span>常见无刷电机</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>电机</th><th>厂商</th><th>空载转速</th><th>堵转扭矩</th><th>配套控制器</th><th>特点</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Kraken X60</td><td>WCP</td><td class="num">约 6000 RPM</td><td class="num">约 7.1 N·m</td><td>内置 Talon FX</td><td>近年最常见的大功率电机，用在底盘和主要机构上</td></tr>
+            <tr><td class="k">Kraken X44</td><td>WCP</td><td class="num">—</td><td class="num">—</td><td>内置 Talon FX</td><td>比 X60 小一号，适合空间紧张的机构</td></tr>
+            <tr><td class="k">Falcon 500</td><td>CTRE / VEX</td><td class="num">约 6380 RPM</td><td class="num">约 4.7 N·m</td><td>内置 Talon FX</td><td>曾经的主流，已停产，很多老队还在用</td></tr>
+            <tr><td class="k">NEO</td><td>REV</td><td class="num">5676 RPM</td><td class="num">2.6 N·m</td><td>SPARK MAX</td><td>价格较低，生态成熟</td></tr>
+            <tr><td class="k">NEO Vortex</td><td>REV</td><td class="num">约 6784 RPM</td><td class="num">约 3.6 N·m</td><td>SPARK Flex（可直接插装在电机尾部）</td><td>REV 的大功率电机</td></tr>
+            <tr><td class="k">NEO 550</td><td>REV</td><td class="num">约 11000 RPM</td><td class="num">约 0.97 N·m</td><td>SPARK MAX</td><td>小巧、转速高，常用在滚轮和小机构上</td></tr>
+            <tr><td class="k">Minion</td><td>CTRE</td><td class="num">—</td><td class="num">—</td><td>Talon FXS</td><td>CTRE 的小型无刷电机</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">表中"—"表示这里不给具体数值，选型时请直接查厂商规格。<strong>合规电机清单每年以 Game Manual 为准</strong>，不在清单上的电机不能上场。</p>
+    </section>
+
+    <section id="controllers">
+      <h2><span class="n">04</span>电机控制器</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>控制器</th><th>厂商</th><th>驱动什么电机</th><th>通信</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Talon FX</td><td>CTRE</td><td>集成在 Kraken、Falcon 内部</td><td>CAN / CAN-FD</td><td>用 Phoenix 6 软件库，内置闭环和 Motion Magic</td></tr>
+            <tr><td class="k">Talon FXS</td><td>CTRE</td><td>Minion 等外置无刷电机，也支持有刷电机</td><td>CAN / CAN-FD</td><td>和 Talon FX 用同一套软件</td></tr>
+            <tr><td class="k">SPARK MAX</td><td>REV</td><td>NEO、NEO 550，也支持有刷电机</td><td>CAN（也支持 PWM）</td><td>用 REVLib 软件库，内置闭环和 MAXMotion</td></tr>
+            <tr><td class="k">SPARK Flex</td><td>REV</td><td>NEO Vortex（插装），也可独立使用</td><td>CAN</td><td>SPARK MAX 的升级款</td></tr>
+            <tr><td class="k">SPARKmini</td><td>REV</td><td>小型有刷电机</td><td>PWM</td><td>WPILib 2027 新增支持的 PWM 控制器</td></tr>
+            <tr><td class="k">Talon SRX / Victor SPX</td><td>CTRE</td><td>有刷电机</td><td>CAN</td><td>老款，仍在硬件清单上</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">2027 赛季起，老式的 PWM 控制器 Talon 和 Victor SP 不再合规。主流仍然是 CTRE 和 REV 两大阵营，各自有配套的软件库和调试工具，很多队伍会固定用其中一家，以减少要掌握的软件数量。</p>
+    </section>
+
+    <section id="curve">
+      <h2><span class="n">05</span>读懂电机特性曲线</h2>
+      <p class="prose">直流电机（包括无刷电机）在固定电压下有一个重要特性：<strong>扭矩随转速线性下降</strong>。转速为零时（堵转）扭矩最大，空载时转速最高、扭矩为零。输出功率是扭矩乘以转速，在<strong>空载转速的一半处达到最大</strong>。下图以 REV NEO 在 12 V 下的公布数据绘制：</p>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 640 256" role="img" aria-label="NEO 电机特性曲线：扭矩从 0 转速时的 2.6 牛米线性下降到 5676 转每分时的 0；功率曲线呈抛物线，在 2838 转每分时达到最大约 386 瓦。">
+            <!-- scale: x = 70 + rpm*0.08 (0..6000 rpm); torque y = 200 - Nm*50 (0..3); power y = 200 - W*0.375 (0..400) -->
+            <line class="grid" x1="70" y1="150" x2="550" y2="150"/>
+            <line class="grid" x1="70" y1="100" x2="550" y2="100"/>
+            <line class="grid" x1="70" y1="50" x2="550" y2="50"/>
+            <line class="axis" x1="70" y1="200" x2="550" y2="200"/>
+            <line class="axis" x1="70" y1="200" x2="70" y2="40"/>
+            <line class="axis" x1="550" y1="200" x2="550" y2="40"/>
+
+            <text class="t-m" x="62" y="204" text-anchor="end">0</text>
+            <text class="t-m" x="62" y="154" text-anchor="end">1</text>
+            <text class="t-m" x="62" y="104" text-anchor="end">2</text>
+            <text class="t-m" x="62" y="54" text-anchor="end">3</text>
+            <text class="t-tq" x="62" y="30" text-anchor="end">扭矩 N·m</text>
+
+            <text class="t-m" x="558" y="204">0</text>
+            <text class="t-m" x="558" y="166">100</text>
+            <text class="t-m" x="558" y="129">200</text>
+            <text class="t-m" x="558" y="91">300</text>
+            <text class="t-m" x="558" y="54">400</text>
+            <text class="t-pw" x="558" y="30">功率 W</text>
+
+            <text class="t-m" x="70" y="218" text-anchor="middle">0</text>
+            <text class="t-m" x="150" y="218" text-anchor="middle">1000</text>
+            <text class="t-m" x="230" y="218" text-anchor="middle">2000</text>
+            <text class="t-m" x="310" y="218" text-anchor="middle">3000</text>
+            <text class="t-m" x="390" y="218" text-anchor="middle">4000</text>
+            <text class="t-m" x="470" y="218" text-anchor="middle">5000</text>
+            <text class="t-m" x="550" y="218" text-anchor="middle">6000</text>
+            <text class="t-s" x="310" y="244" text-anchor="middle">转速 RPM</text>
+
+            <line class="torque" x1="70" y1="70" x2="524.1" y2="200"/>
+            <polyline class="power" points="70.0,200.0 88.9,176.9 107.8,155.7 126.8,136.6 145.7,119.5 164.6,104.4 183.5,91.3 202.4,80.3 221.4,71.2 240.3,64.2 259.2,59.1 278.1,56.1 297.0,55.1 316.0,56.1 334.9,59.1 353.8,64.2 372.7,71.2 391.6,80.3 410.6,91.3 429.5,104.4 448.4,119.5 467.3,136.6 486.2,155.7 505.2,176.9 524.1,200.0"/>
+            <line class="guide" x1="297" y1="55.1" x2="297" y2="200"/>
+            <circle class="dot-pw" cx="297" cy="55.1" r="4"/>
+            <circle class="dot-tq" cx="70" cy="70" r="4"/>
+            <circle class="dot-tq" cx="524.1" cy="200" r="4"/>
+
+            <text class="t-tq" x="80" y="64">堵转扭矩 2.6 N·m</text>
+            <text class="t-pw" x="305" y="46">最大功率约 386 W · 2838 RPM</text>
+            <text class="t-tq" x="524" y="234" text-anchor="middle">空载 5676 RPM</text>
+          </svg>
+        </div>
+        <div class="legend"><span class="tq"><i></i>扭矩</span><span class="pw"><i></i>功率</span></div>
+        <figcaption>按比例绘制。数据来自 REV 公布的 NEO 规格（12 V）：空载转速 5676 RPM，堵转扭矩 2.6 N·m，堵转电流约 105 A。其他电机曲线形状相同，只是数值不同。</figcaption>
+      </figure>
+      <ul class="prose">
+        <li><strong>电流和扭矩成正比</strong>：扭矩越大，电流越大。电机接近堵转时电流可达上百安培，会让电池电压骤降、电机迅速发热</li>
+        <li><strong>机构不应长期工作在堵转附近</strong>：比如手臂顶着限位一直出力，或者底盘推着墙不放</li>
+        <li><strong>想要力量就要牺牲速度</strong>：这正是减速箱的作用</li>
+      </ul>
+    </section>
+
+    <section id="gearing">
+      <h2><span class="n">06</span>减速比怎么选</h2>
+      <p class="prose">电机转速很高、扭矩很小，必须经过减速才能驱动机构。减速比为 N:1 时：</p>
+      <div class="formula">机构转速 = 电机转速 ÷ N<br>机构扭矩 ≈ 电机扭矩 × N × 传动效率</div>
+      <p class="prose">以电梯为例：用一个 NEO 通过 10:1 减速箱带动直径 5 cm 的绳轮。电机输出 1.3 N·m 时（约为堵转扭矩的一半），绳轮扭矩约 13 N·m，拉力约 13 ÷ 0.025 ≈ 520 N，大约能提起 50 kg。这时电机约 2838 RPM，绳轮约 284 RPM，电梯上升速度约 0.74 m/s。实际还要扣掉摩擦和传动损耗，并留出余量。</p>
+      <div class="tip">
+        <span class="label">选型工具</span>
+        <p>FRC 圈子里常用 <a href="https://www.reca.lc" target="_blank" rel="noopener">ReCalc</a> 在线计算器：选好电机型号、数量、减速比和机构参数，就能算出速度、加速时间和电流，比手算方便得多。</p>
+      </div>
+      <ul class="prose">
+        <li><strong>底盘</strong>：减速比决定最高速度和加速能力之间的取舍。轮组厂商通常提供几档可选减速比</li>
+        <li><strong>手臂</strong>：通常需要很大的减速比（几十比一甚至上百比一），才能稳稳托住重量</li>
+        <li><strong>飞轮</strong>：要的是转速，减速比小，甚至是增速</li>
+      </ul>
+    </section>
+
+    <section id="can">
+      <h2><span class="n">07</span>CAN 配置</h2>
+      <ul class="prose">
+        <li><strong>每个设备要有唯一的 CAN ID</strong>：同一类型的设备之间 ID 不能重复，否则程序会控制错电机。新设备出厂 ID 通常相同，上车前要逐个修改</li>
+        <li><strong>调试工具</strong>：CTRE 设备用 <strong>Phoenix Tuner X</strong>，REV 设备用 <strong>REV Hardware Client</strong>，用来改 ID、升级固件、单独测试电机</li>
+        <li><strong>升级固件</strong>：新设备和每个新赛季开始时，都要把固件升级到和软件库配套的版本</li>
+        <li><strong>总线拓扑</strong>：CAN 是一条串起来的总线，两端要有 120 Ω 终端电阻。配电板（如 REV PDH）上通常带有终端电阻开关</li>
+        <li><strong>多条总线</strong>：SystemCore 有 5 路 CAN-FD，可以把底盘和机构分到不同总线上，减轻单条总线的负担，也降低一处接线故障影响全车的风险</li>
+        <li><strong>记录和贴标签</strong>：把每个电机的 CAN ID、用途、所在总线整理成表，贴在电机上，方便比赛现场快速排查</li>
+      </ul>
+    </section>
+
+    <section id="settings">
+      <h2><span class="n">08</span>关键设置</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>设置</th><th>作用</th><th>建议</th></tr></thead>
+          <tbody>
+            <tr><td class="k">空闲模式</td><td>没有指令时，Brake（制动）让电机锁住，Coast（滑行）让它自由转</td><td>手臂、电梯用 Brake 防止下坠；飞轮常用 Coast</td></tr>
+            <tr><td class="k">反转</td><td>设置电机的正方向</td><td>保证"正电压 = 机构往正方向走 = 编码器读数增大"</td></tr>
+            <tr><td class="k">电流限制</td><td>限制电机能抽取的电流</td><td>每个电机都要设，详见下一节</td></tr>
+            <tr><td class="k">跟随模式</td><td>让一个电机完全跟随另一个电机的输出</td><td>两个电机驱动同一机构时用。注意跟随者是否需要反向，方向设错两个电机会互相较劲</td></tr>
+            <tr><td class="k">软限位</td><td>编码器读数超过范围时，电机不再往那个方向出力</td><td>电梯、手臂必设，防止撞到机械极限</td></tr>
+            <tr><td class="k">减速比换算</td><td>把电机圈数换算成机构的单位（米、度）</td><td>在控制器里设置后，闭环目标可以直接用机构单位</td></tr>
+            <tr><td class="k">保存配置</td><td>让配置在断电后保留</td><td>REV 需要显式保存（persist）；更稳妥的做法是程序每次启动时重新下发全部配置</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="current">
+      <h2><span class="n">09</span>电流限制与掉电保护</h2>
+      <p class="prose">全车十几个电机都从一块 12 V 电池取电。几个大电机同时用力时，总电流可能达到几百安培，电池电压会明显下降。电压掉得太低时，主控制器会进入<strong>掉电保护（brownout）</strong>：暂时降低或切断电机输出，机器人就会突然变得软弱无力，甚至短暂失控。</p>
+      <ul class="prose">
+        <li><strong>两种电流限制</strong>：<em>电源电流</em>（supply current）是从电池取的电流，限制它能保护电池和断路器；<em>定子电流</em>（stator current）是流过电机线圈的电流，和扭矩成正比，限制它能防止电机过热、轮子打滑</li>
+        <li><strong>每个电机都要设电流限制</strong>：具体数值和机构有关，可以参考厂商推荐值和 ReCalc 的计算结果</li>
+        <li><strong>断路器</strong>：配电板上每路电机通常接 40 A 断路器，长时间超载会跳闸</li>
+        <li><strong>电池管理</strong>：每场比赛前换上充满的电池；用电池测试仪淘汰内阻大的旧电池</li>
+      </ul>
+      <div class="warn">
+        <span class="label">安全警告</span>
+        <ul>
+          <li>SPARK MAX 等控制器可以设置电机类型（有刷或无刷）。<strong>把无刷电机误设成有刷模式可能损坏电机和控制器</strong>，配置时务必确认</li>
+          <li>第一次测试新机构时，先用很小的电压和电流限制，确认方向正确再逐步放开</li>
+          <li>调试时机器人周围不要站人，手要远离齿轮、链条和滚轮</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="bringup">
+      <h2><span class="n">10</span>新电机上车流程</h2>
+      <ol class="steps">
+        <li><div><h3>接线检查</h3><p>电源线接到配电板对应通道，CAN 线接入总线，确认极性和终端电阻。</p></div></li>
+        <li><div><h3>升级固件、设置 ID</h3><p>用 Phoenix Tuner X 或 REV Hardware Client 升级固件，设置唯一 CAN ID，并记录到 CAN ID 表里。</p></div></li>
+        <li><div><h3>单独测试</h3><p>在调试工具里低速转一下电机，确认它能转、方向正确、编码器读数随之变化。</p></div></li>
+        <li><div><h3>写进程序</h3><p>在对应的子系统里创建电机对象，下发反转、空闲模式、电流限制、减速比、软限位等配置。</p></div></li>
+        <li><div><h3>开环试车</h3><p>先用小电压开环驱动，确认机构动作方向正确，限位和软限位生效。</p></div></li>
+        <li><div><h3>闭环调参</h3><p>测前馈、调 PID，见<a href="05-closed-loop-pid.html#tuning">《闭环控制与 PID》的调参流程</a>。</p></div></li>
+      </ol>
+    </section>
+
+    <section id="faq">
+      <h2><span class="n">11</span>常见问题</h2>
+      <dl class="faq">
+        <dt>程序里控制了电机，但它一动不动</dt>
+        <dd>依次检查：CAN ID 是否和程序里一致、是否和别的设备重复；固件是否和软件库版本配套；机器人是否已启用；控制器指示灯显示什么状态（对照厂商说明书）。</dd>
+        <dt>两个电机一起驱动同一机构，发出怪声、发热</dt>
+        <dd>两个电机方向相反，在互相较劲。检查跟随模式下跟随者的反向设置。</dd>
+        <dt>电机很烫</dt>
+        <dd>长期在大电流下工作：减速比不合适、机构卡滞，或者手臂顶着限位一直出力。加电流限制，检查机械阻力，到位后减小保持电流。</dd>
+        <dt>比赛中机器人时不时"软"一下</dt>
+        <dd>多半是掉电保护被触发。查看 Driver Station 日志里的电压曲线，加强电流限制，换用好电池，检查电源线和接头是否松动。</dd>
+        <dt>断路器经常跳闸</dt>
+        <dd>该路电机长时间超载。检查机构是否卡住，降低电源电流限制，或者调整减速比。</dd>
+      </dl>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">12</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://docs.wpilib.org/en/stable/docs/software/hardware-apis/motors/index.html" target="_blank" rel="noopener">WPILib：Motors APIs</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.wpilib.org/en/latest/docs/controls-overviews/control-system-hardware.html" target="_blank" rel="noopener">WPILib：Hardware Component Overview（合规电机控制器）</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://v6.docs.ctr-electronics.com/" target="_blank" rel="noopener">CTRE Phoenix 6 文档（Talon FX、Phoenix Tuner X）</a><span class="url">v6.docs.ctr-electronics.com</span></li>
+        <li><a href="https://docs.revrobotics.com/" target="_blank" rel="noopener">REV Robotics 文档（NEO 规格、SPARK、REV Hardware Client）</a><span class="url">docs.revrobotics.com</span></li>
+        <li><a href="https://wcproducts.com/" target="_blank" rel="noopener">WCP（Kraken 电机规格）</a><span class="url">wcproducts.com</span></li>
+        <li><a href="https://www.reca.lc" target="_blank" rel="noopener">ReCalc 机构计算器</a><span class="url">reca.lc</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 技术方向《电机与电机控制器》。电机规格以厂商公布为准，合规清单以当年 Game Manual 为准。</footer>
+  </main>
+</div>

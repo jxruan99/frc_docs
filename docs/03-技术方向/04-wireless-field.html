@@ -1,0 +1,394 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>无线通信与场地系统</title>
+<meta name="nav-title" content="无线通信与场地系统">
+<meta name="description" content="机器人电台 VH-109、场地管理系统 FMS 和 Driver Station 如何配合：比赛指令怎样到达机器人，赛前为什么要配置电台，以及断线排查。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts; a two-row diagram contrasts the competition link with the practice link.
+   Diagram colors: amber = field / FIRST equipment, blue = team control path, teal = on the robot. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --red: #c42a2a;
+  --red-soft: #fbe7e6;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --red: #ff8a80; --red-soft: #3a1e20;
+    --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --red: #ff8a80; --red-soft: #3a1e20;
+  --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.tip { background: var(--blue-soft); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.tip .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+.tip p:last-child, .tip ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+td.mono { font-family: var(--font-mono); font-size: 13.5px; white-space: nowrap; }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+svg .b-field { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-team { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.5; }
+svg .b-robot { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-stop { fill: var(--red-soft); stroke: var(--red); stroke-width: 1.5; }
+svg .robot { fill: none; stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 6 4; }
+svg .divider { stroke: var(--line); stroke-width: 1.2; }
+svg .wire { fill: none; stroke: var(--muted); stroke-width: 1.8; }
+svg .air { fill: none; stroke: var(--blue); stroke-width: 2; stroke-dasharray: 6 4; }
+svg .ah { fill: var(--muted); }
+svg .ah-air { fill: var(--blue); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-title { font-weight: 700; font-size: 14px; }
+svg .t-ghost { fill: var(--muted); font-size: 12px; font-style: italic; }
+
+.timeline { list-style: none; padding: 0; margin: 18px 0; max-width: 760px; border-left: 2px solid var(--line); }
+.timeline li { position: relative; padding: 0 0 16px 22px; margin: 0; }
+.timeline li::before { content: ""; position: absolute; left: -7px; top: 8px; width: 12px; height: 12px; border-radius: 50%; background: var(--paper); border: 2px solid var(--muted); }
+.timeline li.live::before { background: var(--blue); border-color: var(--blue); }
+.timeline .when { font-family: var(--font-mono); font-size: 13px; color: var(--muted); display: block; }
+.timeline b { display: block; }
+.timeline p { font-size: 15px; margin: 2px 0 0; }
+
+.stops { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 18px 0; max-width: 760px; }
+.stop { border-radius: 8px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); min-width: 0; font-size: 15px; }
+.stop h3 { margin: 0 0 4px; font-size: 16px; }
+.stop.e { border-top: 4px solid var(--red); }
+.stop.a { border-top: 4px solid var(--amber); }
+.stop.f { border-top: 4px solid var(--muted); }
+.stop p { margin: 0; color: var(--muted); }
+
+.faq { max-width: 760px; margin: 0; }
+.faq dt { font-weight: 700; margin-top: 14px; }
+.faq dd { margin: 4px 0 0; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#overview">整体链路</a></li>
+      <li><a href="#radio">机器人电台</a></li>
+      <li><a href="#fms">场地管理系统</a></li>
+      <li><a href="#ds">Driver Station 的角色</a></li>
+      <li><a href="#match">一场比赛的通信</a></li>
+      <li><a href="#stops">急停机制</a></li>
+      <li><a href="#kiosk">赛前配置电台</a></li>
+      <li><a href="#practice">在家练习</a></li>
+      <li><a href="#troubleshoot">断线排查</a></li>
+      <li><a href="#people">现场找谁</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 技术方向</p>
+      <h1>无线通信与场地系统</h1>
+      <p class="lede">比赛中，裁判按下"开始"，几十台机器人同时进入自动阶段；时间一到，又同时停下。这一篇讲清楚背后的通信链路：机器人电台、场地管理系统 FMS 和 Driver Station 分别做什么，指令怎样到达机器人，以及赛前为什么每队都要去配置电台。</p>
+      <div class="meta"><span>资料整理于 2026 年 10 月</span><span>以当年 Game Manual 和 WPILib 文档为准</span></div>
+    </header>
+
+    <section id="overview">
+      <h2><span class="n">01</span>整体链路</h2>
+      <p class="prose">一句话概括：<strong>FMS 决定比赛节奏，Driver Station 把比赛指令和手柄数据打包，电台负责无线传输，主控制器执行。</strong>电台本身只是一座无线网桥，它不理解、也不判断指令的内容。</p>
+
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 900 320" role="img" aria-label="通信链路对比。比赛时：FMS 经有线连接 Driver Station，Driver Station 经有线连接场地接入点，场地接入点通过 6 GHz Wi-Fi 连接机器人上的 VH-109 电台，电台经以太网连接 SystemCore；驾驶台上有急停按钮。练习时：没有 FMS，Driver Station 经有线连接一台设为接入点模式的 VH-109，再无线连接机器人电台和 SystemCore。">
+            <defs>
+              <marker id="wf-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="wf-air" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-air" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+
+            <text class="t-title" x="16" y="28">比赛时</text>
+            <rect class="b-field" x="16" y="48" width="140" height="56" rx="6"/>
+            <text class="t-b" x="86" y="71" text-anchor="middle">FMS</text>
+            <text class="t-s" x="86" y="90" text-anchor="middle">场地管理系统</text>
+            <rect class="b-team" x="206" y="48" width="150" height="56" rx="6"/>
+            <text class="t-b" x="281" y="71" text-anchor="middle">Driver Station</text>
+            <text class="t-s" x="281" y="90" text-anchor="middle">驾驶电脑 + 手柄</text>
+            <rect class="b-stop" x="216" y="122" width="130" height="34" rx="6"/>
+            <text class="t-s" x="281" y="144" text-anchor="middle">E-Stop / A-Stop 按钮</text>
+            <line class="wire" x1="281" y1="104" x2="281" y2="122"/>
+            <rect class="b-field" x="396" y="48" width="130" height="56" rx="6"/>
+            <text class="t-b" x="461" y="71" text-anchor="middle">场地接入点</text>
+            <text class="t-s" x="461" y="90" text-anchor="middle">FIRST 提供</text>
+            <rect class="robot" x="586" y="30" width="304" height="92" rx="10"/>
+            <text class="t-s" x="598" y="46">机器人</text>
+            <rect class="b-robot" x="600" y="54" width="120" height="56" rx="6"/>
+            <text class="t-b" x="660" y="77" text-anchor="middle">VH-109 电台</text>
+            <text class="t-s" x="660" y="96" text-anchor="middle">网桥模式</text>
+            <rect class="b-robot" x="770" y="54" width="110" height="56" rx="6"/>
+            <text class="t-b" x="825" y="77" text-anchor="middle">SystemCore</text>
+            <text class="t-s" x="825" y="96" text-anchor="middle">执行指令</text>
+
+            <line class="wire" x1="156" y1="76" x2="206" y2="76" marker-end="url(#wf-ah)"/>
+            <text class="t-s" x="181" y="68" text-anchor="middle">有线</text>
+            <line class="wire" x1="356" y1="76" x2="396" y2="76" marker-start="url(#wf-ah)" marker-end="url(#wf-ah)"/>
+            <text class="t-s" x="376" y="68" text-anchor="middle">有线</text>
+            <line class="air" x1="526" y1="82" x2="600" y2="82" marker-start="url(#wf-air)" marker-end="url(#wf-air)"/>
+            <text class="t-s" x="556" y="74" text-anchor="middle">6 GHz</text>
+            <line class="wire" x1="720" y1="82" x2="770" y2="82" marker-start="url(#wf-ah)" marker-end="url(#wf-ah)"/>
+            <text class="t-s" x="745" y="74" text-anchor="middle">以太网</text>
+
+            <line class="divider" x1="16" y1="176" x2="884" y2="176"/>
+
+            <text class="t-title" x="16" y="206">在家 / 车间练习时</text>
+            <text class="t-ghost" x="86" y="262" text-anchor="middle">没有 FMS</text>
+            <rect class="b-team" x="206" y="226" width="150" height="56" rx="6"/>
+            <text class="t-b" x="281" y="249" text-anchor="middle">Driver Station</text>
+            <text class="t-s" x="281" y="268" text-anchor="middle">驾驶电脑 + 手柄</text>
+            <rect class="b-team" x="396" y="226" width="130" height="56" rx="6"/>
+            <text class="t-b" x="461" y="249" text-anchor="middle">第二台 VH-109</text>
+            <text class="t-s" x="461" y="268" text-anchor="middle">接入点模式</text>
+            <rect class="robot" x="586" y="208" width="304" height="92" rx="10"/>
+            <text class="t-s" x="598" y="224">机器人</text>
+            <rect class="b-robot" x="600" y="232" width="120" height="56" rx="6"/>
+            <text class="t-b" x="660" y="255" text-anchor="middle">VH-109 电台</text>
+            <text class="t-s" x="660" y="274" text-anchor="middle">网桥模式</text>
+            <rect class="b-robot" x="770" y="232" width="110" height="56" rx="6"/>
+            <text class="t-b" x="825" y="255" text-anchor="middle">SystemCore</text>
+            <text class="t-s" x="825" y="274" text-anchor="middle">执行指令</text>
+
+            <line class="wire" x1="356" y1="254" x2="396" y2="254" marker-start="url(#wf-ah)" marker-end="url(#wf-ah)"/>
+            <text class="t-s" x="376" y="246" text-anchor="middle">有线</text>
+            <line class="air" x1="526" y1="260" x2="600" y2="260" marker-start="url(#wf-air)" marker-end="url(#wf-air)"/>
+            <text class="t-s" x="556" y="252" text-anchor="middle">Wi-Fi</text>
+            <line class="wire" x1="720" y1="260" x2="770" y2="260" marker-start="url(#wf-ah)" marker-end="url(#wf-ah)"/>
+            <text class="t-s" x="745" y="252" text-anchor="middle">以太网</text>
+          </svg>
+        </div>
+        <figcaption>比赛时（上）和练习时（下）的通信链路。机器人上的部分完全一样；区别在左边：比赛时由 FMS 掌控节奏，经场地的接入点无线连接；练习时没有 FMS，队伍用自己的第二台 VH-109 当接入点。橙色是 FIRST 的场地设备，蓝色是队伍的操作端，绿色是机器人上的设备。</figcaption>
+      </figure>
+    </section>
+
+    <section id="radio">
+      <h2><span class="n">02</span>机器人电台 VH-109</h2>
+      <p class="prose">FRC 规定所有队伍使用同一款机器人电台：<strong>Vivid-Hosting VH-109</strong>。它装在机器人上，用网线连接主控制器，相当于机器人的"Wi-Fi 网卡"。各队可以从 AndyMark 等渠道购买备用。</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>项目</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="k">无线标准</td><td>Wi-Fi 6E（802.11ax）和 2.4 GHz Wi-Fi（802.11b/g/n）</td></tr>
+            <tr><td class="k">频段</td><td>6 GHz（5945–7125 MHz）；2.4 GHz（2412–2462 MHz）</td></tr>
+            <tr><td class="k">有线接口</td><td>4 个以太网口：接主控制器，也可以接 Limelight 等视觉协处理器</td></tr>
+            <tr><td class="k">工作模式</td><td><strong>网桥模式</strong>：装在机器人上，连到场地或练习用的接入点；<strong>接入点模式</strong>：接在 Driver Station 电脑上，供练习时使用</td></tr>
+            <tr><td class="k">网络地址</td><td>按队号分配，形如 <code>10.TE.AM.x</code>。例如队号 1234，网段就是 <code>10.12.34.x</code>，机器人上的每台设备都在这个网段里</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">比赛时使用 6 GHz 频段。这个频段比老式的 2.4 / 5 GHz 干净得多，几十台机器人同时在场上也不容易互相干扰，这是 FRC 换用 VH-109 的主要原因。</p>
+      <div class="note">
+        <span class="label">安装要点</span>
+        <ul>
+          <li>远离电机和大块金属，金属会遮挡信号</li>
+          <li>指示灯要露在外面，方便现场工作人员查看连接状态</li>
+          <li>电源线和网线要固定牢靠，比赛中的撞击很容易让它们松脱</li>
+          <li>按 WPILib 文档推荐的方式供电，避免电池电压骤降时电台重启</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="fms">
+      <h2><span class="n">03</span>场地管理系统 FMS</h2>
+      <p class="prose"><strong>FMS（Field Management System）</strong>是 FIRST 的场地控制系统，由计分台的场地技术人员操作。它负责：</p>
+      <ul class="prose">
+        <li><strong>掌控比赛节奏</strong>：统一开始比赛，自动阶段结束时切换到手动阶段，时间到时统一禁用所有机器人</li>
+        <li><strong>管理场地网络</strong>：场地上的无线接入点由 FMS 管理，每支队伍连入自己专属的网络</li>
+        <li><strong>监控连接状态</strong>：实时显示每台机器人和 Driver Station 是否连通、电池电压等，开赛前确认 6 台机器人全部就绪</li>
+        <li><strong>计分和记录</strong>：配合场地传感器和裁判输入计分，并记录每场比赛的连接日志</li>
+      </ul>
+      <p class="prose">注意，FMS 并不直接给机器人发指令。它把"现在是什么阶段、是否启用"告诉每支队伍的 Driver Station，再由 Driver Station 转发给机器人。</p>
+    </section>
+
+    <section id="ds">
+      <h2><span class="n">04</span>Driver Station 在比赛中的角色</h2>
+      <ul class="prose">
+        <li><strong>必须用网线连接</strong>：比赛时驾驶电脑用网线插到驾驶台上的接口，电脑自己的 Wi-Fi 要关掉</li>
+        <li><strong>打包发送控制数据</strong>：大约每 20 毫秒发一次数据包给机器人，里面有当前模式（自动或手动）、是否启用，以及所有手柄的摇杆和按键状态</li>
+        <li><strong>接收机器人状态</strong>：机器人回传电池电压、程序运行状态等，显示在 Driver Station 上，同时汇报给 FMS</li>
+        <li><strong>比赛中不能自己启用</strong>：连上 FMS 后，启用和禁用都由 FMS 控制，队伍只能用急停按钮让自己的机器人停下</li>
+      </ul>
+      <div class="tip">
+        <span class="label">关键的安全机制</span>
+        <p>如果机器人在很短时间内收不到 Driver Station 的数据，主控制器会<strong>自动禁用</strong>机器人。所以比赛中电台断线时，机器人会停在原地不动，而不是失控乱跑。</p>
+      </div>
+    </section>
+
+    <section id="match">
+      <h2><span class="n">05</span>一场比赛的通信过程</h2>
+      <ol class="timeline">
+        <li><span class="when">上场前</span><b>连接就位</b><p>队伍把机器人放上场，打开电源；电台连上场地网络。驾驶员把 Driver Station 电脑插到驾驶台上。FMS 上本队的状态变绿，表示连接正常。</p></li>
+        <li class="live"><span class="when">0:00</span><b>自动阶段开始</b><p>FMS 发出开始信号，所有机器人同时以自动模式启用，执行各自预先写好的程序。这一阶段驾驶员不能操作，自动阶段通常是 15 秒（以当年规则为准）。</p></li>
+        <li class="live"><span class="when">0:15 左右</span><b>切换到手动阶段</b><p>FMS 把模式切换为手动，Driver Station 开始把手柄输入传给机器人。</p></li>
+        <li class="live"><span class="when">最后 20–30 秒</span><b>终局阶段</b><p>通信方式不变，只是比赛进入攀爬、停靠等终局任务。</p></li>
+        <li><span class="when">时间到</span><b>统一禁用</b><p>FMS 同时禁用所有机器人。之后裁判确认分数，队伍把机器人搬下场。</p></li>
+      </ol>
+    </section>
+
+    <section id="stops">
+      <h2><span class="n">06</span>急停机制</h2>
+      <div class="stops">
+        <div class="stop e"><h3>E-Stop 紧急停止</h3><p>每个驾驶台上的实体按钮，任何阶段按下都会让本队机器人立即停止，本场比赛不能再恢复。发生危险时使用。</p></div>
+        <div class="stop a"><h3>A-Stop 自动阶段停止</h3><p>近几年新增的按钮，只在自动阶段有效。自动程序出错时可以先让机器人停下，手动阶段开始后机器人恢复可控。</p></div>
+        <div class="stop f"><h3>场地停止</h3><p>出现安全问题或场地故障时，场地技术人员可以通过 FMS 让全场机器人停止。</p></div>
+      </div>
+      <p class="prose">练习时没有实体按钮。用 Driver Station 软件里的急停功能，现行 Windows 版 Driver Station 中按<strong>空格键</strong>即可。</p>
+    </section>
+
+    <section id="kiosk">
+      <h2><span class="n">07</span>赛前为什么要配置电台</h2>
+      <p class="prose">每场赛事开始前，每支队伍都要把电台拿到 Pit Admin 附近的<strong>电台配置站（Radio Kiosk）</strong>重新配置。配置会写入：</p>
+      <ul class="prose">
+        <li><strong>队号</strong>：决定电台的网络地址和要连接的网络</li>
+        <li><strong>本场赛事的网络名称和加密密钥</strong>：每场赛事的密钥都不同，配置后机器人只能连入本场赛事的场地网络，别人也连不进你的机器人</li>
+        <li><strong>场地的通信限制</strong>：每台机器人的带宽有上限，只开放规则允许的网络端口，保证几十台机器人共用场地网络时互不干扰</li>
+      </ul>
+      <p class="prose">所以，<strong>每到一场新的赛事都要重新配置一次</strong>。赛事结束回到车间后，还要按 WPILib 文档把电台改回练习用的设置。</p>
+      <div class="note">
+        <span class="label">给带队家长的提醒</span>
+        <p>到达赛场、搬好维修区后，尽早去配置电台，不要拖到练习赛开始前。配置站前常常排队，而没有配置好的机器人上不了场。</p>
+      </div>
+    </section>
+
+    <section id="practice">
+      <h2><span class="n">08</span>在家或车间练习</h2>
+      <p class="prose">离开比赛场地，没有 FMS 和场地接入点，常见的连接方式有三种：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>方式</th><th>做法</th><th>适合</th></tr></thead>
+          <tbody>
+            <tr><td class="k">第二台 VH-109</td><td>一台装在机器人上（网桥模式），另一台设为接入点模式，用网线接 Driver Station 电脑</td><td>最接近比赛的状态，驾驶练习首选</td></tr>
+            <tr><td class="k">网线直连</td><td>电脑用网线直接插到机器人电台的以太网口</td><td>机器人架在台子上调试</td></tr>
+            <tr><td class="k">USB-C 直连</td><td>电脑用 USB-C 直接连 SystemCore</td><td>部署程序、底层调试</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">两台 VH-109 的具体配置步骤，见 WPILib 文档的 Programming your Radio 一节。在电脑上仿真不需要任何电台，见<a href="03-dev-environment.html">《开发环境与仿真》</a>。</p>
+    </section>
+
+    <section id="troubleshoot">
+      <h2><span class="n">09</span>断线排查</h2>
+      <dl class="faq">
+        <dt>比赛中机器人突然不动了</dt>
+        <dd>先看 Driver Station 上的通信指示灯。最常见的原因是电台电源线或网线松了，或者撞击后电台重启；其次是电池电压过低，导致电台或主控制器掉电。赛后请 FTA 调出本场的连接日志，看断线发生的时间点。</dd>
+        <dt>上场后 FMS 上本队一直不变绿</dt>
+        <dd>检查：电台是否在本场赛事配置过；配置时的队号是否正确；Driver Station 是否用网线连到了驾驶台；驾驶电脑的 Wi-Fi 是否已关闭。</dd>
+        <dt>在车间连不上机器人</dt>
+        <dd>检查：电台是否还是赛事配置（需要改回练习设置）；Driver Station 里的队号是否正确；电脑防火墙是否拦截了 Driver Station。</dd>
+        <dt>视觉相机画面在比赛时很卡</dt>
+        <dd>比赛中每台机器人的带宽有上限。降低相机分辨率和帧率，或者让视觉处理在机器人上完成，只传结果。</dd>
+      </dl>
+    </section>
+
+    <section id="people">
+      <h2><span class="n">10</span>现场找谁</h2>
+      <p class="prose">比赛现场有专门负责通信和控制系统的志愿者，遇到问题直接找他们：</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>角色</th><th>负责什么</th></tr></thead>
+          <tbody>
+            <tr><td class="k">FTA</td><td>Field Technical Advisor，场地技术顾问。负责场地和 FMS，处理比赛中的连接问题，可以调出比赛日志</td></tr>
+            <tr><td class="k">CSA</td><td>Control System Advisor，控制系统顾问。在维修区帮各队排查电气、电台、程序和 Driver Station 问题</td></tr>
+            <tr><td class="k">电台配置站志愿者</td><td>在 Pit Admin 附近给各队配置电台</td></tr>
+            <tr><td class="k">Pit Admin</td><td>维修区管理处，签到、领取资料、咨询赛事安排</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose">有技术背景的家长，积累一两个赛季经验后，也可以报名做 CSA 志愿者。这既是帮助其他队伍，也是快速学习控制系统的好机会。</p>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">11</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://docs.wpilib.org/en/latest/docs/zero-to-robot/step-3/radio-programming.html" target="_blank" rel="noopener">WPILib：Programming your Radio</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://andymark.com/products/vivid-hosting-vh-109-frc-radio" target="_blank" rel="noopener">AndyMark：Vivid-Hosting VH-109 FRC Radio</a><span class="url">andymark.com</span></li>
+        <li><a href="https://docs.wpilib.org/en/latest/docs/controls-overviews/control-system-hardware.html" target="_blank" rel="noopener">WPILib：Hardware Component Overview</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://www.firstinspires.org/robotics/frc" target="_blank" rel="noopener">FIRST 官网 · FRC 页面（Game Manual）</a><span class="url">firstinspires.org</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 技术方向《无线通信与场地系统》。比赛流程、时长和通信限制以当年 Game Manual 为准。</footer>
+  </main>
+</div>
