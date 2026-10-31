@@ -1,0 +1,297 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mentor 的成长与资源</title>
+<meta name="nav-title" content="成长与资源">
+<meta name="description" content="按方向的学习路径、常用资源清单、mentor 社区、长期可持续地参与、年度自我复盘，以及整个学习计划的回顾。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts — sticky contents rail, one readable column; diagrams run wider in their own scroll box.
+   Part 2 diagram colors: teal = recommended / student-led, amber = caution / adult-led, blue = process. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+.en { font-family: var(--font-mono); font-size: .88em; color: var(--muted); }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12px; line-height: 1.6; padding: 0 8px; border-radius: 999px; white-space: nowrap; }
+.tag.power { background: var(--amber-soft); color: var(--amber); }
+.tag.ctrl { background: var(--blue-soft); color: var(--blue); }
+.tag.act { background: var(--teal-soft); color: var(--teal); }
+.tag.misc { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.tag.done { background: var(--teal-soft); color: var(--teal); }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 22px; height: 0; border-top: 2.5px solid; display: inline-block; }
+.legend .pw i { border-color: var(--amber); }
+.legend .sg i { border-color: var(--blue); }
+.legend .mc i { border-color: var(--ink); }
+.legend .wl i { border-color: var(--blue); border-top-style: dashed; }
+
+svg .robot { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 7 4; }
+svg .b-pw { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-ct { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.5; }
+svg .b-ac { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-me { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
+svg .b-ex { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+svg .w-pw { fill: none; stroke: var(--amber); stroke-width: 2; }
+svg .w-sg { fill: none; stroke: var(--blue); stroke-width: 2; }
+svg .w-mc { fill: none; stroke: var(--ink); stroke-width: 2; }
+svg .w-wl { fill: none; stroke: var(--blue); stroke-width: 2; stroke-dasharray: 6 4; }
+svg .ah-pw { fill: var(--amber); }
+svg .ah-sg { fill: var(--blue); }
+svg .ah-mc { fill: var(--ink); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-l { fill: var(--muted); font-size: 11.5px; font-weight: 500; }
+svg .t-title { font-weight: 700; font-size: 14px; }
+
+.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 18px 0; }
+.part { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.part h3 { margin: 0 0 6px; font-size: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.part p { margin: 0; color: var(--muted); }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step, decimal-leading-zero); font-family: var(--font-mono); font-size: 15px; color: var(--blue); padding-top: 2px; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps .when { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: 8px; font-weight: 400; }
+.steps p { margin: 0 0 6px; }
+.steps ul { margin: 4px 0 0; }
+
+.roadmap { list-style: none; padding: 0; border-top: 1px solid var(--line); max-width: 760px; }
+.roadmap li { border-bottom: 1px solid var(--line); padding: 12px 4px; margin: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.roadmap .n { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.roadmap b { display: block; }
+.roadmap span.d { color: var(--muted); font-size: 14.5px; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+svg .w-ac { fill: none; stroke: var(--teal); stroke-width: 2; }
+svg .ah-ac { fill: var(--teal); }
+svg .z { stroke: var(--line); stroke-width: 1; }
+svg .z1, svg .z2, svg .z3 { fill: var(--teal-soft); }
+svg .z2, svg .z3 { stroke: var(--teal); stroke-width: 1.5; }
+svg .z4, svg .z5 { fill: var(--amber-soft); }
+svg .ok { fill: var(--teal); font-weight: 700; }
+svg .no { fill: var(--amber); font-weight: 700; }
+svg .w-no { fill: none; stroke: var(--amber); stroke-width: 2; stroke-dasharray: 5 4; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 18px 0; max-width: 860px; }
+.col { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.col h3 { margin: 0 0 8px; font-size: 16px; }
+.col ul { margin: 0; }
+.col.do { border-top: 3px solid var(--teal); }
+.col.dont { border-top: 3px solid var(--amber); }
+.scene { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin: 14px 0; max-width: 760px; font-size: 15px; }
+.scene h3 { margin: 0 0 6px; font-size: 16px; }
+.scene p { margin: 0 0 8px; }
+.scene p:last-child { margin-bottom: 0; }
+.scene .say { color: var(--teal); }
+.scene .avoid { color: var(--amber); }
+</style>
+
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#path">学习路径</a></li>
+      <li><a href="#resources">资源清单</a></li>
+      <li><a href="#community">Mentor 社区</a></li>
+      <li><a href="#sustain">长期可持续地参与</a></li>
+      <li><a href="#retro">给自己的年度复盘</a></li>
+      <li><a href="#map">学习计划回顾</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 第二部分</p>
+      <h1>Mentor 的成长与资源</h1>
+      <p class="lede">没有人一开始就是好 mentor。大多数人是边带学生边学，几年之后才找到自己的节奏。这是第二部分的最后一篇：按方向给出学习路径，整理一份常用资源清单，介绍可以交流的 mentor 社区，以及怎样长期参与而不被耗尽。</p>
+      <div class="meta"><span>适合：所有 mentor</span><span>建议收藏</span></div>
+    </header>
+
+    <section id="path">
+      <h2><span class="n">01</span>学习路径</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>方向</th><th>第一个赛季</th><th>之后</th></tr></thead>
+          <tbody>
+            <tr><td class="k">所有人</td><td>读完<a href="../01-understanding-frc.html">认识 FRC</a>和第二部分；完成 YPP 培训；跟完一个完整赛季</td><td>每年读一遍新的 Game Manual；参加一次赛事志愿者</td></tr>
+            <tr><td class="k">编程</td><td><a href="../03-技术方向/03-dev-environment.html">开发环境与仿真</a>里的五个练习；读 WPILib 文档的入门部分</td><td><a href="../03-技术方向/05-closed-loop-pid.html">PID</a>、<a href="../03-技术方向/13-program-architecture.html">程序架构</a>、<a href="../03-技术方向/14-autonomous.html">自动程序</a></td></tr>
+            <tr><td class="k">机械</td><td><a href="../03-技术方向/09-mechanical-design.html">机械设计与 CAD</a>；学会一种 CAD 软件的基本操作</td><td><a href="../03-技术方向/10-drivetrain-swerve.html">底盘</a>、<a href="../03-技术方向/11-mechanism-examples.html">机构实例</a>；研究强队公开的设计</td></tr>
+            <tr><td class="k">电控</td><td><a href="../03-技术方向/12-wiring.html">电气接线与布线</a>；跟着学生做一次完整布线</td><td><a href="../03-技术方向/07-can-bus.html">CAN 总线</a>、<a href="../03-技术方向/06-motors.html">电机</a>、<a href="../03-技术方向/08-sensors-vision.html">传感器</a></td></tr>
+            <tr><td class="k">非技术</td><td><a href="09-non-technical.html">非技术方向</a>；读几份公开的商务计划和 Impact 材料</td><td><a href="10-awards.html">奖项</a>；建立赞助商和外联的长期记录</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="resources">
+      <h2><span class="n">02</span>资源清单</h2>
+      <h3>官方</h3>
+      <ul class="res">
+        <li><a href="https://www.firstinspires.org/programs/frc/" target="_blank" rel="noopener">FIRST 官网 · FRC 页面</a><span class="url">firstinspires.org/programs/frc/</span></li>
+        <li><a href="https://www.firstinspires.org/programs/frc/game-and-season" target="_blank" rel="noopener">Game and Season：当年 Game Manual、赛季日历</a><span class="url">firstinspires.org</span></li>
+        <li><a href="https://www.firstinspires.org/resources/library/frc/season-materials" target="_blank" rel="noopener">Season Materials：规则问答系统（Q&amp;A）等赛季资料</a><span class="url">firstinspires.org</span></li>
+        <li><a href="https://www.firstinspires.org/robotics/frc/awards" target="_blank" rel="noopener">Awards：奖项说明与指南</a><span class="url">firstinspires.org</span></li>
+        <li><a href="https://www.firstinspires.org/programs/youth-protection-program" target="_blank" rel="noopener">Youth Protection Program</a><span class="url">firstinspires.org</span></li>
+        <li><a href="https://www.firstinspires.org/volunteer" target="_blank" rel="noopener">志愿者报名</a><span class="url">firstinspires.org/volunteer</span></li>
+      </ul>
+      <h3>技术文档</h3>
+      <ul class="res">
+        <li><a href="https://docs.wpilib.org" target="_blank" rel="noopener">WPILib 文档：编程、控制系统、仿真</a><span class="url">docs.wpilib.org</span></li>
+        <li><a href="https://docs.revrobotics.com" target="_blank" rel="noopener">REV Robotics 文档：SPARK 控制器、NEO 电机等</a><span class="url">docs.revrobotics.com</span></li>
+        <li><a href="https://v6.docs.ctr-electronics.com" target="_blank" rel="noopener">CTR Electronics 文档：TalonFX、Phoenix 6</a><span class="url">v6.docs.ctr-electronics.com</span></li>
+        <li><a href="https://pathplanner.dev" target="_blank" rel="noopener">PathPlanner 文档：自动路径</a><span class="url">pathplanner.dev</span></li>
+      </ul>
+      <h3>社区与数据</h3>
+      <ul class="res">
+        <li><a href="https://www.chiefdelphi.com" target="_blank" rel="noopener">Chief Delphi：FRC 最大的论坛，技术、管理、mentor 话题都有；搜索 "Open Alliance" 可以看到很多队伍公开的赛季进展</a><span class="url">chiefdelphi.com</span></li>
+        <li><a href="https://www.thecompassalliance.org" target="_blank" rel="noopener">The Compass Alliance：面向队伍和 mentor 的公开资源</a><span class="url">thecompassalliance.org</span></li>
+        <li><a href="https://www.thebluealliance.com" target="_blank" rel="noopener">The Blue Alliance：赛事、队伍、比赛视频</a><span class="url">thebluealliance.com</span></li>
+        <li><a href="https://www.statbotics.io" target="_blank" rel="noopener">Statbotics：比赛数据分析</a><span class="url">statbotics.io</span></li>
+        <li><a href="https://frc-events.firstinspires.org" target="_blank" rel="noopener">FRC Events：官方赛程和成绩</a><span class="url">frc-events.firstinspires.org</span></li>
+      </ul>
+    </section>
+
+    <section id="community">
+      <h2><span class="n">03</span>Mentor 社区</h2>
+      <div class="prose">
+        <ul>
+          <li><b>本地网络：</b>同一地区的队伍之间常有交流，赛事上多和其他队的 mentor 聊聊，很多问题别人已经踩过坑。</li>
+          <li><b>季外赛：</b>秋季的非正式比赛气氛轻松，是交流和学习的好机会。</li>
+          <li><b>志愿者：</b>当一次赛事志愿者，能从裁判、检录员的角度理解比赛，也会认识很多资深的 FIRST 人。</li>
+          <li><b>线上：</b>Chief Delphi 论坛，以及很多地区性的 Discord 和 Slack 社群。</li>
+          <li><b>帮助新队：</b>有经验之后，可以帮助本地的新队伍起步，这也是 Impact Award 看重的。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="sustain">
+      <h2><span class="n">04</span>长期可持续地参与</h2>
+      <div class="prose">
+        <p>mentor 倦怠很常见：赛季强度大，工作和家庭也在争夺时间。几条经验：</p>
+        <ul>
+          <li><b>选一个方向深耕。</b>不要什么都管。把一两件事做好，比四处救火更有价值。</li>
+          <li><b>提前规划全年投入。</b>和家人一起看赛季日历，把比赛周末、build season 的晚上提前留出来。</li>
+          <li><b>培养接班人。</b>带出能接手的学生和 mentor，你就可以休息，队伍也不会断档。</li>
+          <li><b>赛季结束真正休息。</b>夏天减少投入，给自己充电。</li>
+          <li><b>记住为什么来。</b>累的时候，回想一个学生从"什么都不会"到"能教别人"的过程。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="retro">
+      <h2><span class="n">05</span>给自己的年度复盘</h2>
+      <p class="prose">每个赛季结束，花半小时问自己：</p>
+      <ol class="steps">
+        <li><div><h3>学生</h3><p>今年有哪几个学生因为我而成长？具体是什么？</p></div></li>
+        <li><div><h3>边界</h3><p>我在参与度光谱上大多站在哪里？有没有越位的时候？</p></div></li>
+        <li><div><h3>传承</h3><p>我会的东西，有没有教给学生或写下来？</p></div></li>
+        <li><div><h3>投入</h3><p>今年的投入可持续吗？明年要多一点还是少一点？</p></div></li>
+        <li><div><h3>学习</h3><p>我自己今年学会了什么？明年想学什么？</p></div></li>
+      </ol>
+    </section>
+
+    <section id="map">
+      <h2><span class="n">06</span>学习计划回顾</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>部分</th><th>内容</th></tr></thead>
+          <tbody>
+            <tr><td class="k"><a href="../01-understanding-frc.html">第一部分：认识 FRC</a></td><td>FIRST 和 FRC 是什么、一个赛季怎么过、队伍怎么组成、比赛周末长什么样</td></tr>
+            <tr><td class="k"><a href="01-mentor-overview.html">第二部分：怎么当 Mentor</a></td><td>角色与心态、入队、教与做的边界、带学生的方法、家长身份、团队运营、安全与青少年保护、赛季与比赛、非技术方向、奖项、成长与资源</td></tr>
+            <tr><td class="k"><a href="../03-技术方向/01-robot-overview.html">第三部分：技术方向</a></td><td>机器人综述，以及主控制器、开发环境、无线通信、PID、电机、CAN、传感器、机械设计、底盘、机构、接线、程序架构、自动程序等 14 个专题</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note"><span class="label">最后一句</span><p>你不需要什么都懂才能开始。愿意出现、愿意学习、愿意把舞台留给学生，就已经是一个好 mentor 的开始。</p></div>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 第二部分《Mentor 的成长与资源》。链接整理于 2026 年 10 月。</footer>
+  </main>
+</div>

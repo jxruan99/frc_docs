@@ -1,0 +1,345 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FRC 奖项</title>
+<meta name="nav-title" content="奖项">
+<meta name="description" content="FRC 奖项全景、评委怎么评，重点介绍 Impact Award、FIRST Leadership Award 和 Woodie Flowers Finalist Award，以及 mentor 在奖项中的角色。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts — sticky contents rail, one readable column; diagrams run wider in their own scroll box.
+   Part 2 diagram colors: teal = recommended / student-led, amber = caution / adult-led, blue = process. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+.en { font-family: var(--font-mono); font-size: .88em; color: var(--muted); }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12px; line-height: 1.6; padding: 0 8px; border-radius: 999px; white-space: nowrap; }
+.tag.power { background: var(--amber-soft); color: var(--amber); }
+.tag.ctrl { background: var(--blue-soft); color: var(--blue); }
+.tag.act { background: var(--teal-soft); color: var(--teal); }
+.tag.misc { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.tag.done { background: var(--teal-soft); color: var(--teal); }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 22px; height: 0; border-top: 2.5px solid; display: inline-block; }
+.legend .pw i { border-color: var(--amber); }
+.legend .sg i { border-color: var(--blue); }
+.legend .mc i { border-color: var(--ink); }
+.legend .wl i { border-color: var(--blue); border-top-style: dashed; }
+
+svg .robot { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 7 4; }
+svg .b-pw { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-ct { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.5; }
+svg .b-ac { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-me { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
+svg .b-ex { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+svg .w-pw { fill: none; stroke: var(--amber); stroke-width: 2; }
+svg .w-sg { fill: none; stroke: var(--blue); stroke-width: 2; }
+svg .w-mc { fill: none; stroke: var(--ink); stroke-width: 2; }
+svg .w-wl { fill: none; stroke: var(--blue); stroke-width: 2; stroke-dasharray: 6 4; }
+svg .ah-pw { fill: var(--amber); }
+svg .ah-sg { fill: var(--blue); }
+svg .ah-mc { fill: var(--ink); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-l { fill: var(--muted); font-size: 11.5px; font-weight: 500; }
+svg .t-title { font-weight: 700; font-size: 14px; }
+
+.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 18px 0; }
+.part { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.part h3 { margin: 0 0 6px; font-size: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.part p { margin: 0; color: var(--muted); }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step, decimal-leading-zero); font-family: var(--font-mono); font-size: 15px; color: var(--blue); padding-top: 2px; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps .when { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: 8px; font-weight: 400; }
+.steps p { margin: 0 0 6px; }
+.steps ul { margin: 4px 0 0; }
+
+.roadmap { list-style: none; padding: 0; border-top: 1px solid var(--line); max-width: 760px; }
+.roadmap li { border-bottom: 1px solid var(--line); padding: 12px 4px; margin: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.roadmap .n { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.roadmap b { display: block; }
+.roadmap span.d { color: var(--muted); font-size: 14.5px; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+svg .w-ac { fill: none; stroke: var(--teal); stroke-width: 2; }
+svg .ah-ac { fill: var(--teal); }
+svg .z { stroke: var(--line); stroke-width: 1; }
+svg .z1, svg .z2, svg .z3 { fill: var(--teal-soft); }
+svg .z2, svg .z3 { stroke: var(--teal); stroke-width: 1.5; }
+svg .z4, svg .z5 { fill: var(--amber-soft); }
+svg .ok { fill: var(--teal); font-weight: 700; }
+svg .no { fill: var(--amber); font-weight: 700; }
+svg .w-no { fill: none; stroke: var(--amber); stroke-width: 2; stroke-dasharray: 5 4; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 18px 0; max-width: 860px; }
+.col { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.col h3 { margin: 0 0 8px; font-size: 16px; }
+.col ul { margin: 0; }
+.col.do { border-top: 3px solid var(--teal); }
+.col.dont { border-top: 3px solid var(--amber); }
+.scene { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin: 14px 0; max-width: 760px; font-size: 15px; }
+.scene h3 { margin: 0 0 6px; font-size: 16px; }
+.scene p { margin: 0 0 8px; }
+.scene p:last-child { margin-bottom: 0; }
+.scene .say { color: var(--teal); }
+.scene .avoid { color: var(--amber); }
+</style>
+
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#why">为什么值得重视</a></li>
+      <li><a href="#map">奖项全景</a></li>
+      <li><a href="#judging">评委怎么评</a></li>
+      <li><a href="#impact">Impact Award</a></li>
+      <li><a href="#leadership">FIRST Leadership Award</a></li>
+      <li><a href="#woodie">Woodie Flowers Finalist Award</a></li>
+      <li><a href="#mentor">Mentor 的角色</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 第二部分</p>
+      <h1>奖项</h1>
+      <p class="lede">FRC 赛场上颁发的不只是冠军奖杯。FIRST 设有一整套奖项，表彰机器人设计、团队精神、社区影响，以及优秀的学生和 mentor。其中最高荣誉 Impact Award 看的完全不是机器人。这一篇介绍奖项的全貌、评委怎么评，重点讲三个和 mentor 关系最密切的奖：Impact Award、FIRST Leadership Award 和 Woodie Flowers Finalist Award。</p>
+      <div class="meta"><span>适合：所有 mentor，尤其是非技术方向</span><span>奖项名单以 FIRST 当年公布为准</span></div>
+    </header>
+
+    <section id="why">
+      <h2><span class="n">01</span>为什么值得重视</h2>
+      <div class="prose">
+        <ul>
+          <li><b>体现 FIRST 的价值观：</b>"It's not about the robots"。奖项把注意力引向学生成长和社区影响。</li>
+          <li><b>可能带来晋级资格：</b>部分奖项（例如 Impact Award）在区域赛获奖的队伍，通常能获得晋级下一级赛事的资格，具体以当年规则为准。</li>
+          <li><b>对队伍发展有用：</b>准备奖项材料的过程，就是在总结队伍做了什么、影响了谁，这些材料也能直接用于找赞助商。</li>
+          <li><b>给每支队伍机会：</b>机器人不是最强的队伍，也可以凭设计、精神或影响获得认可。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="map">
+      <h2><span class="n">02</span>奖项全景</h2>
+      <p class="prose">FIRST 官网把赛场奖项分为几类。下图按"表彰什么"归纳了当前列出的主要奖项。不是每场赛事都颁发全部奖项，世锦赛的奖项设置也有所不同。</p>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 860 340" role="img" aria-label="FRC 奖项全景：团队影响类包括 Impact Award、Engineering Inspiration、Rookie All-Star、Rising All-Star、Team Sustainability；机器人类包括 Autonomous、Creativity、Excellence in Engineering、Industrial Design、Innovation in Control、Quality；团队特质类包括 Gracious Professionalism、Imagery、Team Spirit、Judges' Award；个人类包括 FIRST Leadership Award、Woodie Flowers Finalist Award、Volunteer of the Year。">
+            <rect x="10" y="10" width="205" height="320" rx="8" class="b-pw"/>
+            <text x="112" y="38" text-anchor="middle" class="t-title">团队影响</text>
+            <text x="112" y="56" text-anchor="middle" class="t-s">社区、STEM 推广、队伍建设</text>
+            <text x="28" y="92"  class="t-b">Impact Award ★</text>
+            <text x="28" y="108" class="t-s">FIRST 最高荣誉</text>
+            <text x="28" y="140" class="t-b">Engineering Inspiration</text>
+            <text x="28" y="176" class="t-b">Rookie All-Star</text>
+            <text x="28" y="192" class="t-s">新队</text>
+            <text x="28" y="224" class="t-b">Rising All-Star</text>
+            <text x="28" y="240" class="t-s">年轻或人员更替大的队伍</text>
+            <text x="28" y="272" class="t-b">Team Sustainability</text>
+            <text x="28" y="288" class="t-s">长期可持续运营</text>
+
+            <rect x="225" y="10" width="205" height="320" rx="8" class="b-ct"/>
+            <text x="327" y="38" text-anchor="middle" class="t-title">机器人</text>
+            <text x="327" y="56" text-anchor="middle" class="t-s">设计、制造与控制</text>
+            <text x="243" y="92"  class="t-b">Autonomous</text>
+            <text x="243" y="128" class="t-b">Creativity</text>
+            <text x="243" y="164" class="t-b">Excellence in Engineering</text>
+            <text x="243" y="200" class="t-b">Industrial Design</text>
+            <text x="243" y="236" class="t-b">Innovation in Control</text>
+            <text x="243" y="272" class="t-b">Quality</text>
+
+            <rect x="440" y="10" width="205" height="320" rx="8" class="b-ac"/>
+            <text x="542" y="38" text-anchor="middle" class="t-title">团队特质</text>
+            <text x="542" y="56" text-anchor="middle" class="t-s">精神、形象与创作</text>
+            <text x="458" y="92"  class="t-b">Gracious Professionalism</text>
+            <text x="458" y="128" class="t-b">Imagery</text>
+            <text x="458" y="144" class="t-s">机器人与队伍的视觉形象</text>
+            <text x="458" y="176" class="t-b">Team Spirit</text>
+            <text x="458" y="212" class="t-b">Judges' Award</text>
+            <text x="458" y="228" class="t-s">评委特别认可</text>
+            <text x="458" y="264" class="t-b">Digital Animation</text>
+            <text x="458" y="280" class="t-s">动画作品</text>
+
+            <rect x="655" y="10" width="195" height="320" rx="8" class="b-me"/>
+            <text x="752" y="38" text-anchor="middle" class="t-title">个人</text>
+            <text x="752" y="56" text-anchor="middle" class="t-s">学生、mentor、志愿者</text>
+            <text x="673" y="92"  class="t-b">FIRST Leadership</text>
+            <text x="673" y="108" class="t-s">杰出学生领导者</text>
+            <text x="673" y="148" class="t-b">Woodie Flowers</text>
+            <text x="673" y="164" class="t-b">Finalist Award</text>
+            <text x="673" y="180" class="t-s">杰出 mentor，学生提名</text>
+            <text x="673" y="220" class="t-b">Volunteer of the Year</text>
+            <text x="673" y="236" class="t-s">赛事志愿者</text>
+          </svg>
+        </div>
+        <figcaption>按表彰内容归纳的主要奖项（2026 年 10 月整理自 FIRST 官网奖项页）。此外还有比赛成绩类的 Winner 和 Finalist。奖项名称和设置每年可能调整。</figcaption>
+      </figure>
+    </section>
+
+    <section id="judging">
+      <h2><span class="n">03</span>评委怎么评</h2>
+      <div class="prose">
+        <p>除了需要提交材料的奖项，大多数奖项由评委在赛事期间评选。评委会在维修区走访各队，和学生交谈，观察比赛表现。</p>
+        <ul>
+          <li><b>评委想听学生讲。</b>学生能清楚说明机器人的设计思路、为什么这样选、遇到过什么问题、怎么解决的，比任何展板都有说服力。</li>
+          <li><b>任何学生都可能被问到。</b>不只是队长和"发言人"。让每个学生都能讲清楚自己负责的部分。</li>
+          <li><b>准备简短材料。</b>很多队伍会准备一页纸的技术介绍或队伍介绍，方便评委回顾。</li>
+          <li><b>mentor 退到后面。</b>评委走过来时，mentor 应该让出位置，不替学生回答，也不在旁边"提词"。</li>
+        </ul>
+        <p>FIRST 官网的奖项资源中有评委可能问的问题清单，适合拿来给学生做模拟练习。</p>
+      </div>
+    </section>
+
+    <section id="impact">
+      <h2><span class="n">04</span>Impact Award</h2>
+      <div class="prose">
+        <p>Impact Award 是 FIRST 的最高荣誉，表彰"最能成为其他队伍榜样、最能体现 FIRST 宗旨"的队伍。它看的是队伍长期以来对学生、学校、社区和 STEM 教育的影响，而不是机器人性能。</p>
+        <h3>通常包括</h3>
+        <ul>
+          <li>一份书面材料，讲述队伍的影响</li>
+          <li>一组简答题（Executive Summary），概括关键事实</li>
+          <li>学生面对评委的现场陈述和问答</li>
+          <li>辅助材料，例如视频（以当年要求为准）</li>
+        </ul>
+        <p>字数、时长、截止日期以 FIRST 当年发布的 Impact Award 指南为准，提交截止通常在第一场赛事之前。</p>
+        <h3>评委看重什么</h3>
+        <ul>
+          <li><b>持续性：</b>多年坚持的项目，比一次性的活动更有分量。</li>
+          <li><b>可衡量：</b>影响了多少人？有什么后续变化？有数据支撑。</li>
+          <li><b>可复制：</b>其他队伍能不能学习你们的做法？</li>
+          <li><b>学生主导：</b>学生是不是真正的策划者和执行者？</li>
+        </ul>
+        <div class="note"><span class="label">它是一个多年项目</span><p>Impact Award 很难靠一个赛季突击拿下。它是对队伍多年工作的总结。外联活动一开始就记录数据（见<a href="09-non-technical.html">非技术方向</a>），几年后写材料才有内容可写。</p></div>
+      </div>
+    </section>
+
+    <section id="leadership">
+      <h2><span class="n">05</span>FIRST Leadership Award</h2>
+      <div class="prose">
+        <p>表彰"充满热情、能有效践行 FIRST 理念的杰出学生领导者"，是面向学生个人的奖项。FIRST 官网当前的奖项列表中已不见过去面向学生个人的 Dean's List，Leadership Award 在定位上与之相近。提名方式和资格以当年指南为准。</p>
+        <ul>
+          <li><b>提名：</b>通常由队里的成人提交提名材料。写得具体：这个学生做了什么、带来了什么改变，而不是泛泛的赞美。</li>
+          <li><b>公平：</b>队里有多位候选人时，提名标准要公开透明。家长 mentor 不提名自己的孩子（见<a href="05-parent-role.html">家长身份</a>）。</li>
+          <li><b>面试：</b>获提名的学生可能要接受评委面试。可以帮学生做模拟练习，但不替他准备"标准答案"。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="woodie">
+      <h2><span class="n">06</span>Woodie Flowers Finalist Award</h2>
+      <div class="prose">
+        <p>以 FIRST 的标志性人物 Woodie Flowers 命名，表彰"最能带领、激励、教导和赋能队伍，并具备出色沟通能力"的 mentor。这个奖 1996 年设立。</p>
+        <p>和其他奖不同的是：<b>它由学生提名 mentor</b>。学生写一篇文章，讲这位 mentor 如何影响了他们。mentor 不能也不应该为自己争取这个奖。</p>
+        <p>对新 mentor 来说，这个奖最大的意义是告诉你 FIRST 心目中好 mentor 的样子：不是技术最强的人，而是最能让学生成长、最会沟通的人。</p>
+      </div>
+    </section>
+
+    <section id="mentor">
+      <h2><span class="n">07</span>Mentor 的角色</h2>
+      <div class="cols">
+        <div class="col do"><h3>可以做</h3><ul><li>赛季初提醒奖项截止日期，帮学生排时间</li><li>教写作结构和演讲技巧</li><li>逐段提意见，指出空泛和缺少数据的地方</li><li>组织模拟评委问答</li><li>提供外联活动的记录方法</li></ul></div>
+        <div class="col dont"><h3>不要做</h3><ul><li>替学生写材料</li><li>替学生准备逐字稿让他背</li><li>评委面试时在旁边插话</li><li>为了奖项而做外联，变成"作秀"</li></ul></div>
+      </div>
+      <p class="prose">一个检验标准：<b>评委问到材料里的任何一句话，学生都能自信地展开讲。</b>做到这一点，材料就是学生自己的。</p>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">08</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://www.firstinspires.org/robotics/frc/awards" target="_blank" rel="noopener">FIRST：FRC Awards（奖项说明、提交指南、评委问题、截止日期）</a><span class="url">firstinspires.org</span></li>
+        <li><a href="https://www.firstinspires.org/programs/frc/game-and-season" target="_blank" rel="noopener">FIRST：FRC Game and Season</a><span class="url">firstinspires.org</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 第二部分《奖项》。奖项名单整理自 2026 年 10 月的 FIRST 官网；提交要求、截止日期和晋级规则以 FIRST 当年公布为准。</footer>
+  </main>
+</div>

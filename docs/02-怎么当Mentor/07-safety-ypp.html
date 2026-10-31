@@ -1,0 +1,354 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>安全与青少年保护</title>
+<meta name="nav-title" content="安全与青少年保护">
+<meta name="description" content="车间安全文化、FIRST 青少年保护计划（YPP）的核心原则、线上沟通方式、出行与住宿、发现问题时怎么做，以及比赛现场的安全。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts — sticky contents rail, one readable column; diagrams run wider in their own scroll box.
+   Part 2 diagram colors: teal = recommended / student-led, amber = caution / adult-led, blue = process. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+.en { font-family: var(--font-mono); font-size: .88em; color: var(--muted); }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12px; line-height: 1.6; padding: 0 8px; border-radius: 999px; white-space: nowrap; }
+.tag.power { background: var(--amber-soft); color: var(--amber); }
+.tag.ctrl { background: var(--blue-soft); color: var(--blue); }
+.tag.act { background: var(--teal-soft); color: var(--teal); }
+.tag.misc { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.tag.done { background: var(--teal-soft); color: var(--teal); }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 22px; height: 0; border-top: 2.5px solid; display: inline-block; }
+.legend .pw i { border-color: var(--amber); }
+.legend .sg i { border-color: var(--blue); }
+.legend .mc i { border-color: var(--ink); }
+.legend .wl i { border-color: var(--blue); border-top-style: dashed; }
+
+svg .robot { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 7 4; }
+svg .b-pw { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-ct { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.5; }
+svg .b-ac { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-me { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
+svg .b-ex { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+svg .w-pw { fill: none; stroke: var(--amber); stroke-width: 2; }
+svg .w-sg { fill: none; stroke: var(--blue); stroke-width: 2; }
+svg .w-mc { fill: none; stroke: var(--ink); stroke-width: 2; }
+svg .w-wl { fill: none; stroke: var(--blue); stroke-width: 2; stroke-dasharray: 6 4; }
+svg .ah-pw { fill: var(--amber); }
+svg .ah-sg { fill: var(--blue); }
+svg .ah-mc { fill: var(--ink); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-l { fill: var(--muted); font-size: 11.5px; font-weight: 500; }
+svg .t-title { font-weight: 700; font-size: 14px; }
+
+.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 18px 0; }
+.part { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.part h3 { margin: 0 0 6px; font-size: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.part p { margin: 0; color: var(--muted); }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step, decimal-leading-zero); font-family: var(--font-mono); font-size: 15px; color: var(--blue); padding-top: 2px; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps .when { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: 8px; font-weight: 400; }
+.steps p { margin: 0 0 6px; }
+.steps ul { margin: 4px 0 0; }
+
+.roadmap { list-style: none; padding: 0; border-top: 1px solid var(--line); max-width: 760px; }
+.roadmap li { border-bottom: 1px solid var(--line); padding: 12px 4px; margin: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.roadmap .n { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.roadmap b { display: block; }
+.roadmap span.d { color: var(--muted); font-size: 14.5px; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+svg .w-ac { fill: none; stroke: var(--teal); stroke-width: 2; }
+svg .ah-ac { fill: var(--teal); }
+svg .z { stroke: var(--line); stroke-width: 1; }
+svg .z1, svg .z2, svg .z3 { fill: var(--teal-soft); }
+svg .z2, svg .z3 { stroke: var(--teal); stroke-width: 1.5; }
+svg .z4, svg .z5 { fill: var(--amber-soft); }
+svg .ok { fill: var(--teal); font-weight: 700; }
+svg .no { fill: var(--amber); font-weight: 700; }
+svg .w-no { fill: none; stroke: var(--amber); stroke-width: 2; stroke-dasharray: 5 4; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 18px 0; max-width: 860px; }
+.col { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.col h3 { margin: 0 0 8px; font-size: 16px; }
+.col ul { margin: 0; }
+.col.do { border-top: 3px solid var(--teal); }
+.col.dont { border-top: 3px solid var(--amber); }
+.scene { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin: 14px 0; max-width: 760px; font-size: 15px; }
+.scene h3 { margin: 0 0 6px; font-size: 16px; }
+.scene p { margin: 0 0 8px; }
+.scene p:last-child { margin-bottom: 0; }
+.scene .say { color: var(--teal); }
+.scene .avoid { color: var(--amber); }
+</style>
+
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#two">两种安全</a></li>
+      <li><a href="#shop">车间安全文化</a></li>
+      <li><a href="#ypp">青少年保护的核心原则</a></li>
+      <li><a href="#online">线上沟通</a></li>
+      <li><a href="#travel">出行与住宿</a></li>
+      <li><a href="#report">发现问题怎么办</a></li>
+      <li><a href="#event">比赛现场</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 第二部分</p>
+      <h1>安全与青少年保护</h1>
+      <p class="lede">mentor 要守住两种安全：一是人身安全，车间里有电动工具、高能电池和快速运动的机构；二是青少年保护，成人和未成年学生相处要遵守明确的行为规范。这两件事没有"让学生自己试试"的空间。这一篇讲车间安全文化怎么建立，FIRST 青少年保护计划（YPP）的核心原则，线上沟通和出行住宿的注意事项，以及发现问题时该怎么做。</p>
+      <div class="meta"><span>适合：所有 mentor 和随队家长</span><span>以 FIRST 当年 YPP 指南为准</span></div>
+    </header>
+
+    <section id="two">
+      <h2><span class="n">01</span>两种安全</h2>
+      <div class="cols">
+        <div class="col"><h3>人身安全</h3><ul><li>电动工具和加工设备</li><li>12V 铅酸电池：短路电流极大，可能起火</li><li>运动中的机构：夹手、弹出的零件</li><li>比赛现场的人流和搬运</li></ul></div>
+        <div class="col"><h3>青少年保护</h3><ul><li>成人和学生相处的行为规范</li><li>线上沟通方式</li><li>出行、交通和住宿</li><li>发现问题时的报告义务</li></ul></div>
+      </div>
+      <p class="prose">在这两件事上，参与度光谱不适用：<b>发现问题立即介入，事后再解释。</b></p>
+    </section>
+
+    <section id="shop">
+      <h2><span class="n">02</span>车间安全文化</h2>
+      <div class="prose">
+        <p>安全不是贴在墙上的规则，而是每个人每天的习惯。mentor 的以身作则最有说服力：你自己不戴护目镜，学生就不会把规则当回事。</p>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>方面</th><th>常见做法</th></tr></thead>
+          <tbody>
+            <tr><td class="k">个人防护</td><td>进入工作区必须戴安全眼镜；穿包头鞋；长发扎起；不戴首饰、不穿宽松衣物；用某些机器时禁止戴手套</td></tr>
+            <tr><td class="k">工具认证</td><td>每种设备先培训、考核，通过后才能独立使用；名单张贴在车间</td></tr>
+            <tr><td class="k">电池</td><td>端子必须有绝缘保护；不用金属工具跨接端子；外壳破损、鼓包、漏液的电池立即隔离，按规定处理；充电区远离易燃物</td></tr>
+            <tr><td class="k">机器人测试</td><td>测试前大声提醒"要使能了"；人员离开运动范围；随时有人能按急停（见<a href="../03-技术方向/03-dev-environment.html">Driver Station</a>）</td></tr>
+            <tr><td class="k">环境</td><td>通道畅通，工具用完归位，每天收尾打扫；急救箱、灭火器、洗眼设备位置人人知道</td></tr>
+            <tr><td class="k">应急</td><td>明确受伤时联系谁、学校的事故报告流程；有成人在场才能开展加工活动</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose">
+        <ul>
+          <li><b>设立学生安全负责人。</b>很多队伍有 Safety Captain，负责培训、巡查和提醒。把安全变成学生自己的事。</li>
+          <li><b>人人都能喊停。</b>任何人，包括新生，看到不安全的操作都可以叫停，而且不会因此被责怪。</li>
+          <li><b>累了不加工。</b>深夜、疲劳、赶工时最容易出事。规定最晚的加工时间。</li>
+        </ul>
+      </div>
+      <p class="prose">电气方面的安全细节见<a href="../03-技术方向/12-wiring.html">电气接线与布线</a>。</p>
+    </section>
+
+    <section id="ypp">
+      <h2><span class="n">03</span>青少年保护的核心原则</h2>
+      <div class="prose">
+        <p>FIRST 的青少年保护计划（Youth Protection Program，YPP）为所有参与者制定了行为准则，并提供培训视频和筛查流程（见<a href="02-joining.html">入队第一步</a>）。具体条款以 FIRST 当年发布的 YPP Guide 为准，学校通常也有自己的规定，两者都要遵守。下面是这类规范里普遍的核心原则：</p>
+        <ul>
+          <li><b>避免一对一独处。</b>成人不和单个学生单独待在封闭、不可见的空间。需要单独谈话时，选在其他人看得见的地方，或者有另一位成人在场。</li>
+          <li><b>公开、可观察。</b>成人和学生的互动应该是别人看得到、听得到的。</li>
+          <li><b>恰当的身体接触。</b>击掌、拍肩这类公开、简短的接触之外，避免其他身体接触。</li>
+          <li><b>照片和视频。</b>拍摄和发布学生照片要遵守学校和队伍的授权规定；不私下保存或传播学生照片。</li>
+          <li><b>尊重和边界。</b>不开不恰当的玩笑，不谈论不适合的话题，不和学生建立超出 mentor 角色的私人关系。</li>
+        </ul>
+        <div class="note"><span class="label">这些规则也保护你</span><p>透明的行为规范不只保护学生，也保护 mentor 免受误解和不实指控。遵守它们不是"不被信任"，而是专业的体现。</p></div>
+      </div>
+    </section>
+
+    <section id="online">
+      <h2><span class="n">04</span>线上沟通</h2>
+      <p class="prose">现在大部分沟通发生在线上，这也是最容易越界的地方。基本做法是：<b>成人和学生的沟通放在公开频道里，需要单独联系时让家长或另一位成人也能看到。</b></p>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 860 280" role="img" aria-label="线上沟通方式对比：避免 mentor 和学生一对一私聊；推荐在队伍公开频道沟通，其他成人和学生都能看到；需要单独联系时，抄送家长或另一位成人。">
+            <!-- panel 1 -->
+            <rect x="10" y="10" width="270" height="260" rx="8" class="b-ex"/>
+            <text x="145" y="38" text-anchor="middle" class="no">✗ 避免</text>
+            <text x="145" y="58" text-anchor="middle" class="t-s">一对一私聊</text>
+            <rect x="40"  y="120" width="80" height="44" rx="6" class="b-pw"/><text x="80" y="147" text-anchor="middle" class="t-b">Mentor</text>
+            <rect x="170" y="120" width="80" height="44" rx="6" class="b-ac"/><text x="210" y="147" text-anchor="middle" class="t-b">学生</text>
+            <line x1="120" y1="142" x2="170" y2="142" class="w-no"/>
+            <text x="145" y="200" text-anchor="middle" class="t-s">私信、私人社交账号、</text>
+            <text x="145" y="218" text-anchor="middle" class="t-s">阅后即焚类应用</text>
+            <text x="145" y="246" text-anchor="middle" class="t-s">别人看不到 → 风险</text>
+
+            <!-- panel 2 -->
+            <rect x="295" y="10" width="270" height="260" rx="8" class="b-ex"/>
+            <text x="430" y="38" text-anchor="middle" class="ok">✓ 推荐</text>
+            <text x="430" y="58" text-anchor="middle" class="t-s">队伍公开频道</text>
+            <rect x="320" y="84" width="220" height="110" rx="8" class="b-ct"/>
+            <text x="430" y="106" text-anchor="middle" class="t-b"># 编程组</text>
+            <rect x="334" y="122" width="62" height="28" rx="5" class="b-pw"/><text x="365" y="141" text-anchor="middle" class="t-s">Mentor</text>
+            <rect x="404" y="122" width="56" height="28" rx="5" class="b-ac"/><text x="432" y="141" text-anchor="middle" class="t-s">学生</text>
+            <rect x="468" y="122" width="56" height="28" rx="5" class="b-ac"/><text x="496" y="141" text-anchor="middle" class="t-s">学生</text>
+            <rect x="334" y="158" width="94" height="28" rx="5" class="b-pw"/><text x="381" y="177" text-anchor="middle" class="t-s">其他 mentor</text>
+            <rect x="436" y="158" width="88" height="28" rx="5" class="b-ac"/><text x="480" y="177" text-anchor="middle" class="t-s">更多学生</text>
+            <text x="430" y="226" text-anchor="middle" class="t-s">多位成人可见</text>
+            <text x="430" y="246" text-anchor="middle" class="t-s">问题大家都能受益</text>
+
+            <!-- panel 3 -->
+            <rect x="580" y="10" width="270" height="260" rx="8" class="b-ex"/>
+            <text x="715" y="38" text-anchor="middle" class="ok">✓ 需要单独联系时</text>
+            <text x="715" y="58" text-anchor="middle" class="t-s">抄送家长或另一位成人</text>
+            <rect x="605" y="100" width="80" height="44" rx="6" class="b-pw"/><text x="645" y="127" text-anchor="middle" class="t-b">Mentor</text>
+            <rect x="745" y="100" width="80" height="44" rx="6" class="b-ac"/><text x="785" y="127" text-anchor="middle" class="t-b">学生</text>
+            <line x1="685" y1="122" x2="745" y2="122" class="w-ac"/>
+            <rect x="675" y="176" width="80" height="40" rx="6" class="b-me"/><text x="715" y="201" text-anchor="middle" class="t-b">家长</text>
+            <path d="M715,122 L715,174" class="w-ac"/>
+            <text x="715" y="246" text-anchor="middle" class="t-s">例如邮件抄送、家长在群里</text>
+          </svg>
+        </div>
+        <figcaption>线上沟通的三种方式。原则是让成人和学生之间的沟通始终有第三方可见。具体要求以 FIRST YPP 指南和学校规定为准。</figcaption>
+      </figure>
+      <div class="prose">
+        <ul>
+          <li>不加学生的私人社交账号，不接受学生的好友请求（可以礼貌说明原因）。</li>
+          <li>不在深夜和学生讨论与队伍无关的话题。</li>
+          <li>学生私信你时，把对话引回公开频道："这个问题在编程组频道里问吧，大家都能看到。"</li>
+          <li>视频会议同样适用：避免和单个学生开会，至少有两位成人或多名学生在场。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="travel">
+      <h2><span class="n">05</span>出行与住宿</h2>
+      <div class="prose">
+        <p>外地比赛涉及交通和过夜，是青少年保护最需要提前规划的环节。学校通常对校外活动有严格的审批流程，常见要求包括：</p>
+        <ul>
+          <li><b>交通：</b>避免一位成人单独开车载一名学生；学校可能要求使用校车或经批准的司机。</li>
+          <li><b>住宿：</b>成人不和学生同住一个房间（自己的孩子按学校规定处理）；按性别分房；有查房和宵禁安排。</li>
+          <li><b>家长同意书和医疗信息：</b>出发前收齐，随队携带。</li>
+          <li><b>成人比例：</b>按学校规定配备足够的随队成人，并兼顾不同性别。</li>
+          <li><b>紧急联系：</b>所有学生和家长都知道随队负责人的联系方式。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="report">
+      <h2><span class="n">06</span>发现问题怎么办</h2>
+      <ol class="steps">
+        <li><div><h3>有紧急危险，立即求助</h3><p>学生面临迫在眉睫的危险时，先确保安全，并拨打紧急电话（美国是 911）。</p></div></li>
+        <li><div><h3>按流程报告</h3><p>通知 Lead Mentor 和学校负责人；按 FIRST YPP 页面上的渠道向 FIRST 报告。在许多州，和青少年工作的志愿者负有法定报告义务（Mandated Reporter）。</p></div></li>
+        <li><div><h3>不自己调查</h3><p>不要私下盘问学生或当事人，不要承诺"我不会告诉别人"。记录你看到和听到的事实，交给负责的人。</p></div></li>
+        <li><div><h3>保护隐私</h3><p>不在队伍群里或和其他家长讨论。</p></div></li>
+      </ol>
+    </section>
+
+    <section id="event">
+      <h2><span class="n">07</span>比赛现场</h2>
+      <div class="prose">
+        <ul>
+          <li>维修区和赛场内必须戴安全眼镜，家长参观也一样；穿包头鞋。</li>
+          <li>维修区内不奔跑；搬运机器人时提醒周围的人让路。</li>
+          <li>机器人在维修区只能在规定条件下通电测试，按赛事规则执行。</li>
+          <li>人多嘈杂，学生分散，随时清楚每个学生在哪里；约定集合时间和地点。</li>
+          <li>留意学生的饮食、饮水和休息，比赛日很长。</li>
+        </ul>
+        <p>比赛周末的更多内容见<a href="08-season-and-events.html">第 08 篇</a>。</p>
+      </div>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">08</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://www.firstinspires.org/programs/youth-protection-program" target="_blank" rel="noopener">FIRST：Youth Protection Program &amp; Code of Conduct（YPP Guide、培训、报告渠道）</a><span class="url">firstinspires.org</span></li>
+        <li><a href="https://www.firstinspires.org/programs/frc/game-and-season" target="_blank" rel="noopener">FIRST：FRC Game and Season（含当年赛事安全规定）</a><span class="url">firstinspires.org</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 第二部分《安全与青少年保护》。本文是常见原则的概括，不能替代 FIRST 当年的 YPP Guide、赛事安全规定和所在学校的政策。</footer>
+  </main>
+</div>

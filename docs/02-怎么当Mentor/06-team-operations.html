@@ -1,0 +1,363 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>团队运营与文化</title>
+<meta name="nav-title" content="团队运营与文化">
+<meta name="description" content="队伍的组织结构、会议与节奏、项目管理、沟通工具、团队文化、冲突处理、防止倦怠，以及招新与留人。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts — sticky contents rail, one readable column; diagrams run wider in their own scroll box.
+   Part 2 diagram colors: teal = recommended / student-led, amber = caution / adult-led, blue = process. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+.en { font-family: var(--font-mono); font-size: .88em; color: var(--muted); }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12px; line-height: 1.6; padding: 0 8px; border-radius: 999px; white-space: nowrap; }
+.tag.power { background: var(--amber-soft); color: var(--amber); }
+.tag.ctrl { background: var(--blue-soft); color: var(--blue); }
+.tag.act { background: var(--teal-soft); color: var(--teal); }
+.tag.misc { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.tag.done { background: var(--teal-soft); color: var(--teal); }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 22px; height: 0; border-top: 2.5px solid; display: inline-block; }
+.legend .pw i { border-color: var(--amber); }
+.legend .sg i { border-color: var(--blue); }
+.legend .mc i { border-color: var(--ink); }
+.legend .wl i { border-color: var(--blue); border-top-style: dashed; }
+
+svg .robot { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 7 4; }
+svg .b-pw { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-ct { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.5; }
+svg .b-ac { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-me { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
+svg .b-ex { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+svg .w-pw { fill: none; stroke: var(--amber); stroke-width: 2; }
+svg .w-sg { fill: none; stroke: var(--blue); stroke-width: 2; }
+svg .w-mc { fill: none; stroke: var(--ink); stroke-width: 2; }
+svg .w-wl { fill: none; stroke: var(--blue); stroke-width: 2; stroke-dasharray: 6 4; }
+svg .ah-pw { fill: var(--amber); }
+svg .ah-sg { fill: var(--blue); }
+svg .ah-mc { fill: var(--ink); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-l { fill: var(--muted); font-size: 11.5px; font-weight: 500; }
+svg .t-title { font-weight: 700; font-size: 14px; }
+
+.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 18px 0; }
+.part { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.part h3 { margin: 0 0 6px; font-size: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.part p { margin: 0; color: var(--muted); }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step, decimal-leading-zero); font-family: var(--font-mono); font-size: 15px; color: var(--blue); padding-top: 2px; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps .when { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: 8px; font-weight: 400; }
+.steps p { margin: 0 0 6px; }
+.steps ul { margin: 4px 0 0; }
+
+.roadmap { list-style: none; padding: 0; border-top: 1px solid var(--line); max-width: 760px; }
+.roadmap li { border-bottom: 1px solid var(--line); padding: 12px 4px; margin: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.roadmap .n { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.roadmap b { display: block; }
+.roadmap span.d { color: var(--muted); font-size: 14.5px; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+svg .w-ac { fill: none; stroke: var(--teal); stroke-width: 2; }
+svg .ah-ac { fill: var(--teal); }
+svg .z { stroke: var(--line); stroke-width: 1; }
+svg .z1, svg .z2, svg .z3 { fill: var(--teal-soft); }
+svg .z2, svg .z3 { stroke: var(--teal); stroke-width: 1.5; }
+svg .z4, svg .z5 { fill: var(--amber-soft); }
+svg .ok { fill: var(--teal); font-weight: 700; }
+svg .no { fill: var(--amber); font-weight: 700; }
+svg .w-no { fill: none; stroke: var(--amber); stroke-width: 2; stroke-dasharray: 5 4; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 18px 0; max-width: 860px; }
+.col { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.col h3 { margin: 0 0 8px; font-size: 16px; }
+.col ul { margin: 0; }
+.col.do { border-top: 3px solid var(--teal); }
+.col.dont { border-top: 3px solid var(--amber); }
+.scene { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin: 14px 0; max-width: 760px; font-size: 15px; }
+.scene h3 { margin: 0 0 6px; font-size: 16px; }
+.scene p { margin: 0 0 8px; }
+.scene p:last-child { margin-bottom: 0; }
+.scene .say { color: var(--teal); }
+.scene .avoid { color: var(--amber); }
+</style>
+
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#org">队伍的组织结构</a></li>
+      <li><a href="#rhythm">会议与节奏</a></li>
+      <li><a href="#pm">项目管理</a></li>
+      <li><a href="#comms">沟通工具</a></li>
+      <li><a href="#culture">团队文化</a></li>
+      <li><a href="#conflict">冲突处理</a></li>
+      <li><a href="#burnout">防止倦怠</a></li>
+      <li><a href="#recruit">招新与留人</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 第二部分</p>
+      <h1>团队运营与文化</h1>
+      <p class="lede">一支 FRC 队伍少则十几人、多则上百人，有预算、有赞助商、有截止日期，本质上是一个由学生运营的小组织。机器人造得好不好，很大程度取决于这个组织运转得好不好。这一篇讲常见的组织结构、会议节奏、项目管理、沟通方式、团队文化，以及冲突和倦怠这两个绕不开的问题。</p>
+      <div class="meta"><span>适合：所有 mentor，尤其是有管理经验的家长</span></div>
+    </header>
+
+    <section id="org">
+      <h2><span class="n">01</span>队伍的组织结构</h2>
+      <p class="prose">各队结构不同，下面是一种常见形式：学生领导层负责日常运营，mentor 团队在旁边提供指导和支持，学校和家长组织提供场地、财务和后勤保障。</p>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 860 350" role="img" aria-label="常见的队伍组织结构：学校和家长后援会提供保障；Lead Mentor 对学校负责；mentor 团队以虚线方式指导各学生小组；学生队长带领机械、编程、电控、商务、外联与媒体、策略与侦察等小组组长，组长再带领队员。">
+            <defs>
+              <marker id="o-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah-mc"/></marker>
+            </defs>
+            <rect x="20"  y="20" width="180" height="48" rx="6" class="b-me"/>
+            <text x="110" y="49" text-anchor="middle" class="t-b">学校 / 学区</text>
+            <rect x="660" y="20" width="180" height="48" rx="6" class="b-me"/>
+            <text x="750" y="40" text-anchor="middle" class="t-b">家长后援会</text>
+            <text x="750" y="58" text-anchor="middle" class="t-s">财务、后勤、志愿者</text>
+
+            <rect x="20" y="110" width="180" height="56" rx="6" class="b-pw"/>
+            <text x="110" y="134" text-anchor="middle" class="t-b">Lead Mentor / Coach</text>
+            <text x="110" y="153" text-anchor="middle" class="t-s">对学校和 FIRST 负责</text>
+            <line x1="110" y1="68" x2="110" y2="108" class="w-mc"/>
+
+            <rect x="20" y="206" width="180" height="56" rx="6" class="b-pw"/>
+            <text x="110" y="230" text-anchor="middle" class="t-b">Mentor 团队</text>
+            <text x="110" y="249" text-anchor="middle" class="t-s">技术与非技术 mentor</text>
+            <line x1="110" y1="166" x2="110" y2="204" class="w-mc"/>
+
+            <path d="M750,68 L750,138 L602,138" class="w-mc"/>
+            <text x="676" y="130" text-anchor="middle" class="t-s">支持</text>
+            <rect x="400" y="110" width="200" height="56" rx="6" class="b-ac"/>
+            <text x="500" y="134" text-anchor="middle" class="t-b">学生队长</text>
+            <text x="500" y="153" text-anchor="middle" class="t-s">日常运营与决策</text>
+            <path d="M200,138 L398,138" class="w-no"/>
+            <text x="300" y="130" text-anchor="middle" class="t-s">辅导</text>
+
+            <!-- subteam leads -->
+            <g>
+              <rect x="240" y="216" width="92" height="44" rx="6" class="b-ac"/><text x="286" y="243" text-anchor="middle" class="t-b">机械</text>
+              <rect x="342" y="216" width="92" height="44" rx="6" class="b-ac"/><text x="388" y="243" text-anchor="middle" class="t-b">编程</text>
+              <rect x="444" y="216" width="92" height="44" rx="6" class="b-ac"/><text x="490" y="243" text-anchor="middle" class="t-b">电控</text>
+              <rect x="546" y="216" width="92" height="44" rx="6" class="b-ac"/><text x="592" y="243" text-anchor="middle" class="t-b">商务</text>
+              <rect x="648" y="216" width="92" height="44" rx="6" class="b-ac"/><text x="694" y="236" text-anchor="middle" class="t-b">外联</text><text x="694" y="252" text-anchor="middle" class="t-s">与媒体</text>
+              <rect x="750" y="216" width="92" height="44" rx="6" class="b-ac"/><text x="796" y="236" text-anchor="middle" class="t-b">策略</text><text x="796" y="252" text-anchor="middle" class="t-s">与侦察</text>
+            </g>
+            <path d="M500,166 L500,190 M286,190 L796,190 M286,190 L286,214 M388,190 L388,214 M490,190 L490,214 M592,190 L592,214 M694,190 L694,214 M796,190 L796,214" class="w-mc"/>
+            <text x="540" y="184" class="t-s">各组组长</text>
+
+            <path d="M200,234 L236,236" class="w-no"/>
+            <text x="20" y="290" class="t-s">虚线：指导与支持，不是上下级</text>
+
+            <rect x="240" y="292" width="602" height="40" rx="6" class="b-ex"/>
+            <text x="541" y="317" text-anchor="middle" class="t-b">队员：新生、老生，多数人跨组参与</text>
+            <path d="M541,260 L541,290" class="w-mc"/>
+          </svg>
+        </div>
+        <figcaption>一种常见的组织结构。学生队长和组长负责日常运营（青绿色），mentor 以辅导关系参与（琥珀色，虚线），而不是站在学生领导层上面发号施令。</figcaption>
+      </figure>
+      <p class="prose">规模小的队伍可能只有两三个组，规模大的队伍还会细分出 CAD、加工、软件视觉、财务等。关键是每个组都有一个明确的学生负责人，以及至少一位可以求助的 mentor。</p>
+    </section>
+
+    <section id="rhythm">
+      <h2><span class="n">02</span>会议与节奏</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>时段</th><th>常见安排</th></tr></thead>
+          <tbody>
+            <tr><td class="k">秋季</td><td>每周 1–2 次，每次 2–3 小时；以培训和季外项目为主</td></tr>
+            <tr><td class="k">Build Season</td><td>每周 3–5 次，工作日晚上加周末，很多队伍每周 15–25 小时</td></tr>
+            <tr><td class="k">比赛季</td><td>比赛前的晚上抓紧修改和练习；比赛周末全天</td></tr>
+            <tr><td class="k">夏季</td><td>少量或暂停；部分队伍做夏令营或季外赛</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose">
+        <p>几种值得固定下来的会议：</p>
+        <ul>
+          <li><b>开场 5 分钟站会：</b>今天的目标、谁做什么、有什么阻碍。</li>
+          <li><b>每周全队会：</b>各组进度、下周计划、需要协调的事情。</li>
+          <li><b>mentor 会议：</b>每两周或每月一次，协调分工、讨论学生情况、统一口径。</li>
+          <li><b>收尾 5 分钟：</b>今天完成了什么，工具归位、车间打扫。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="pm">
+      <h2><span class="n">03</span>项目管理</h2>
+      <div class="prose">
+        <p>Build season 时间极短，学生最常犯的错是"前松后紧"。mentor 可以帮学生建立几个习惯：</p>
+        <ul>
+          <li><b>从第一场比赛倒推。</b>先定"机器人必须能开、能检录"的日期，再往前排出设计冻结、加工完成、软件调试的里程碑。</li>
+          <li><b>先做能动的版本。</b>尽早让底盘跑起来，给编程组和驾驶员留出练习时间，比一台功能齐全但晚三周完成的机器人更有价值。</li>
+          <li><b>任务看板。</b>用白板、Trello、GitHub Projects 或任何工具，把任务分成"待办 / 进行中 / 完成"，让所有人看到进度。</li>
+          <li><b>敢于砍需求。</b>到了某个时间点还没进展的功能，果断放弃。"做好三件事"比"做砸五件事"强。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="comms">
+      <h2><span class="n">04</span>沟通工具</h2>
+      <div class="prose">
+        <p>大多数队伍用 Slack 或 Discord 做日常沟通，用邮件联系家长和赞助商，用共享文档或网盘存资料。不管用哪种工具，几条原则：</p>
+        <ul>
+          <li><b>按主题分频道：</b>机械、编程、商务、出行、公告。重要通知只发公告频道。</li>
+          <li><b>家长要在信息链里：</b>出行、费用、时间安排要同时发给家长，而不只发给学生。</li>
+          <li><b>成人和学生的沟通放在公开频道：</b>避免 mentor 和学生一对一私聊，这是青少年保护的基本要求，<a href="07-safety-ypp.html">第 07 篇</a>会详细说明。</li>
+          <li><b>说清楚回复预期：</b>比如晚上十点后不发消息、不期待即时回复，给学生和 mentor 都留出休息时间。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="culture">
+      <h2><span class="n">05</span>团队文化</h2>
+      <div class="prose">
+        <p>文化就是"大家默认怎么做事"。它不是写在墙上的口号，而是由每天的小事积累而成，mentor 的言行影响最大。</p>
+        <ul>
+          <li><b>欢迎新人：</b>新人第一天有没有人主动打招呼、给他安排事做？</li>
+          <li><b>包容：</b>女生、少数族裔、没有技术背景的学生，有没有机会接触核心工作？谁总在扫地、谁总在操作 CNC？</li>
+          <li><b>认可：</b>完成一个里程碑、帮了别人、做了不起眼但重要的工作，有没有人看到并说出来？</li>
+          <li><b>对待失败：</b>机器人在比赛中出了问题，大家是互相指责，还是一起修、一起复盘？</li>
+          <li><b>对待对手：</b>FIRST 提倡 <i>Gracious Professionalism</i> 和 <i>Coopertition</i>（竞争中合作）：借零件给对手、帮别的队调试，是被鼓励的。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="conflict">
+      <h2><span class="n">06</span>冲突处理</h2>
+      <p class="prose">一群有想法的人在高压下一起工作，冲突不可避免。处理的基本顺序：</p>
+      <ol class="steps">
+        <li><div><h3>分清是什么冲突</h3><p>技术分歧（方案之争）是健康的；人际冲突（不尊重、排挤）需要尽早处理。</p></div></li>
+        <li><div><h3>先让当事人自己解决</h3><p>技术分歧可以用数据、原型或设计评审来决定；学生领导者应该是第一道处理者。</p></div></li>
+        <li><div><h3>mentor 私下介入</h3><p>分别听双方，再一起谈。聚焦行为和影响，而不是评判人。</p></div></li>
+        <li><div><h3>升级给 Lead Mentor</h3><p>涉及欺凌、骚扰、安全，或者 mentor 之间的冲突，交给 Lead Mentor 和学校按规定处理。</p></div></li>
+      </ol>
+      <div class="note"><span class="label">mentor 之间的分歧</span><p>不要当着学生争论。私下沟通，必要时在 mentor 会议上讨论，达成一致后对学生用同一个口径。</p></div>
+    </section>
+
+    <section id="burnout">
+      <h2><span class="n">07</span>防止倦怠</h2>
+      <div class="cols">
+        <div class="col"><h3>学生</h3><ul><li>学业优先：考试周减少活动时间，明确"可以请假"</li><li>设定每周时长上限和最晚离开时间</li><li>留意情绪变化：疲惫、易怒、退缩</li><li>赛季结束后真正休息</li></ul></div>
+        <div class="col"><h3>Mentor</h3><ul><li>分担工作，不让一两个人扛全部</li><li>承诺可持续的时间，而不是赛季冲刺后消失</li><li>允许自己说"这周来不了"</li><li>照顾好自己的工作和家庭</li></ul></div>
+      </div>
+    </section>
+
+    <section id="recruit">
+      <h2><span class="n">08</span>招新与留人</h2>
+      <div class="prose">
+        <ul>
+          <li><b>招新：</b>开学社团招新、在中学和 FLL/FTC 队伍里宣传、开放日让新生亲手开一下机器人。</li>
+          <li><b>留人：</b>新生流失的主要原因是"没人理、没事做、听不懂"。每个新人配一个老生伙伴，第一个月就给他能完成的小任务。</li>
+          <li><b>招 mentor：</b>毕业生、家长、赞助企业的员工、本地工程师都是来源。新 mentor 同样需要"入队流程"，可以参考<a href="02-joining.html">第 02 篇</a>。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">09</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://www.thecompassalliance.org" target="_blank" rel="noopener">The Compass Alliance（队伍管理、招新、组织结构资源）</a><span class="url">thecompassalliance.org</span></li>
+        <li><a href="https://www.chiefdelphi.com" target="_blank" rel="noopener">Chief Delphi 论坛</a><span class="url">chiefdelphi.com</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 第二部分《团队运营与文化》。会议时长等为常见情况，各队差别很大。</footer>
+  </main>
+</div>

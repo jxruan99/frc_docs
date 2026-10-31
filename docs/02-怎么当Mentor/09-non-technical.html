@@ -1,0 +1,351 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>非技术方向</title>
+<meta name="nav-title" content="非技术方向">
+<meta name="description" content="队伍的钱从哪里来、花到哪里去，商务计划、找赞助商、预算与财务、外联、媒体与品牌，以及 mentor 怎么带非技术方向的学生。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts — sticky contents rail, one readable column; diagrams run wider in their own scroll box.
+   Part 2 diagram colors: teal = recommended / student-led, amber = caution / adult-led, blue = process. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+.en { font-family: var(--font-mono); font-size: .88em; color: var(--muted); }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12px; line-height: 1.6; padding: 0 8px; border-radius: 999px; white-space: nowrap; }
+.tag.power { background: var(--amber-soft); color: var(--amber); }
+.tag.ctrl { background: var(--blue-soft); color: var(--blue); }
+.tag.act { background: var(--teal-soft); color: var(--teal); }
+.tag.misc { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.tag.done { background: var(--teal-soft); color: var(--teal); }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 22px; height: 0; border-top: 2.5px solid; display: inline-block; }
+.legend .pw i { border-color: var(--amber); }
+.legend .sg i { border-color: var(--blue); }
+.legend .mc i { border-color: var(--ink); }
+.legend .wl i { border-color: var(--blue); border-top-style: dashed; }
+
+svg .robot { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 7 4; }
+svg .b-pw { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-ct { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.5; }
+svg .b-ac { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-me { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
+svg .b-ex { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+svg .w-pw { fill: none; stroke: var(--amber); stroke-width: 2; }
+svg .w-sg { fill: none; stroke: var(--blue); stroke-width: 2; }
+svg .w-mc { fill: none; stroke: var(--ink); stroke-width: 2; }
+svg .w-wl { fill: none; stroke: var(--blue); stroke-width: 2; stroke-dasharray: 6 4; }
+svg .ah-pw { fill: var(--amber); }
+svg .ah-sg { fill: var(--blue); }
+svg .ah-mc { fill: var(--ink); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-l { fill: var(--muted); font-size: 11.5px; font-weight: 500; }
+svg .t-title { font-weight: 700; font-size: 14px; }
+
+.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 18px 0; }
+.part { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.part h3 { margin: 0 0 6px; font-size: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.part p { margin: 0; color: var(--muted); }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step, decimal-leading-zero); font-family: var(--font-mono); font-size: 15px; color: var(--blue); padding-top: 2px; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps .when { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: 8px; font-weight: 400; }
+.steps p { margin: 0 0 6px; }
+.steps ul { margin: 4px 0 0; }
+
+.roadmap { list-style: none; padding: 0; border-top: 1px solid var(--line); max-width: 760px; }
+.roadmap li { border-bottom: 1px solid var(--line); padding: 12px 4px; margin: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.roadmap .n { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.roadmap b { display: block; }
+.roadmap span.d { color: var(--muted); font-size: 14.5px; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+svg .w-ac { fill: none; stroke: var(--teal); stroke-width: 2; }
+svg .ah-ac { fill: var(--teal); }
+svg .z { stroke: var(--line); stroke-width: 1; }
+svg .z1, svg .z2, svg .z3 { fill: var(--teal-soft); }
+svg .z2, svg .z3 { stroke: var(--teal); stroke-width: 1.5; }
+svg .z4, svg .z5 { fill: var(--amber-soft); }
+svg .ok { fill: var(--teal); font-weight: 700; }
+svg .no { fill: var(--amber); font-weight: 700; }
+svg .w-no { fill: none; stroke: var(--amber); stroke-width: 2; stroke-dasharray: 5 4; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 18px 0; max-width: 860px; }
+.col { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.col h3 { margin: 0 0 8px; font-size: 16px; }
+.col ul { margin: 0; }
+.col.do { border-top: 3px solid var(--teal); }
+.col.dont { border-top: 3px solid var(--amber); }
+.scene { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin: 14px 0; max-width: 760px; font-size: 15px; }
+.scene h3 { margin: 0 0 6px; font-size: 16px; }
+.scene p { margin: 0 0 8px; }
+.scene p:last-child { margin-bottom: 0; }
+.scene .say { color: var(--teal); }
+.scene .avoid { color: var(--amber); }
+</style>
+
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#why">为什么重要</a></li>
+      <li><a href="#money">钱从哪里来、到哪里去</a></li>
+      <li><a href="#plan">商务计划</a></li>
+      <li><a href="#sponsor">怎么找赞助商</a></li>
+      <li><a href="#finance">预算与财务</a></li>
+      <li><a href="#outreach">外联</a></li>
+      <li><a href="#media">媒体与品牌</a></li>
+      <li><a href="#coach">Mentor 怎么带</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 第二部分</p>
+      <h1>非技术方向</h1>
+      <p class="lede">一支队伍能不能活下去、能不能年年参赛，靠的不只是机器人，还有钱、社区关系和对外形象。商务、筹款、外联、媒体这些方向，恰恰是很多有职场经验的家长最能发挥作用的地方。这一篇讲队伍的钱从哪里来、花在哪里，怎么写商务计划、找赞助商、管预算，以及外联和媒体怎么做。</p>
+      <div class="meta"><span>适合：有管理、财务、市场、写作背景的家长</span><span>不需要技术背景</span></div>
+    </header>
+
+    <section id="why">
+      <h2><span class="n">01</span>为什么重要</h2>
+      <div class="prose">
+        <ul>
+          <li><b>生存：</b>一个赛季的预算从两三万美元到十万美元以上，没有稳定的资金来源，队伍随时可能停摆。</li>
+          <li><b>评奖：</b>FIRST 最高荣誉 Impact Award 看的是队伍对社区和 STEM 的影响，而不是机器人（见<a href="10-awards.html">第 10 篇</a>）。</li>
+          <li><b>学生成长：</b>写商务计划、给企业做演讲、组织社区活动，这些能力对学生未来同样重要。</li>
+          <li><b>不是"二等工作"：</b>好的队伍把商务组和机械组放在同等位置。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="money">
+      <h2><span class="n">02</span>钱从哪里来、到哪里去</h2>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 860 330" role="img" aria-label="队伍资金流向：收入来源包括企业赞助、基金会资助、学校或学区拨款、队员会费、筹款活动和众筹，以及实物赞助，汇入队伍预算；支出包括赛事注册费、零件和材料、工具设备、差旅，以及外联、队服和宣传。">
+            <defs>
+              <marker id="f-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah-pw"/></marker>
+            </defs>
+            <text x="20" y="22" class="t-l">收入来源</text>
+            <rect x="20" y="34"  width="200" height="38" rx="6" class="b-ac"/><text x="120" y="58" text-anchor="middle" class="t-b">企业赞助</text>
+            <rect x="20" y="80"  width="200" height="38" rx="6" class="b-ac"/><text x="120" y="104" text-anchor="middle" class="t-b">基金会资助 / Grant</text>
+            <rect x="20" y="126" width="200" height="38" rx="6" class="b-ac"/><text x="120" y="150" text-anchor="middle" class="t-b">学校 / 学区拨款</text>
+            <rect x="20" y="172" width="200" height="38" rx="6" class="b-ac"/><text x="120" y="196" text-anchor="middle" class="t-b">队员会费</text>
+            <rect x="20" y="218" width="200" height="38" rx="6" class="b-ac"/><text x="120" y="242" text-anchor="middle" class="t-b">筹款活动、众筹</text>
+            <rect x="20" y="264" width="200" height="38" rx="6" class="b-ex"/><text x="120" y="288" text-anchor="middle" class="t-b">实物赞助（场地、加工）</text>
+
+            <path d="M220,53 C290,53 300,168 340,168" class="w-pw"/>
+            <path d="M220,99 C290,99 300,168 340,168" class="w-pw"/>
+            <path d="M220,145 C290,145 300,168 340,168" class="w-pw"/>
+            <path d="M220,191 C290,191 300,168 340,168" class="w-pw"/>
+            <path d="M220,237 C290,237 300,168 340,168" class="w-pw"/>
+            <path d="M220,283 C290,283 300,168 340,168" class="w-no"/>
+
+            <rect x="340" y="128" width="180" height="80" rx="8" class="b-pw"/>
+            <text x="430" y="162" text-anchor="middle" class="t-b">队伍预算</text>
+            <text x="430" y="182" text-anchor="middle" class="t-s">学校账户或后援会账户</text>
+
+            <path d="M520,168 C560,168 570,53 618,53" class="w-pw" marker-end="url(#f-ah)"/>
+            <path d="M520,168 C560,168 570,110 618,110" class="w-pw" marker-end="url(#f-ah)"/>
+            <path d="M520,168 C560,168 570,168 618,168" class="w-pw" marker-end="url(#f-ah)"/>
+            <path d="M520,168 C560,168 570,226 618,226" class="w-pw" marker-end="url(#f-ah)"/>
+            <path d="M520,168 C560,168 570,283 618,283" class="w-pw" marker-end="url(#f-ah)"/>
+
+            <text x="620" y="22" class="t-l">支出</text>
+            <rect x="620" y="34"  width="220" height="38" rx="6" class="b-me"/><text x="730" y="58" text-anchor="middle" class="t-b">赛事注册费</text>
+            <rect x="620" y="91"  width="220" height="38" rx="6" class="b-me"/><text x="730" y="115" text-anchor="middle" class="t-b">零件与材料</text>
+            <rect x="620" y="149" width="220" height="38" rx="6" class="b-me"/><text x="730" y="173" text-anchor="middle" class="t-b">工具与设备</text>
+            <rect x="620" y="207" width="220" height="38" rx="6" class="b-me"/><text x="730" y="231" text-anchor="middle" class="t-b">差旅（常是最大一笔）</text>
+            <rect x="620" y="264" width="220" height="38" rx="6" class="b-me"/><text x="730" y="288" text-anchor="middle" class="t-b">外联、队服、宣传</text>
+          </svg>
+        </div>
+        <figcaption>队伍资金的典型流向。多元化的收入来源能降低风险：一家主要赞助商撤出时，队伍不至于停摆。各项金额因地区和参赛数量差别很大。</figcaption>
+      </figure>
+    </section>
+
+    <section id="plan">
+      <h2><span class="n">03</span>商务计划</h2>
+      <div class="prose">
+        <p>商务计划（Business Plan）是队伍的"说明书"：我们是谁、要做什么、需要多少钱、钱从哪里来。它既用于找赞助商，也是队伍自己规划的工具。常见内容：</p>
+        <ul>
+          <li>队伍简介、使命和历史成绩</li>
+          <li>组织结构和人员</li>
+          <li>年度目标：比赛、外联、队伍发展</li>
+          <li>预算：收入预测和支出计划</li>
+          <li>赞助方案：不同级别的赞助能得到什么回报</li>
+          <li>风险和应对：如果某项收入没到位怎么办</li>
+          <li>可持续发展：如何在学生毕业、mentor 更替后保持运转</li>
+        </ul>
+        <p>让学生主笔，mentor 帮助修改结构和数字。一份清晰的商务计划，本身就体现了队伍的专业程度。</p>
+      </div>
+    </section>
+
+    <section id="sponsor">
+      <h2><span class="n">04</span>怎么找赞助商</h2>
+      <ol class="steps">
+        <li><div><h3>列潜在名单</h3><p>家长和 mentor 的雇主（很多公司有员工志愿或配捐计划）、本地制造和科技企业、往年赞助过 FRC 的公司、和 STEM 教育相关的基金会。</p></div></li>
+        <li><div><h3>准备材料</h3><p>一页纸的队伍介绍、赞助级别和回报、照片、上一年的成果。</p></div></li>
+        <li><div><h3>学生出面联系</h3><p>学生写邮件、打电话、上门演讲。mentor 可以帮忙引荐、演练、修改材料，但让学生站在前面。</p></div></li>
+        <li><div><h3>兑现回报</h3><p>Logo 印在机器人和队服上、网站和社交媒体致谢、邀请赞助商来车间或比赛现场、赛季中定期发送进展。</p></div></li>
+        <li><div><h3>长期维护</h3><p>赛季结束发感谢信和总结报告。续约比找新赞助商容易得多。</p></div></li>
+      </ol>
+      <div class="note"><span class="label">别忘了实物赞助</span><p>免费的加工服务、场地、材料、软件授权，和现金一样有价值。CAD 软件很多都对 FRC 队伍免费（见<a href="../03-技术方向/09-mechanical-design.html">机械设计与 CAD</a>）。</p></div>
+    </section>
+
+    <section id="finance">
+      <h2><span class="n">05</span>预算与财务</h2>
+      <div class="prose">
+        <ul>
+          <li><b>钱放在哪里：</b>通常是学校的活动账户，或者家长后援会的非营利账户。不要放在个人账户里。</li>
+          <li><b>预算由学生做，mentor 把关：</b>让学生列出需求和报价，mentor 帮助检查合理性。</li>
+          <li><b>审批和记录：</b>每笔支出有审批、有收据、有记录。较大的支出需要两人签字是常见做法。</li>
+          <li><b>定期公开：</b>向队伍和家长公布收支情况，透明能建立信任。</li>
+          <li><b>留出余量：</b>比赛中的紧急采购、晋级后的额外差旅，都需要预留资金。</li>
+        </ul>
+        <p>有财务背景的家长，在这里能帮上大忙。</p>
+      </div>
+    </section>
+
+    <section id="outreach">
+      <h2><span class="n">06</span>外联</h2>
+      <div class="prose">
+        <p>外联（Outreach）是队伍走进社区、推广 STEM 的活动。它体现了 FIRST 的核心使命，也是 Impact Award 的重要依据。常见形式：</p>
+        <ul>
+          <li>在小学、图书馆、社区活动上做机器人展示</li>
+          <li>辅导低年龄段的 FIRST LEGO League（FLL）和 FIRST Tech Challenge（FTC）队伍</li>
+          <li>举办 STEM 夏令营、工作坊</li>
+          <li>帮助新队伍起步、和其他队伍分享资源</li>
+          <li>和本地企业、政府、学校合作推广 STEM 教育</li>
+        </ul>
+        <p><b>记录一切：</b>活动日期、参与人数、影响了多少人、有什么后续效果。这些数据是写奖项材料的基础。</p>
+      </div>
+    </section>
+
+    <section id="media">
+      <h2><span class="n">07</span>媒体与品牌</h2>
+      <div class="prose">
+        <ul>
+          <li><b>品牌：</b>统一的队名写法、Logo、配色、队服。可以做一份简单的品牌规范。</li>
+          <li><b>网站和社交媒体：</b>介绍队伍、展示赞助商、记录赛季进展。定期更新比做得花哨更重要。</li>
+          <li><b>照片和视频：</b>赛季过程、比赛精彩瞬间、外联活动。发布学生照片前，确认学校和家长的授权（见<a href="07-safety-ypp.html">安全与青少年保护</a>）。</li>
+          <li><b>机器人展示视频：</b>很多队伍在赛季中发布机器人介绍视频，也是招新和吸引赞助的好素材。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="coach">
+      <h2><span class="n">08</span>Mentor 怎么带</h2>
+      <div class="prose">
+        <p>非技术方向的指导原则和技术方向一样：<b>学生主导，mentor 传授技能、把关底线。</b></p>
+        <ul>
+          <li>教方法：怎么写一封得体的商务邮件、怎么做一份清楚的预算表、怎么准备五分钟演讲。</li>
+          <li>给机会：带学生去见赞助商，但让学生开口。</li>
+          <li>把关：合同、财务、对外承诺，必须有成人审核。</li>
+          <li>不代笔：赞助信、奖项材料可以逐段提意见，但由学生执笔。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">09</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://www.firstinspires.org/programs/frc/" target="_blank" rel="noopener">FIRST 官网 · FRC 页面（注册费、资助信息）</a><span class="url">firstinspires.org</span></li>
+        <li><a href="https://www.thecompassalliance.org" target="_blank" rel="noopener">The Compass Alliance（商务计划、筹款、外联资源）</a><span class="url">thecompassalliance.org</span></li>
+        <li><a href="https://www.chiefdelphi.com" target="_blank" rel="noopener">Chief Delphi 论坛（很多队伍公开了商务计划和赞助方案）</a><span class="url">chiefdelphi.com</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 第二部分《非技术方向》。预算数字为常见范围，具体以队伍实际情况和 FIRST 当年公布的费用为准。</footer>
+  </main>
+</div>

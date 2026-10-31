@@ -1,0 +1,362 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>入队第一步</title>
+<meta name="nav-title" content="入队第一步">
+<meta name="description" content="从联系队伍到正式带学生：FIRST 注册与关联队伍、YPP 培训与筛查、学校志愿者审核，头几周怎么观察，怎么找到自己的位置。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts — sticky contents rail, one readable column; diagrams run wider in their own scroll box.
+   Part 2 diagram colors: teal = recommended / student-led, amber = caution / adult-led, blue = process. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+.en { font-family: var(--font-mono); font-size: .88em; color: var(--muted); }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12px; line-height: 1.6; padding: 0 8px; border-radius: 999px; white-space: nowrap; }
+.tag.power { background: var(--amber-soft); color: var(--amber); }
+.tag.ctrl { background: var(--blue-soft); color: var(--blue); }
+.tag.act { background: var(--teal-soft); color: var(--teal); }
+.tag.misc { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.tag.done { background: var(--teal-soft); color: var(--teal); }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 22px; height: 0; border-top: 2.5px solid; display: inline-block; }
+.legend .pw i { border-color: var(--amber); }
+.legend .sg i { border-color: var(--blue); }
+.legend .mc i { border-color: var(--ink); }
+.legend .wl i { border-color: var(--blue); border-top-style: dashed; }
+
+svg .robot { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 7 4; }
+svg .b-pw { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-ct { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.5; }
+svg .b-ac { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-me { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
+svg .b-ex { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+svg .w-pw { fill: none; stroke: var(--amber); stroke-width: 2; }
+svg .w-sg { fill: none; stroke: var(--blue); stroke-width: 2; }
+svg .w-mc { fill: none; stroke: var(--ink); stroke-width: 2; }
+svg .w-wl { fill: none; stroke: var(--blue); stroke-width: 2; stroke-dasharray: 6 4; }
+svg .ah-pw { fill: var(--amber); }
+svg .ah-sg { fill: var(--blue); }
+svg .ah-mc { fill: var(--ink); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-l { fill: var(--muted); font-size: 11.5px; font-weight: 500; }
+svg .t-title { font-weight: 700; font-size: 14px; }
+
+.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 18px 0; }
+.part { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.part h3 { margin: 0 0 6px; font-size: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.part p { margin: 0; color: var(--muted); }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step, decimal-leading-zero); font-family: var(--font-mono); font-size: 15px; color: var(--blue); padding-top: 2px; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps .when { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: 8px; font-weight: 400; }
+.steps p { margin: 0 0 6px; }
+.steps ul { margin: 4px 0 0; }
+
+.roadmap { list-style: none; padding: 0; border-top: 1px solid var(--line); max-width: 760px; }
+.roadmap li { border-bottom: 1px solid var(--line); padding: 12px 4px; margin: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.roadmap .n { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.roadmap b { display: block; }
+.roadmap span.d { color: var(--muted); font-size: 14.5px; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+svg .w-ac { fill: none; stroke: var(--teal); stroke-width: 2; }
+svg .ah-ac { fill: var(--teal); }
+svg .z { stroke: var(--line); stroke-width: 1; }
+svg .z1, svg .z2, svg .z3 { fill: var(--teal-soft); }
+svg .z2, svg .z3 { stroke: var(--teal); stroke-width: 1.5; }
+svg .z4, svg .z5 { fill: var(--amber-soft); }
+svg .ok { fill: var(--teal); font-weight: 700; }
+svg .no { fill: var(--amber); font-weight: 700; }
+svg .w-no { fill: none; stroke: var(--amber); stroke-width: 2; stroke-dasharray: 5 4; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 18px 0; max-width: 860px; }
+.col { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.col h3 { margin: 0 0 8px; font-size: 16px; }
+.col ul { margin: 0; }
+.col.do { border-top: 3px solid var(--teal); }
+.col.dont { border-top: 3px solid var(--amber); }
+.scene { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin: 14px 0; max-width: 760px; font-size: 15px; }
+.scene h3 { margin: 0 0 6px; font-size: 16px; }
+.scene p { margin: 0 0 8px; }
+.scene p:last-child { margin-bottom: 0; }
+.scene .say { color: var(--teal); }
+.scene .avoid { color: var(--amber); }
+</style>
+
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#before">加入前想清楚</a></li>
+      <li><a href="#contact">怎么联系队伍</a></li>
+      <li><a href="#register">注册与审核</a></li>
+      <li><a href="#observe">头几周：先观察</a></li>
+      <li><a href="#fit">找到你的位置</a></li>
+      <li><a href="#peers">和其他 Mentor 相处</a></li>
+      <li><a href="#day1">第一次去车间</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 第二部分</p>
+      <h1>入队第一步</h1>
+      <p class="lede">从"我想帮忙"到"我在带学生"，中间要过几道手续：在 FIRST 系统注册并关联队伍、完成青少年保护（YPP）培训和筛查、通过学校的志愿者审核。手续办完之后，最重要的一步反而是"先别急着帮忙"，花几周时间观察队伍怎么运转，再决定自己从哪里切入。</p>
+      <div class="meta"><span>适合：准备加入的家长</span><span>建议在秋季开始办理</span></div>
+    </header>
+
+    <section id="before">
+      <h2><span class="n">01</span>加入前想清楚</h2>
+      <div class="prose">
+        <p>在联系队伍之前，先问自己三个问题，答案会决定你适合什么角色：</p>
+        <ul>
+          <li><b>我能稳定投入多少时间？</b>赛季中每周固定两个晚上，和"有空就来"，对队伍的意义完全不同。如实估计，宁可少说。</li>
+          <li><b>我能带来什么？</b>不只是工程技能。财务、写作、市场、项目管理、摄影、组织活动、教学经验，都是队伍需要的。</li>
+          <li><b>我是为了孩子，还是为了全队？</b>想陪伴孩子完全正常，但当了 mentor，你面对的就是全队学生。如果主要是想多看看孩子，做家长志愿者可能更合适（<a href="05-parent-role.html">第 05 篇</a>会细谈）。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="contact">
+      <h2><span class="n">02</span>怎么联系队伍</h2>
+      <div class="prose">
+        <ul>
+          <li><b>找 Lead Mentor 或带队老师。</b>学校网站、队伍网站或社交账号上通常有联系方式；也可以问孩子，或者在家长会上找人。</li>
+          <li><b>参加招新会、开放日或季外赛。</b>秋季很多队伍会办开放活动，是了解队伍文化的好机会。</li>
+          <li><b>了解家长组织。</b>不少队伍有 booster club（家长后援会），负责财务和后勤；从这里加入是很自然的起点。</li>
+          <li><b>开门见山说清楚：</b>你的背景、能投入的时间、想帮哪方面，并问一句"队里现在最缺什么？"</li>
+        </ul>
+        <div class="note"><span class="label">别直接出现在车间</span><p>出于安全和青少年保护的考虑，大多数学校不允许未经审核的成人在学生活动中长时间停留。先联系负责人，按流程来。</p></div>
+      </div>
+    </section>
+
+    <section id="register">
+      <h2><span class="n">03</span>注册与审核</h2>
+      <p class="prose">在美国，正式担任 mentor 通常要过两条线：<b>FIRST 这一侧</b>和<b>学校这一侧</b>。两边可以同时办，但都需要时间，最好在 build season 开始前几周就启动。</p>
+
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 860 300" role="img" aria-label="Mentor 入队流程：FIRST 一侧依次是创建账号、关联队伍、完成 YPP 培训、通过筛查；学校一侧是志愿者申请和背景审核。两边都完成后，先观察几周，再承担固定职责。">
+            <defs>
+              <marker id="r-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah-sg"/></marker>
+              <marker id="r-ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah-ac"/></marker>
+            </defs>
+            <text x="20" y="30" class="t-l">FIRST 一侧</text>
+            <rect x="20"  y="42" width="120" height="56" rx="6" class="b-ct"/>
+            <text x="80" y="66" text-anchor="middle" class="t-b">创建账号</text>
+            <text x="80" y="85" text-anchor="middle" class="t-s">FIRST Dashboard</text>
+            <rect x="170" y="42" width="120" height="56" rx="6" class="b-ct"/>
+            <text x="230" y="66" text-anchor="middle" class="t-b">关联队伍</text>
+            <text x="230" y="85" text-anchor="middle" class="t-s">队伍负责人确认</text>
+            <rect x="320" y="42" width="120" height="56" rx="6" class="b-ct"/>
+            <text x="380" y="66" text-anchor="middle" class="t-b">YPP 培训</text>
+            <text x="380" y="85" text-anchor="middle" class="t-s">视频，约 40–50 分钟</text>
+            <rect x="470" y="42" width="120" height="56" rx="6" class="b-ct"/>
+            <text x="530" y="66" text-anchor="middle" class="t-b">YPP 筛查</text>
+            <text x="530" y="85" text-anchor="middle" class="t-s">背景调查，需等待</text>
+            <line x1="140" y1="70" x2="168" y2="70" class="w-sg" marker-end="url(#r-ah)"/>
+            <line x1="290" y1="70" x2="318" y2="70" class="w-sg" marker-end="url(#r-ah)"/>
+            <line x1="440" y1="70" x2="468" y2="70" class="w-sg" marker-end="url(#r-ah)"/>
+
+            <text x="20" y="150" class="t-l">学校一侧</text>
+            <rect x="20"  y="162" width="270" height="56" rx="6" class="b-me"/>
+            <text x="155" y="186" text-anchor="middle" class="t-b">学校 / 学区志愿者申请</text>
+            <text x="155" y="205" text-anchor="middle" class="t-s">表格、培训，要求因学区而异</text>
+            <rect x="320" y="162" width="270" height="56" rx="6" class="b-me"/>
+            <text x="455" y="186" text-anchor="middle" class="t-b">学校背景审核</text>
+            <text x="455" y="205" text-anchor="middle" class="t-s">可能含指纹、证件核验等</text>
+            <line x1="290" y1="190" x2="318" y2="190" class="w-mc" marker-end="url(#r-ah)"/>
+
+            <!-- merge -->
+            <path d="M590,70 L630,70 L630,118" class="w-sg"/>
+            <path d="M590,190 L630,190 L630,132" class="w-mc"/>
+            <line x1="630" y1="125" x2="648" y2="125" class="w-sg" marker-end="url(#r-ah)"/>
+            <rect x="650" y="97" width="190" height="56" rx="6" class="b-ac"/>
+            <text x="745" y="121" text-anchor="middle" class="t-b">先观察 2–4 周</text>
+            <text x="745" y="140" text-anchor="middle" class="t-s">认识人、熟悉规矩</text>
+            <line x1="745" y1="153" x2="745" y2="230" class="w-ac" marker-end="url(#r-ah2)"/>
+            <rect x="650" y="232" width="190" height="56" rx="6" class="b-ac"/>
+            <text x="745" y="256" text-anchor="middle" class="t-b">承担固定职责</text>
+            <text x="745" y="275" text-anchor="middle" class="t-s">从小处开始</text>
+
+            <text x="20" y="262" class="t-s">两条线可以同时办理，但都要等待；建议秋季启动，</text>
+            <text x="20" y="280" class="t-s">不要等到 1 月开赛才开始。</text>
+          </svg>
+        </div>
+        <figcaption>入队流程。FIRST 一侧和学校一侧各自独立，任何一边没完成都不能正式带学生。具体步骤和要求以 FIRST 当年 YPP 指南和所在学区规定为准。</figcaption>
+      </figure>
+
+      <h3>FIRST 一侧</h3>
+      <div class="prose">
+        <ul>
+          <li><b>创建账号：</b>在 FIRST 官网注册个人账号（FIRST Dashboard），填写基本信息并同意行为准则（Code of Conduct）。</li>
+          <li><b>关联队伍：</b>把自己以 mentor 身份关联到孩子所在队伍的队号，通常需要队伍的 Lead Coach 在系统里确认。</li>
+          <li><b>YPP 培训：</b>FIRST 的青少年保护培训是一组短视频，每段不超过 5 分钟，全部看完约 40–50 分钟。内容是如何识别可能威胁学生安全的情况、如何预防和报告。即使你的角色不强制要求，也值得看一遍。</li>
+          <li><b>YPP 筛查：</b>FIRST 对队伍的主要负责人（Lead Coach / Mentor 1、2）要求背景筛查，其他 mentor 是否需要，以当年政策为准。筛查需要等待处理结果，留出时间。</li>
+        </ul>
+      </div>
+      <div class="note"><span class="label">部分州有额外要求</span><p>例如加州法律（AB506）要求青少年组织的常规志愿者额外完成 Live Scan 指纹背景调查和加州官方的强制报告人（Mandated Reporter）培训；宾州对过去十年不全是本州居民的志愿者要求 FBI 背景调查。FIRST 的 YPP 页面上有各州的具体说明。</p></div>
+
+      <h3>学校一侧</h3>
+      <div class="prose">
+        <p>队伍属于学校，学校有自己的志愿者制度，常见要求包括志愿者申请表、学区的背景审核（有的需要指纹）、学区自己的培训，个别学区还有健康证明等要求。直接问带队老师："学校这边志愿者需要办什么？"</p>
+      </div>
+    </section>
+
+    <section id="observe">
+      <h2><span class="n">04</span>头几周：先观察</h2>
+      <p class="prose">手续办完，最容易犯的错误是第一天就卷起袖子。每支队伍都有自己的历史、习惯和"潜规则"，花两到四周观察，你之后的每一个建议都会更有分量。这段时间可以重点看清楚：</p>
+      <div class="cols">
+        <div class="col"><h3>人</h3><ul><li>队长、各小组负责人是谁</li><li>其他 mentor 各管什么</li><li>哪些学生活跃，哪些学生被边缘化</li></ul></div>
+        <div class="col"><h3>规矩</h3><ul><li>车间安全规则、工具使用权限</li><li>谁能做什么决定，怎么做决定</li><li>沟通渠道（Slack、Discord、邮件）</li></ul></div>
+        <div class="col"><h3>文化</h3><ul><li>学生主导到什么程度</li><li>mentor 平时怎么和学生说话</li><li>队伍今年的目标是什么</li></ul></div>
+      </div>
+      <div class="prose">
+        <p>观察期也不是什么都不做：参加安全培训，跟着学生做一些他们安排给你的事，多问"为什么这样做"，少说"我们以前公司是这样做的"。</p>
+      </div>
+    </section>
+
+    <section id="fit">
+      <h2><span class="n">05</span>找到你的位置</h2>
+      <p class="prose">观察之后，和 Lead Mentor 聊一次：你看到了什么、你能做什么、队伍需要什么。把三者的交集作为起点。</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>你的背景</th><th>可以从哪里开始</th></tr></thead>
+          <tbody>
+            <tr><td class="k">机械、制造</td><td>工具安全培训、加工流程、设计评审</td></tr>
+            <tr><td class="k">软件、IT</td><td>Git 和代码评审、调试方法、带新生做仿真练习（见<a href="../03-技术方向/03-dev-environment.html">开发环境与仿真</a>）</td></tr>
+            <tr><td class="k">电气、电子</td><td>接线规范、电池管理、检录前检查（见<a href="../03-技术方向/12-wiring.html">电气接线与布线</a>）</td></tr>
+            <tr><td class="k">财务、管理</td><td>预算、赞助商关系、商务计划</td></tr>
+            <tr><td class="k">市场、写作、设计</td><td>赞助信、网站和社交媒体、奖项材料、演讲辅导</td></tr>
+            <tr><td class="k">教师、培训</td><td>新队员培训课程设计、学生领导力培养</td></tr>
+            <tr><td class="k">没有特别背景</td><td>后勤、比赛出行、拍照记录、家长沟通；同时跟一个小组学起来</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose"><p>先认领一件小而明确的事，比如"每周三晚上负责机械组的工具安全"，做稳了再扩大。</p></div>
+    </section>
+
+    <section id="peers">
+      <h2><span class="n">06</span>和其他 Mentor 相处</h2>
+      <div class="prose">
+        <ul>
+          <li><b>尊重已有的做法。</b>老 mentor 可能已经带了很多年，先理解他们为什么这样做。</li>
+          <li><b>对学生口径一致。</b>mentor 之间有分歧，私下讨论，不要当着学生争论或推翻另一位 mentor 的指导。</li>
+          <li><b>参加 mentor 会议。</b>很多队伍定期开 mentor 会，协调分工和处理问题。</li>
+          <li><b>守住边界。</b>你负责的方向说清楚，别人的方向少插手，有想法先跟对方说。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="day1">
+      <h2><span class="n">07</span>第一次去车间</h2>
+      <div class="cols">
+        <div class="col do"><h3>带上 / 做到</h3><ul><li>安全眼镜（很多队伍会提供，自备更方便）</li><li>包头、包脚的鞋，不穿宽松衣服和首饰</li><li>长发扎起来</li><li>一个小本子，记名字和问题</li><li>准时到，走之前和负责人打个招呼</li></ul></div>
+        <div class="col dont"><h3>先别做</h3><ul><li>直接上手操作机器或改代码</li><li>对设计方案下结论</li><li>只和自己孩子待在一起</li><li>和某个学生单独待在封闭空间</li><li>加学生的私人社交账号</li></ul></div>
+      </div>
+      <p class="prose">最后两条属于青少年保护规范，<a href="07-safety-ypp.html">第 07 篇</a>会详细说明。</p>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">08</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://www.firstinspires.org/programs/youth-protection-program" target="_blank" rel="noopener">FIRST：Youth Protection Program &amp; Code of Conduct（培训、筛查流程、各州要求）</a><span class="url">firstinspires.org</span></li>
+        <li><a href="https://www.firstinspires.org/volunteer" target="_blank" rel="noopener">FIRST：志愿者</a><span class="url">firstinspires.org</span></li>
+        <li><a href="https://www.firstinspires.org/programs/frc/" target="_blank" rel="noopener">FIRST 官网 · FRC 页面</a><span class="url">firstinspires.org</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 第二部分《入队第一步》。注册、YPP 筛查和学校审核的具体要求以 FIRST 当年政策和所在学区规定为准。</footer>
+  </main>
+</div>

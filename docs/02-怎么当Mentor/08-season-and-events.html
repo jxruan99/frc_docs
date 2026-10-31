@@ -1,0 +1,363 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>赛季与比赛中的 Mentor</title>
+<meta name="nav-title" content="赛季与比赛">
+<meta name="description" content="开赛日怎么陪学生读题、build season 盯什么、赛前准备、比赛日的循环与现场分工、该做与不该做、联盟选择、赛后复盘和赛事志愿者。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same handbook frame as the other parts — sticky contents rail, one readable column; diagrams run wider in their own scroll box.
+   Part 2 diagram colors: teal = recommended / student-led, amber = caution / adult-led, blue = process. */
+:root {
+  --paper: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #18202c;
+  --muted: #586274;
+  --line: #dce1e8;
+  --blue: #1b5fb8;
+  --blue-soft: #e5eefa;
+  --teal: #11756a;
+  --teal-soft: #e0f2ef;
+  --amber: #9a5b00;
+  --amber-soft: #fbf0dc;
+  --note: #fff7df;
+  --note-line: #e7c766;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+    --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+    --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141b; --surface: #171c25; --ink: #e5e9ef; --muted: #9ca6b6; --line: #2a3240;
+  --blue: #7fb0ff; --blue-soft: #1a2a44; --teal: #5fd0c0; --teal-soft: #12302d;
+  --amber: #f0b45a; --amber-soft: #36290f; --note: #2b2615; --note-line: #8a7330; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.8; padding-inline: 16px; margin: 0; }
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 48px 96px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 28px 64px; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 0 0 12px; font-weight: 500; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 10px; padding: 4px 0; color: var(--muted); text-decoration: none; line-height: 1.5; }
+nav.toc a::before { content: counter(toc, decimal-leading-zero); font-family: var(--font-mono); font-size: 12px; padding-top: 2px; color: var(--line); }
+nav.toc a:hover { color: var(--ink); }
+@media (max-width: 900px) {
+  nav.toc { position: static; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+main { min-width: 0; max-width: 860px; }
+.prose { max-width: 720px; }
+header.doc { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .14em; color: var(--muted); margin: 0 0 10px; }
+.eyebrow b { color: var(--blue); font-weight: 500; }
+h1 { font-weight: 700; font-size: clamp(32px, 5vw, 44px); line-height: 1.25; margin: 0 0 16px; text-wrap: balance; }
+.lede { font-size: 18px; color: var(--muted); margin: 0; max-width: 720px; }
+.meta { margin-top: 18px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+
+section { padding-top: 48px; scroll-margin-top: 16px; }
+h2 { font-weight: 700; font-size: 26px; line-height: 1.35; margin: 0 0 16px; text-wrap: balance; display: flex; gap: 14px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--muted); font-weight: 400; }
+h3 { font-size: 18px; font-weight: 700; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 1.3em; }
+li { margin-bottom: 6px; }
+.en { font-family: var(--font-mono); font-size: .88em; color: var(--muted); }
+
+.note { background: var(--note); border: 1px solid var(--note-line); border-radius: 6px; padding: 14px 18px; margin: 20px 0; font-size: 15px; max-width: 720px; }
+.note .label { display: block; font-size: 12px; letter-spacing: .12em; font-weight: 700; margin-bottom: 4px; }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+
+.table-scroll { overflow-x: auto; margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.6; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12.5px; letter-spacing: .06em; color: var(--muted); font-weight: 500; background: var(--paper); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; white-space: nowrap; }
+.tag { display: inline-block; font-size: 12px; line-height: 1.6; padding: 0 8px; border-radius: 999px; white-space: nowrap; }
+.tag.power { background: var(--amber-soft); color: var(--amber); }
+.tag.ctrl { background: var(--blue-soft); color: var(--blue); }
+.tag.act { background: var(--teal-soft); color: var(--teal); }
+.tag.misc { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.tag.done { background: var(--teal-soft); color: var(--teal); }
+
+figure { margin: 22px 0 26px; }
+.diagram { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+.diagram svg { display: block; width: 100%; min-width: 700px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); margin-top: 8px; max-width: 720px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 22px; height: 0; border-top: 2.5px solid; display: inline-block; }
+.legend .pw i { border-color: var(--amber); }
+.legend .sg i { border-color: var(--blue); }
+.legend .mc i { border-color: var(--ink); }
+.legend .wl i { border-color: var(--blue); border-top-style: dashed; }
+
+svg .robot { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 7 4; }
+svg .b-pw { fill: var(--amber-soft); stroke: var(--amber); stroke-width: 1.5; }
+svg .b-ct { fill: var(--blue-soft); stroke: var(--blue); stroke-width: 1.5; }
+svg .b-ac { fill: var(--teal-soft); stroke: var(--teal); stroke-width: 1.5; }
+svg .b-me { fill: var(--paper); stroke: var(--ink); stroke-width: 1.3; }
+svg .b-ex { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+svg .w-pw { fill: none; stroke: var(--amber); stroke-width: 2; }
+svg .w-sg { fill: none; stroke: var(--blue); stroke-width: 2; }
+svg .w-mc { fill: none; stroke: var(--ink); stroke-width: 2; }
+svg .w-wl { fill: none; stroke: var(--blue); stroke-width: 2; stroke-dasharray: 6 4; }
+svg .ah-pw { fill: var(--amber); }
+svg .ah-sg { fill: var(--blue); }
+svg .ah-mc { fill: var(--ink); }
+svg text { fill: var(--ink); font-family: var(--font-body); font-size: 12.5px; }
+svg .t-b { font-weight: 700; font-size: 13.5px; }
+svg .t-s { fill: var(--muted); font-size: 11.5px; }
+svg .t-l { fill: var(--muted); font-size: 11.5px; font-weight: 500; }
+svg .t-title { font-weight: 700; font-size: 14px; }
+
+.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 18px 0; }
+.part { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.part h3 { margin: 0 0 6px; font-size: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.part p { margin: 0; color: var(--muted); }
+
+.steps { list-style: none; padding: 0; margin: 18px 0; counter-reset: step; max-width: 760px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); margin: 0; }
+.steps > li::before { content: counter(step, decimal-leading-zero); font-family: var(--font-mono); font-size: 15px; color: var(--blue); padding-top: 2px; }
+.steps h3 { margin: 0 0 4px; font-size: 17px; }
+.steps .when { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); margin-left: 8px; font-weight: 400; }
+.steps p { margin: 0 0 6px; }
+.steps ul { margin: 4px 0 0; }
+
+.roadmap { list-style: none; padding: 0; border-top: 1px solid var(--line); max-width: 760px; }
+.roadmap li { border-bottom: 1px solid var(--line); padding: 12px 4px; margin: 0; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.roadmap .n { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.roadmap b { display: block; }
+.roadmap span.d { color: var(--muted); font-size: 14.5px; }
+
+.res { list-style: none; padding: 0; display: grid; gap: 8px; max-width: 720px; }
+.res li { margin: 0; font-size: 15px; }
+.res .url { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: block; word-break: break-all; }
+footer.doc { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); max-width: 720px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+svg .w-ac { fill: none; stroke: var(--teal); stroke-width: 2; }
+svg .ah-ac { fill: var(--teal); }
+svg .z { stroke: var(--line); stroke-width: 1; }
+svg .z1, svg .z2, svg .z3 { fill: var(--teal-soft); }
+svg .z2, svg .z3 { stroke: var(--teal); stroke-width: 1.5; }
+svg .z4, svg .z5 { fill: var(--amber-soft); }
+svg .ok { fill: var(--teal); font-weight: 700; }
+svg .no { fill: var(--amber); font-weight: 700; }
+svg .w-no { fill: none; stroke: var(--amber); stroke-width: 2; stroke-dasharray: 5 4; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 18px 0; max-width: 860px; }
+.col { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; font-size: 15px; }
+.col h3 { margin: 0 0 8px; font-size: 16px; }
+.col ul { margin: 0; }
+.col.do { border-top: 3px solid var(--teal); }
+.col.dont { border-top: 3px solid var(--amber); }
+.scene { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin: 14px 0; max-width: 760px; font-size: 15px; }
+.scene h3 { margin: 0 0 6px; font-size: 16px; }
+.scene p { margin: 0 0 8px; }
+.scene p:last-child { margin-bottom: 0; }
+.scene .say { color: var(--teal); }
+.scene .avoid { color: var(--amber); }
+</style>
+
+
+<div class="wrap">
+  <nav class="toc" aria-label="目录">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#kickoff">开赛日</a></li>
+      <li><a href="#build">Build Season</a></li>
+      <li><a href="#prep">赛前准备</a></li>
+      <li><a href="#cycle">比赛日的循环</a></li>
+      <li><a href="#roles">现场分工</a></li>
+      <li><a href="#dodont">该做与不该做</a></li>
+      <li><a href="#alliance">联盟选择</a></li>
+      <li><a href="#after">赛后</a></li>
+      <li><a href="#volunteer">赛事志愿者</a></li>
+      <li><a href="#sources">资料来源</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <p class="eyebrow"><b>家长 Mentor 学习计划</b> · 第二部分</p>
+      <h1>赛季与比赛中的 Mentor</h1>
+      <p class="lede">从 1 月初公布比赛题目，到三四月的比赛周末，是 mentor 最忙、也最容易"越位"的阶段。这一篇按时间顺序讲：开赛日怎么陪学生读题，build season 盯什么，比赛前要准备什么，比赛当天一场接一场的循环里 mentor 站在哪里，以及联盟选择和赛后复盘。</p>
+      <div class="meta"><span>适合：随队参赛的 mentor 和家长</span><span>比赛周末的整体流程见<a href="../01-understanding-frc.html">第一部分</a> §09</span></div>
+    </header>
+
+    <section id="kickoff">
+      <h2><span class="n">01</span>开赛日</h2>
+      <div class="prose">
+        <p>每年 1 月初，FIRST 在开赛日（Kickoff）公布当年的比赛题目和规则手册（Game Manual）。接下来几天的策略讨论，决定了整个赛季的方向。</p>
+        <ul>
+          <li><b>一起读规则。</b>让学生分组精读手册的不同章节，再互相讲解。mentor 可以帮忙点出容易漏看的限制（尺寸、重量、越界、犯规）。</li>
+          <li><b>先分析比赛，再想机器人。</b>怎么得分最多？哪些动作性价比高？对手会怎么打？一支普通队伍在比赛里平均能做到什么？</li>
+          <li><b>排优先级。</b>列出机器人可能的能力，按"必须有 / 最好有 / 有了更好"排序。mentor 提醒学生对照自己的资源和能力，而不是对照顶尖队伍。</li>
+          <li><b>忍住替他们定方案。</b>你可能一眼看出最优策略，但这几天是学生学习分析问题的最好机会。用问题引导，让学生得出结论。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="build">
+      <h2><span class="n">02</span>Build Season</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>mentor 要盯的</th><th>为什么</th></tr></thead>
+          <tbody>
+            <tr><td class="k">进度和里程碑</td><td>学生普遍低估时间。每周对照里程碑检查，及早发现延误（见<a href="06-team-operations.html">团队运营</a>）</td></tr>
+            <tr><td class="k">安全</td><td>赶工时最容易出事，越到后期越要盯</td></tr>
+            <tr><td class="k">设计评审</td><td>在加工前发现问题，比做完再改便宜得多</td></tr>
+            <tr><td class="k">驾驶练习时间</td><td>驾驶员练习是最常被牺牲、但对成绩影响最大的环节之一</td></tr>
+            <tr><td class="k">学生状态</td><td>学业、睡眠、情绪；别让少数学生扛下所有工作</td></tr>
+            <tr><td class="k">非技术工作</td><td>奖项材料、赞助商更新、出行安排，同样有截止日期</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="prep">
+      <h2><span class="n">03</span>赛前准备</h2>
+      <div class="cols">
+        <div class="col"><h3>机器人</h3><ul><li>按检录清单自查（尺寸、重量、电气、保险杠）</li><li>备件清单和工具箱</li><li>电池编号、充电计划</li><li>代码已提交，有可回退的版本</li></ul></div>
+        <div class="col"><h3>维修区</h3><ul><li>工作台、电源、照明</li><li>队旗、展示材料、安全标识</li><li>急救包</li><li>维修区的分工和值班表</li></ul></div>
+        <div class="col"><h3>人和后勤</h3><ul><li>上场队员、维修组、侦察组名单</li><li>侦察表格或应用已测试</li><li>奖项面试的分工和演练</li><li>交通、住宿、饮食、同意书</li></ul></div>
+      </div>
+    </section>
+
+    <section id="cycle">
+      <h2><span class="n">04</span>比赛日的循环</h2>
+      <p class="prose">资格赛期间，每支队伍一天要打好几场，每一场都重复同样的循环。理解这个循环，就知道 mentor 在每一步该做什么。</p>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 860 320" role="img" aria-label="比赛日的循环：排队、上场比赛、回到维修区、检查与维修、更换电池并测试，然后进入下一场排队。侦察组全程记录所有比赛，评委会随时到维修区访谈。每个环节下方注明 mentor 的角色。">
+            <defs>
+              <marker id="m-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah-sg"/></marker>
+            </defs>
+            <rect x="20"  y="40" width="140" height="56" rx="6" class="b-ct"/>
+            <text x="90" y="64" text-anchor="middle" class="t-b">排队</text>
+            <text x="90" y="83" text-anchor="middle" class="t-s">Queue，提前几场</text>
+            <rect x="190" y="40" width="140" height="56" rx="6" class="b-ac"/>
+            <text x="260" y="64" text-anchor="middle" class="t-b">上场比赛</text>
+            <text x="260" y="83" text-anchor="middle" class="t-s">约 2.5 分钟</text>
+            <rect x="360" y="40" width="140" height="56" rx="6" class="b-ct"/>
+            <text x="430" y="64" text-anchor="middle" class="t-b">回维修区</text>
+            <text x="430" y="83" text-anchor="middle" class="t-s">驾驶员汇报问题</text>
+            <rect x="530" y="40" width="140" height="56" rx="6" class="b-ct"/>
+            <text x="600" y="64" text-anchor="middle" class="t-b">检查与维修</text>
+            <text x="600" y="83" text-anchor="middle" class="t-s">按清单逐项</text>
+            <rect x="700" y="40" width="140" height="56" rx="6" class="b-ct"/>
+            <text x="770" y="64" text-anchor="middle" class="t-b">换电池、测试</text>
+            <text x="770" y="83" text-anchor="middle" class="t-s">准备下一场</text>
+            <line x1="160" y1="68" x2="188" y2="68" class="w-sg" marker-end="url(#m-ah)"/>
+            <line x1="330" y1="68" x2="358" y2="68" class="w-sg" marker-end="url(#m-ah)"/>
+            <line x1="500" y1="68" x2="528" y2="68" class="w-sg" marker-end="url(#m-ah)"/>
+            <line x1="670" y1="68" x2="698" y2="68" class="w-sg" marker-end="url(#m-ah)"/>
+            <path d="M770,96 L770,124 L90,124 L90,100" class="w-sg" marker-end="url(#m-ah)"/>
+            <text x="430" y="118" text-anchor="middle" class="t-s">下一场，资格赛一天重复多次</text>
+
+            <text x="20" y="160" class="t-l" style="fill: var(--teal)">mentor 的角色</text>
+            <text x="90"  y="184" text-anchor="middle" class="t-s">提醒时间，</text>
+            <text x="90"  y="201" text-anchor="middle" class="t-s">别让队伍错过</text>
+            <text x="260" y="184" text-anchor="middle" class="t-s">在看台上看，</text>
+            <text x="260" y="201" text-anchor="middle" class="t-s">记下观察</text>
+            <text x="430" y="184" text-anchor="middle" class="t-s">先听学生说，</text>
+            <text x="430" y="201" text-anchor="middle" class="t-s">不抢着诊断</text>
+            <text x="600" y="184" text-anchor="middle" class="t-s">帮判断优先级，</text>
+            <text x="600" y="201" text-anchor="middle" class="t-s">学生动手为主</text>
+            <text x="770" y="184" text-anchor="middle" class="t-s">确认清单完成，</text>
+            <text x="770" y="201" text-anchor="middle" class="t-s">安全测试</text>
+
+            <rect x="20" y="230" width="400" height="72" rx="6" class="b-ex"/>
+            <text x="220" y="256" text-anchor="middle" class="t-b">侦察组：全程记录所有场次</text>
+            <text x="220" y="280" text-anchor="middle" class="t-s">mentor：帮助轮班，保证学生有休息和吃饭</text>
+            <rect x="440" y="230" width="400" height="72" rx="6" class="b-ex"/>
+            <text x="640" y="256" text-anchor="middle" class="t-b">评委随时到维修区访谈</text>
+            <text x="640" y="280" text-anchor="middle" class="t-s">mentor：退到后面，让学生来讲</text>
+          </svg>
+        </div>
+        <figcaption>比赛日的循环。两场之间可能只有十几分钟，也可能有一个多小时。侦察和评委访谈与循环同时进行。</figcaption>
+      </figure>
+    </section>
+
+    <section id="roles">
+      <h2><span class="n">05</span>现场分工</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>角色</th><th>谁来做</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="k">上场队员 <span class="en">Drive Team</span></td><td>学生驾驶员、操作手、人类玩家；另有一名场边教练 <span class="en">Drive Coach</span></td><td>场边教练可以由学生或成人担任，具体人数和资格以当年 Game Manual 为准。越来越多的队伍让学生担任</td></tr>
+            <tr><td class="k">维修组 <span class="en">Pit Crew</span></td><td>学生为主，mentor 支持</td><td>负责检查、维修、电池；维修区人数通常有限制</td></tr>
+            <tr><td class="k">侦察组 <span class="en">Scouting</span></td><td>学生</td><td>记录每支队伍每场的表现，为策略和联盟选择提供数据</td></tr>
+            <tr><td class="k">评委访谈</td><td>学生</td><td>评委希望听学生讲，mentor 在场时尽量不插话</td></tr>
+            <tr><td class="k">随队成人</td><td>mentor 和家长</td><td>安全、后勤、照顾情绪、和赛事工作人员沟通</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="dodont">
+      <h2><span class="n">06</span>该做与不该做</h2>
+      <div class="cols">
+        <div class="col do"><h3>该做</h3><ul><li>守住安全：护目镜、电池、搬运</li><li>帮学生管理时间和情绪</li><li>输了比赛时，带头保持冷静和风度</li><li>感谢裁判、志愿者和其他队伍</li><li>确保每个学生都吃饭、喝水、休息</li><li>机器人坏了，帮学生按优先级排查</li></ul></div>
+        <div class="col dont"><h3>不该做</h3><ul><li>在维修区接管维修，学生站在一边</li><li>对裁判判罚当众表达不满</li><li>在评委面前替学生回答</li><li>在看台上对驾驶员大喊指令</li><li>批评联盟队友或对手</li><li>只围着自己孩子转</li></ul></div>
+      </div>
+      <div class="note"><span class="label">对判罚有疑问</span><p>按规则流程由学生上场队员到指定位置向裁判询问，而不是 mentor 去场边争论。具体流程见当年 Game Manual。</p></div>
+    </section>
+
+    <section id="alliance">
+      <h2><span class="n">07</span>联盟选择</h2>
+      <div class="prose">
+        <p>资格赛结束后，排名靠前的队伍挑选队友组成联盟进入淘汰赛。前一晚，侦察组和策略组通常要整理出一份挑选名单（pick list）。</p>
+        <ul>
+          <li>让学生用侦察数据讨论、排序，mentor 提问："这支队伍的稳定性怎么样？跟我们的机器人能互补吗？"</li>
+          <li>帮学生准备好各种情况：我们是挑人的一方、被挑的一方、都没有被挑中。</li>
+          <li>没被选上时，帮学生调整心态：在维修区帮助其他队伍、去看台为联盟加油，也是 FRC 精神的一部分。</li>
+        </ul>
+        <p>数据工具可以参考 <a href="https://www.thebluealliance.com" target="_blank" rel="noopener">The Blue Alliance</a> 和 <a href="https://www.statbotics.io" target="_blank" rel="noopener">Statbotics</a>。</p>
+      </div>
+    </section>
+
+    <section id="after">
+      <h2><span class="n">08</span>赛后</h2>
+      <div class="prose">
+        <ul>
+          <li><b>先庆祝。</b>不管成绩如何，先肯定学生的付出。</li>
+          <li><b>一周内复盘。</b>机器人、策略、维修区流程、侦察、后勤，各做一次（方法见<a href="04-coaching-methods.html">带学生的方法</a>）。</li>
+          <li><b>感谢。</b>给赞助商发照片和战报，感谢家长和志愿者。</li>
+          <li><b>为下一场比赛列改进清单。</b>两场比赛之间往往有一到几周，是改进机器人的好时机。</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="volunteer">
+      <h2><span class="n">09</span>赛事志愿者</h2>
+      <div class="prose">
+        <p>FRC 赛事几乎完全依靠志愿者运转：裁判、检录员、场地复位、排队引导、评委、维修区管理等等。不随队的家长也可以报名当志愿者，这是了解比赛、结识其他队伍的好方式。有些岗位（如裁判、检录员）需要培训和认证。报名入口在 FIRST 志愿者页面。</p>
+      </div>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">10</span>资料来源</h2>
+      <ul class="res">
+        <li><a href="https://www.firstinspires.org/programs/frc/game-and-season" target="_blank" rel="noopener">FIRST：FRC Game and Season（当年 Game Manual）</a><span class="url">firstinspires.org</span></li>
+        <li><a href="https://frc-events.firstinspires.org" target="_blank" rel="noopener">FRC Events（官方赛程和成绩）</a><span class="url">frc-events.firstinspires.org</span></li>
+        <li><a href="https://www.firstinspires.org/volunteer" target="_blank" rel="noopener">FIRST：志愿者报名</a><span class="url">firstinspires.org</span></li>
+      </ul>
+    </section>
+
+    <footer class="doc">家长 Mentor 学习计划 · 第二部分《赛季与比赛中的 Mentor》。上场队员人数、资格和比赛流程以 FIRST 当年发布的 Game Manual 为准。</footer>
+  </main>
+</div>
