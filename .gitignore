@@ -1,2 +1,8 @@
 docs/_site/manifest.js
 .playwright-mcp/
+
+# planning-with-files working notes
+task_plan.md
+findings.md
+progress.md
+.planning/
