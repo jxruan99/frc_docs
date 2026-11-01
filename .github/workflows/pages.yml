@@ -31,6 +31,12 @@ jobs:
           node --test "tests/*.test.js"
       - name: Build manifest
         run: python3 scripts/build_manifest.py
+      # Comments / live edit: set the repository variable HTML_COMMENT_SERVER to turn it on; unset publishes as before
+      - name: Inject comment SDK
+        if: vars.HTML_COMMENT_SERVER != ''
+        run: python3 scripts/inject_sdk.py "$HTML_COMMENT_SERVER"
+        env:
+          HTML_COMMENT_SERVER: ${{ vars.HTML_COMMENT_SERVER }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
